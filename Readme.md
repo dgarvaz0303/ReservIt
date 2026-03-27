@@ -8,7 +8,7 @@ Activar entorno:
   venv\Scripts\activate
 
 Instalar dependencias:
-  pip install -r requirements.txt
+  pip install fastapi uvicorn supabase python-dotenv pydantic[email]
   pip install email-validator
 
 Variables de entorno
