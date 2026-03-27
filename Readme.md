@@ -9,6 +9,7 @@ Activar entorno:
 
 Instalar dependencias:
   pip install -r requirements.txt
+  pip install email-validator
 
 Variables de entorno
   Crear un archivo .env dentro de backend/ con:
@@ -17,3 +18,5 @@ Variables de entorno
 
 Ejecutar el servidor
   uvicorn app.main:app --reload
+
+
