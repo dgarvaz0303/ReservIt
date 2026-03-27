@@ -9,7 +9,7 @@ def register(user: UserCreate):
     try:
         #Registrar en Supabase Auth
         auth_response = supabase.auth.sign_up({
-            "email": user.email,
+            "email": str(user.email),
             "password": user.password
         })
 
@@ -29,7 +29,7 @@ def register(user: UserCreate):
             "nombre_user": user.nombre_user,
             "email": user.email,
             "telefono": user.telefono,
-            "rol": "cliente"
+            "roll": "cliente"
         }).execute()
 
         #comprobar error en inserción
