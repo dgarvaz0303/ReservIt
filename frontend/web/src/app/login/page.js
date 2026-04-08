@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,10 +32,11 @@ export default function LoginPage() {
         throw new Error(data.detail || "Error en login");
       }
 
-      // 🔐 guardar token
+      // guardar token
       localStorage.setItem("token", data.access_token);
 
-      console.log("Login OK", data);
+      // REDIRIGIR
+      router.push("/dashboard");
 
     } catch (err) {
       setError(err.message);
