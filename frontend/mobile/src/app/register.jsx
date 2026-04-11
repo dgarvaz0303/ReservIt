@@ -1,6 +1,5 @@
-"use client";
-
 import { useState } from "react";
+import { View, Text, TextInput, Button } from "react-native";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -14,20 +13,20 @@ export default function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleChange = (e) => {
+  // 🔥 equivalente a handleChange web
+  const handleChange = (name, value) => {
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError("");
     setSuccess("");
 
     try {
-      const res = await fetch("http://localhost:8000/api/register", {
+      const res = await fetch("http://192.168.1.132:8000/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,52 +57,44 @@ export default function Register() {
   };
 
   return (
-    <div>
-      <h1>Registro</h1>
+    <View>
+      <Text>Registro</Text>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          name="nombre"
-          placeholder="Nombre"
-          value={form.nombre}
-          onChange={handleChange}
-        />
+      <TextInput
+        placeholder="Nombre"
+        value={form.nombre}
+        onChangeText={(text) => handleChange("nombre", text)}
+      />
 
-        <input
-          name="nombre_user"
-          placeholder="Nombre de usuario"
-          value={form.nombre_user}
-          onChange={handleChange}
-        />
+      <TextInput
+        placeholder="Nombre de usuario"
+        value={form.nombre_user}
+        onChangeText={(text) => handleChange("nombre_user", text)}
+      />
 
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-        />
+      <TextInput
+        placeholder="Email"
+        value={form.email}
+        onChangeText={(text) => handleChange("email", text)}
+      />
 
-        <input
-          name="telefono"
-          placeholder="Teléfono"
-          value={form.telefono}
-          onChange={handleChange}
-        />
+      <TextInput
+        placeholder="Teléfono"
+        value={form.telefono}
+        onChangeText={(text) => handleChange("telefono", text)}
+      />
 
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-        />
+      <TextInput
+        placeholder="Password"
+        secureTextEntry
+        value={form.password}
+        onChangeText={(text) => handleChange("password", text)}
+      />
 
-        <button type="submit">Registrarse</button>
-      </form>
+      <Button title="Registrarse" onPress={handleSubmit} />
 
-      {error && <p>{error}</p>}
-      {success && <p>{success}</p>}
-    </div>
+      {error ? <Text>{error}</Text> : null}
+      {success ? <Text>{success}</Text> : null}
+    </View>
   );
 }

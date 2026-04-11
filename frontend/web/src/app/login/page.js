@@ -36,7 +36,7 @@ export default function LoginPage() {
       localStorage.setItem("token", data.access_token);
 
       // REDIRIGIR
-      router.push("/dashboard");
+      router.push("/");
 
     } catch (err) {
       setError(err.message);
@@ -64,6 +64,11 @@ export default function LoginPage() {
 
         <button type="submit">Login</button>
       </form>
+
+      {/* 🔥 BOTÓN A REGISTER */}
+      <button onClick={() => router.push("/register")}>
+        Ir a registro
+      </button>
 
       {error && <p>{error}</p>}
     </div>

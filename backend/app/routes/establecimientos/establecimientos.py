@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from app.supabase_client import supabase
+from app.routes.auth.dependencies import get_current_user
 from app.models.establecimiento import EstablecimientoCreate
 
 router = APIRouter(prefix="/api/establecimientos")
