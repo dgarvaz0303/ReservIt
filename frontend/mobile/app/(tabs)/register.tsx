@@ -39,7 +39,7 @@ export default function Register() {
 
       setSuccess("Usuario creado");
 
-      // 🔥 ir al login
+      // ir al login
       router.replace("/login");
 
     } catch (err: any) {
