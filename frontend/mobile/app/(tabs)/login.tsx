@@ -26,10 +26,10 @@ export default function Login() {
         throw new Error(data.detail || "Error en login");
       }
 
-      // 🔥 guardar token
+      // guardar token
       await AsyncStorage.setItem("token", data.access_token);
 
-      // 🔥 ir a landing
+      // ir a landing
       router.replace("/");
 
     } catch (err: any) {
