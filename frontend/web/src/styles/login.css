@@ -1,0 +1,129 @@
+@import './variables.css';
+
+/* Layout */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+}
+
+/* Card */
+.login-card {
+  background: white;
+  padding: 32px;
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Título */
+.login-title {
+  margin-bottom: 24px;
+  text-align: center;
+  color: var(--color-primary);
+}
+
+/* Form */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Inputs */
+.login-input {
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(111, 78, 55, 0.2);
+}
+
+/* Botón principal */
+.login-button {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.login-button:hover {
+  background: #5a3f2d;
+}
+
+/* Botón secundario */
+.login-secondary {
+  margin-top: 12px;
+  background: transparent;
+  border: none;
+  color: var(--color-secondary);
+  cursor: pointer;
+}
+
+/* Error */
+.login-error {
+  margin-top: 12px;
+  color: var(--color-accent);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Registro específico */
+.register-card {
+  max-width: 500px;
+}
+
+/* Grid para inputs */
+.register-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* En pantallas grandes → 2 columnas */
+@media (min-width: 600px) {
+  .register-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .register-form .full {
+    grid-column: span 2;
+  }
+}
+
+/* Mensaje éxito */
+.register-success {
+  margin-top: 12px;
+  color: var(--color-success);
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Volver */
+.back-button {
+  margin-bottom: 16px;
+  background: transparent;
+  border: none;
+  color: var(--color-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  text-align: left;
+  transition: 0.2s;
+}
+
+.back-button:hover {
+  color: var(--color-primary);
+}

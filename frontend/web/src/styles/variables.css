@@ -1,0 +1,26 @@
+:root {
+  /* Colores base */
+  --color-bg: #FAF9F6;
+  --color-surface: #E6D5C3;
+
+  /* Marrones */
+  --color-primary: #6F4E37;
+  --color-secondary: #B08968;
+  --color-text: #3E2C23;
+
+  /* Acentos */
+  --color-accent: #7B2C34;
+  --color-highlight: #D68E23;
+  --color-success: #6B8E23;
+
+  /* Tipografía */
+  --font-main: 'Inter', sans-serif;
+
+  /* Espaciado */
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+
+  /* Bordes */
+  --radius: 12px;
+}

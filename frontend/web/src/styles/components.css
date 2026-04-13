@@ -1,0 +1,42 @@
+/* Card */
+.card {
+  background: var(--color-surface);
+  padding: var(--spacing-md);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Botón principal */
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* Botón secundario */
+.btn-secondary {
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  padding: 10px 16px;
+  border-radius: var(--radius);
+}
+
+/* Botón premium */
+.btn-accent {
+  background: var(--color-accent);
+  color: white;
+}
+
+/* Estado éxito */
+.text-success {
+  color: var(--color-success);
+}
