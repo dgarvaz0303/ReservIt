@@ -1,0 +1,180 @@
+/* Card base (reutilizable) */
+.card {
+  background: var(--color-surface);
+  padding: var(--spacing-md);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Botón principal */
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* Botón secundario */
+.btn-secondary {
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+/* Arregla el fondo negro */
+.page {
+  background: var(--color-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hace que el contenido estire */
+.container {
+  flex: 1;
+}
+
+/* Botón premium */
+.btn-accent {
+  background: var(--color-accent);
+  color: white;
+}
+
+/* Estado éxito */
+.text-success {
+  color: var(--color-success);
+}
+
+/* Grid de establecimientos */
+.est-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 700px) {
+  .est-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1000px) {
+  .est-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Card establecimiento */
+.est-card {
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid #eee;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.est-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+/* Imagen */
+.est-image {
+  height: 160px;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.est-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Contenido */
+.est-content {
+  padding: 16px;
+}
+
+.est-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #222; 
+}
+
+.est-info {
+  font-size: 13px;
+  color: #333; 
+  margin: 6px 0;
+}
+
+/* Acciones */
+.est-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* Filtros */
+.filters {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0 30px;
+  flex-wrap: wrap;
+}
+
+/* Input */
+.input-filter {
+  flex: 1;
+  min-width: 220px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+/* Select */
+.select-filter {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 1px solid #ddd;
+  background: white;
+  font-size: 14px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #555;
+  margin-top: 4px;
+}

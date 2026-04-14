@@ -2,9 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import "@/styles/components.css";
 
 export default function EstablecimientosPage() {
   const [establecimientos, setEstablecimientos] = useState([]);
+  const [search, setSearch] = useState("");
+  const [tipo, setTipo] = useState("");
+
   const router = useRouter();
 
   useEffect(() => {
@@ -21,48 +25,109 @@ export default function EstablecimientosPage() {
     }
   };
 
+  const filtrados = establecimientos.filter((est) => {
+    const matchNombre = est.nombre.toLowerCase().includes(search.toLowerCase());
+    const matchTipo = tipo ? est.tipo === tipo : true;
+    return matchNombre && matchTipo;
+  });
+
   return (
-    <div>
-      <h1>Establecimientos</h1>
+    <div className="page">
+      <div className="container">
 
-      <button onClick={() => router.push("/")}>
-        Volver al inicio
-      </button>
+        <div className="page-header">
 
-      {establecimientos.map((est) => (
-        <div
-          key={est.id}
-          style={{
-            border: "1px solid black",
-            margin: "10px",
-            padding: "10px",
-          }}
-        >
-          {/* Imagen placeholder */}
-          <div
-            style={{
-              height: "150px",
-              background: "#ccc",
-              marginBottom: "10px",
-            }}
-          >
-            Imagen
+          <div>
+            <h1 className="page-title">Establecimientos</h1>
+            <p className="page-subtitle">
+              Descubre y reserva en los mejores lugares cerca de ti
+            </p>
           </div>
 
-          <h2>{est.nombre}</h2>
-          <p>Tipo: {est.tipo}</p>
-          <p>Dirección: {est.direccion}</p>
-          <p>Capacidad: {est.capacidad}</p>
-
-          <button onClick={() => alert("Reservar próximamente")}>
-            Reservar
+          <button
+            className="btn-secondary"
+            onClick={() => router.push("/")}
+          >
+            ← Volver al Inicio
           </button>
 
-          <button onClick={() => window.open(est.carta_url)}>
-            Descargar carta
-          </button>
         </div>
-      ))}
+
+        {/* FILTROS */}
+        <div className="filters">
+          <input
+            type="text"
+            placeholder="Buscar establecimiento..."
+            className="input-filter"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          <select
+            className="select-filter"
+            value={tipo}
+            onChange={(e) => setTipo(e.target.value)}
+          >
+            <option value="">Todos</option>
+            <option value="Restaurante">Restaurante</option>
+            <option value="Bar">Bar</option>
+            <option value="Pizzería">Pizzería</option>
+          </select>
+        </div>
+
+        {/* LISTADO */}
+        <div className="est-list">
+          {filtrados.map((est) => (
+            <div
+              key={est.id}
+              className="est-card"
+              onClick={() => router.push(`/establecimientos/${est.id}`)}
+            >
+              <div className="est-image">
+                {est.imagen_url ? (
+                  <img
+                    src={est.imagen_url}
+                    alt={est.nombre}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  "Sin imagen"
+                )}
+              </div>
+
+              <div className="est-content">
+                <h2 className="est-title">{est.nombre}</h2>
+
+                <p className="est-info">{est.direccion}</p>
+                <p className="est-info">Capacidad: {est.capacidad}</p>
+
+                <div className="est-actions">
+                  <button
+                    className="btn-primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      alert("Reservar próximamente");
+                    }}
+                  >
+                    Reservar
+                  </button>
+
+                  <button
+                    className="btn-secondary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(est.carta_url);
+                    }}
+                  >
+                    Carta
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+      </div>
     </div>
   );
 }

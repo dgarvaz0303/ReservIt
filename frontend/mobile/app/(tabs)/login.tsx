@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { View, Text, TextInput, Button } from "react-native";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { globalStyles } from "../../themes/styles";
+
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -26,10 +29,8 @@ export default function Login() {
         throw new Error(data.detail || "Error en login");
       }
 
-      // guardar token
       await AsyncStorage.setItem("token", data.access_token);
 
-      // ir a landing
       router.replace("/");
 
     } catch (err: any) {
@@ -38,17 +39,46 @@ export default function Login() {
   };
 
   return (
-    <View>
-      <Text>Login</Text>
+    <View style={globalStyles.container}>
+      <View style={globalStyles.card}>
 
-      <TextInput placeholder="Email" value={email} onChangeText={setEmail} />
-      <TextInput placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} />
+        <Text style={globalStyles.title}>Bienvenido</Text>
 
-      <Button title="Login" onPress={handleLogin} />
+        <TextInput
+          style={globalStyles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+        />
 
-      <Button title="Ir a registro" onPress={() => router.push("/register")} />
+        <TextInput
+          style={globalStyles.input}
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
 
-      {error ? <Text>{error}</Text> : null}
+        {/* BOTÓN LOGIN */}
+        <TouchableOpacity
+          style={globalStyles.button}
+          onPress={handleLogin}
+        >
+          <Text style={globalStyles.buttonText}>Iniciar sesión</Text>
+        </TouchableOpacity>
+
+        {/* LINK REGISTER */}
+        <TouchableOpacity onPress={() => router.push("/register")}>
+          <Text style={globalStyles.link}>
+            ¿No tienes cuenta? Regístrate
+          </Text>
+        </TouchableOpacity>
+
+        {/* ERROR */}
+        {error ? <Text style={globalStyles.error}>{error}</Text> : null}
+
+      </View>
     </View>
   );
 }

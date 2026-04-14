@@ -1,8 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import "@/styles/login.css";
 
 export default function Register() {
+  const router = useRouter();
+
   const [form, setForm] = useState({
     nombre: "",
     nombre_user: "",
@@ -43,7 +47,6 @@ export default function Register() {
 
       setSuccess("Usuario registrado correctamente");
 
-      // limpiar formulario
       setForm({
         nombre: "",
         nombre_user: "",
@@ -58,52 +61,71 @@ export default function Register() {
   };
 
   return (
-    <div>
-      <h1>Registro</h1>
+    <div className="login-container">
+      <div className="login-card register-card">
 
-      <form onSubmit={handleSubmit}>
-        <input
-          name="nombre"
-          placeholder="Nombre"
-          value={form.nombre}
-          onChange={handleChange}
-        />
+        {/* BOTÓN VOLVER */}
+        <button
+          className="back-button"
+          onClick={() => router.push("/login")}
+        >
+          ← Volver al login
+        </button>
 
-        <input
-          name="nombre_user"
-          placeholder="Nombre de usuario"
-          value={form.nombre_user}
-          onChange={handleChange}
-        />
+        <h1 className="login-title">Crear cuenta</h1>
 
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-        />
+        <form onSubmit={handleSubmit} className="register-form">
+          
+          <input
+            className="login-input"
+            name="nombre"
+            placeholder="Nombre"
+            value={form.nombre}
+            onChange={handleChange}
+          />
 
-        <input
-          name="telefono"
-          placeholder="Teléfono"
-          value={form.telefono}
-          onChange={handleChange}
-        />
+          <input
+            className="login-input"
+            name="nombre_user"
+            placeholder="Usuario"
+            value={form.nombre_user}
+            onChange={handleChange}
+          />
 
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-        />
+          <input
+            className="login-input full"
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+          />
 
-        <button type="submit">Registrarse</button>
-      </form>
+          <input
+            className="login-input"
+            name="telefono"
+            placeholder="Teléfono"
+            value={form.telefono}
+            onChange={handleChange}
+          />
 
-      {error && <p>{error}</p>}
-      {success && <p>{success}</p>}
+          <input
+            className="login-input"
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+          />
+
+          <button type="submit" className="login-button full">
+            Registrarse
+          </button>
+        </form>
+
+        {error && <p className="login-error">{error}</p>}
+        {success && <p className="register-success">{success}</p>}
+      </div>
     </div>
   );
 }

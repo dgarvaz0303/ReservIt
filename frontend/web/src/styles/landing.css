@@ -1,0 +1,169 @@
+@import './variables.css';
+
+/* Layout */
+.landing {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Secciones */
+.section {
+  padding: 60px 0;
+}
+
+.section-light {
+  background: linear-gradient(to bottom, var(--color-bg), #f0ebe5);
+}
+
+.section-white {
+  background: white;
+}
+
+.section-accent {
+  background: linear-gradient(to right, var(--color-primary), #3e2c23);
+  color: white;
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+}
+
+/* Títulos */
+.section-title {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.hero .section-title {
+  font-size: 36px;
+  font-weight: 700;
+}
+
+/* Texto */
+.landing-text {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 32px auto;
+  color: #444;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  gap: 24px;
+}
+
+.grid-3 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Cards */
+.landing-card {
+  padding: 20px;
+  border-radius: var(--radius);
+  border: 1px solid #e6e0d9;
+  background: #f8f6f3;
+  transition: all 0.25s ease;
+}
+
+.landing-card:hover {
+  background: white;
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+/* Tipografía cards */
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--color-text);
+}
+
+.card-sub {
+  font-size: 13px;
+  color: #777;
+}
+
+.card-text {
+  font-size: 13px;
+  color: #555;
+}
+
+/* Features */
+.features {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.feature-row {
+  padding: 20px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.feature-row:last-child {
+  border-bottom: none;
+}
+
+.feature-row.alt {
+  background: #f8f6f3;
+  padding: 20px;
+  border-radius: 10px;
+  border: none;
+}
+
+.feature-row h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+}
+
+.feature-row p {
+  font-size: 14px;
+  color: #555;
+}
+
+/* CTA */
+.cta {
+  text-align: center;
+}
+
+.cta-title {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.cta-text {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 40px;
+}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import "@/styles/login.css";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -20,10 +21,7 @@ export default function LoginPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
@@ -32,10 +30,7 @@ export default function LoginPage() {
         throw new Error(data.detail || "Error en login");
       }
 
-      // guardar token
       localStorage.setItem("token", data.access_token);
-
-      // REDIRIGIR
       router.push("/");
 
     } catch (err) {
@@ -44,33 +39,41 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
+    <div className="login-container">
+      <div className="login-card">
+        <h1 className="login-title">Bienvenido</h1>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <form onSubmit={handleSubmit} className="login-form">
+          <input
+            className="login-input"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <input
+            className="login-input"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <button type="submit">Login</button>
-      </form>
+          <button type="submit" className="login-button">
+            Iniciar sesión
+          </button>
+        </form>
 
-      {/* 🔥 BOTÓN A REGISTER */}
-      <button onClick={() => router.push("/register")}>
-        Ir a registro
-      </button>
+        <button
+          className="login-secondary"
+          onClick={() => router.push("/register")}
+        >
+          ¿No tienes cuenta? Regístrate
+        </button>
 
-      {error && <p>{error}</p>}
+        {error && <p className="login-error">{error}</p>}
+      </div>
     </div>
   );
 }
