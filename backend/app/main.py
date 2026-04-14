@@ -5,12 +5,15 @@ from app.routes.auth import login
 from app.routes.establecimientos import establecimientos
 from app.routes.usuarios import usuarios
 from app.routes.reservas import reservas
+from app.routes.horarios import horarios
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 
 
 
+
+app.include_router(horarios.router)
 app.include_router(usuarios.router)
 app.include_router(reservas.router)
 app.include_router(establecimientos.router)
