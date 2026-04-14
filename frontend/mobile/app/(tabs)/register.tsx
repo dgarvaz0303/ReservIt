@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { View, Text, TextInput, Button } from "react-native";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
+import { globalStyles } from "../theme/styles";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -38,8 +39,6 @@ export default function Register() {
       }
 
       setSuccess("Usuario creado");
-
-      // ir al login
       router.replace("/login");
 
     } catch (err: any) {
@@ -48,21 +47,59 @@ export default function Register() {
   };
 
   return (
-    <View>
-      <Text>Registro</Text>
+    <View style={globalStyles.container}>
+      <View style={globalStyles.card}>
 
-      <TextInput placeholder="Nombre" onChangeText={(v) => handleChange("nombre", v)} />
-      <TextInput placeholder="Usuario" onChangeText={(v) => handleChange("nombre_user", v)} />
-      <TextInput placeholder="Email" onChangeText={(v) => handleChange("email", v)} />
-      <TextInput placeholder="Teléfono" onChangeText={(v) => handleChange("telefono", v)} />
-      <TextInput placeholder="Password" secureTextEntry onChangeText={(v) => handleChange("password", v)} />
+        <Text style={globalStyles.title}>Crear cuenta</Text>
 
-      <Button title="Registrarse" onPress={handleRegister} />
+        <TextInput
+          style={globalStyles.input}
+          placeholder="Nombre"
+          onChangeText={(v) => handleChange("nombre", v)}
+        />
 
-      <Button title="Ir a login" onPress={() => router.push("/login")} />
+        <TextInput
+          style={globalStyles.input}
+          placeholder="Usuario"
+          onChangeText={(v) => handleChange("nombre_user", v)}
+        />
 
-      {error ? <Text>{error}</Text> : null}
-      {success ? <Text>{success}</Text> : null}
+        <TextInput
+          style={globalStyles.input}
+          placeholder="Email"
+          onChangeText={(v) => handleChange("email", v)}
+        />
+
+        <TextInput
+          style={globalStyles.input}
+          placeholder="Teléfono"
+          onChangeText={(v) => handleChange("telefono", v)}
+        />
+
+        <TextInput
+          style={globalStyles.input}
+          placeholder="Password"
+          secureTextEntry
+          onChangeText={(v) => handleChange("password", v)}
+        />
+
+        <TouchableOpacity
+          style={globalStyles.button}
+          onPress={handleRegister}
+        >
+          <Text style={globalStyles.buttonText}>Registrarse</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push("/login")}>
+          <Text style={globalStyles.link}>
+            ¿Ya tienes cuenta? Inicia sesión
+          </Text>
+        </TouchableOpacity>
+
+        {error ? <Text style={globalStyles.error}>{error}</Text> : null}
+        {success ? <Text style={globalStyles.success}>{success}</Text> : null}
+
+      </View>
     </View>
   );
 }

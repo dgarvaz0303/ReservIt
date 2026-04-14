@@ -3,11 +3,12 @@ import {
   View,
   Text,
   ScrollView,
-  StyleSheet,
-  Button,
+  TouchableOpacity,
   Image,
 } from "react-native";
 import { router } from "expo-router";
+import { globalStyles } from "../theme/styles";
+import { COLORS } from "../theme/colors";
 
 export default function Establecimientos() {
   const [establecimientos, setEstablecimientos] = useState<any[]>([]);
@@ -27,71 +28,83 @@ export default function Establecimientos() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Establecimientos</Text>
+    <ScrollView style={{ backgroundColor: COLORS.bg }}>
 
-      <Button title="Volver" onPress={() => router.push("/")} />
+      {/* HEADER */}
+      <View style={globalStyles.section}>
+        <Text style={globalStyles.title}>Establecimientos</Text>
 
-      {establecimientos.map((est) => (
-        <View key={est.id} style={styles.card}>
-          
-          {/* 🖼️ IMAGEN */}
-          <Image
-            source={{ uri: "https://via.placeholder.com/300" }}
-            style={styles.image}
-          />
+        <TouchableOpacity onPress={() => router.push("/")}>
+          <Text style={globalStyles.link}>← Volver</Text>
+        </TouchableOpacity>
+      </View>
 
-          <Text style={styles.name}>{est.nombre}</Text>
-
-          <Text>Tipo: {est.tipo}</Text>
-          <Text>Dirección: {est.direccion}</Text>
-          <Text>Capacidad: {est.capacidad}</Text>
-
-          {/* BOTONES */}
-          <View style={styles.buttons}>
-            <Button
-              title="Reservar"
-              onPress={() => alert("Reserva próximamente")}
+      {/* LISTADO */}
+      <View style={globalStyles.section}>
+        {establecimientos.map((est) => (
+          <TouchableOpacity
+            key={est.id}
+            style={globalStyles.cardList}
+            onPress={() =>
+              router.push(`/establecimientos/${est.id}`)
+            }
+          >
+            {/* IMAGEN */}
+            <Image
+              source={{
+                uri: est.imagen_url || "https://via.placeholder.com/300",
+              }}
+              style={globalStyles.imagePlaceholder}
             />
 
-            <Button
-              title="Carta"
-              onPress={() => console.log(est.carta_url)}
-            />
-          </View>
-        </View>
-      ))}
+            {/* CONTENIDO */}
+            <View style={globalStyles.cardContent}>
+              <Text style={globalStyles.cardTitle}>{est.nombre}</Text>
+
+              <Text style={globalStyles.cardText}>
+                {est.tipo}
+              </Text>
+
+              <Text style={globalStyles.cardText}>
+                 {est.direccion}
+              </Text>
+
+              <Text style={globalStyles.cardText}>
+                 Capacidad: {est.capacidad}
+              </Text>
+
+              {/* BOTONES */}
+              <View style={{ marginTop: 10, gap: 8 }}>
+                
+                <TouchableOpacity
+                  style={globalStyles.button}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    alert("Reserva próximamente");
+                  }}
+                >
+                  <Text style={globalStyles.buttonText}>
+                    Reservar
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    console.log(est.carta_url);
+                  }}
+                >
+                  <Text style={globalStyles.link}>
+                    Ver carta
+                  </Text>
+                </TouchableOpacity>
+
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 15,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 15,
-  },
-  card: {
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 15,
-  },
-  image: {
-    width: "100%",
-    height: 150,
-    marginBottom: 10,
-    borderRadius: 8,
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  buttons: {
-    marginTop: 10,
-    gap: 5,
-  },
-});
