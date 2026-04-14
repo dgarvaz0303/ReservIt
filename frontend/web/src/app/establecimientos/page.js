@@ -6,6 +6,9 @@ import "@/styles/components.css";
 
 export default function EstablecimientosPage() {
   const [establecimientos, setEstablecimientos] = useState([]);
+  const [search, setSearch] = useState("");
+  const [tipo, setTipo] = useState("");
+
   const router = useRouter();
 
   useEffect(() => {
@@ -22,65 +25,108 @@ export default function EstablecimientosPage() {
     }
   };
 
+  const filtrados = establecimientos.filter((est) => {
+    const matchNombre = est.nombre.toLowerCase().includes(search.toLowerCase());
+    const matchTipo = tipo ? est.tipo === tipo : true;
+    return matchNombre && matchTipo;
+  });
+
   return (
-    <div className="container">
-      <h1>Establecimientos</h1>
+    <div className="page">
+      <div className="container">
 
-      <button className="btn-secondary" onClick={() => router.push("/")}>
-        ← Volver
-      </button>
+        <div className="page-header">
 
-      <div className="est-list">
-        {establecimientos.map((est) => (
-          <div
-            key={est.id}
-            className="est-card"
-            onClick={() => router.push(`/establecimientos/${est.id}`)}
+          <div>
+            <h1 className="page-title">Establecimientos</h1>
+            <p className="page-subtitle">
+              Descubre y reserva en los mejores lugares cerca de ti
+            </p>
+          </div>
+
+          <button
+            className="btn-secondary"
+            onClick={() => router.push("/")}
           >
-            {/* Imagen */}
-            <div className="est-image">
-              {est.imagen_url ? (
-                <img
-                  src={est.imagen_url}
-                  alt={est.nombre}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              ) : (
-                "Sin imagen"
-              )}
-            </div>
+            ← Volver al Inicio
+          </button>
 
-            {/* Contenido */}
-            <div className="est-content">
-              <h2 className="est-title">{est.nombre}</h2>
+        </div>
 
-              <p className="est-info">{est.direccion}</p>
-              <p className="est-info">Capacidad: {est.capacidad}</p>
+        {/* FILTROS */}
+        <div className="filters">
+          <input
+            type="text"
+            placeholder="Buscar establecimiento..."
+            className="input-filter"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-              <div className="est-actions">
-                <button
-                  className="btn-primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    alert("Reservar próximamente");
-                  }}
-                >
-                  Reservar
-                </button>
+          <select
+            className="select-filter"
+            value={tipo}
+            onChange={(e) => setTipo(e.target.value)}
+          >
+            <option value="">Todos</option>
+            <option value="Restaurante">Restaurante</option>
+            <option value="Bar">Bar</option>
+            <option value="Pizzería">Pizzería</option>
+          </select>
+        </div>
 
-                <button
-                  className="btn-secondary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.open(est.carta_url);
-                  }}
-                >
-                  Carta
-                </button>
+        {/* LISTADO */}
+        <div className="est-list">
+          {filtrados.map((est) => (
+            <div
+              key={est.id}
+              className="est-card"
+              onClick={() => router.push(`/establecimientos/${est.id}`)}
+            >
+              <div className="est-image">
+                {est.imagen_url ? (
+                  <img
+                    src={est.imagen_url}
+                    alt={est.nombre}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  "Sin imagen"
+                )}
+              </div>
+
+              <div className="est-content">
+                <h2 className="est-title">{est.nombre}</h2>
+
+                <p className="est-info">{est.direccion}</p>
+                <p className="est-info">Capacidad: {est.capacidad}</p>
+
+                <div className="est-actions">
+                  <button
+                    className="btn-primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      alert("Reservar próximamente");
+                    }}
+                  >
+                    Reservar
+                  </button>
+
+                  <button
+                    className="btn-secondary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(est.carta_url);
+                    }}
+                  >
+                    Carta
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
       </div>
     </div>
   );

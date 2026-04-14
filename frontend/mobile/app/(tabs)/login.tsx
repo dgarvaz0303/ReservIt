@@ -2,7 +2,9 @@ import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { globalStyles } from "../theme/styles";
+import { globalStyles } from "../../themes/styles";
+
+
 
 export default function Login() {
   const [email, setEmail] = useState("");

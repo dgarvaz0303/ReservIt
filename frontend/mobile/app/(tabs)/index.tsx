@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { globalStyles } from "../theme/styles";
-import { COLORS } from "../theme/colors";
+import { globalStyles } from "../../themes/styles";
+import { COLORS } from "../../themes/colors";
+
 
 export default function Home() {
   const [establecimientos, setEstablecimientos] = useState<any[]>([]);
@@ -54,7 +55,7 @@ export default function Home() {
             key={est.id}
             style={globalStyles.cardList}
             onPress={() =>
-              router.push(`/establecimientos/${est.id}`)
+              router.push(`/`)
             }
           >
             <View style={globalStyles.imagePlaceholder} />

@@ -7,8 +7,8 @@ import {
   Image,
 } from "react-native";
 import { router } from "expo-router";
-import { globalStyles } from "../theme/styles";
-import { COLORS } from "../theme/colors";
+import { globalStyles } from "../../themes/styles";
+import { COLORS } from "../../themes/colors";
 
 export default function Establecimientos() {
   const [establecimientos, setEstablecimientos] = useState<any[]>([]);
@@ -46,7 +46,7 @@ export default function Establecimientos() {
             key={est.id}
             style={globalStyles.cardList}
             onPress={() =>
-              router.push(`/establecimientos/${est.id}`)
+              router.push(`/`)
             }
           >
             {/* IMAGEN */}
