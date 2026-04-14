@@ -1,24 +1,44 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { View } from "react-native";
+import { Slot, router } from "expo-router";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import MobileNavbar from "@/components/MobileNavbar";
+import MobileFooter from "@/components/MobileFooter";
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+export default function MainLayout() {
+  const [rol, setRol] = useState<string | null>(null);
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    const loadSession = async () => {
+      const token = await AsyncStorage.getItem("token");
+      const storedRol = await AsyncStorage.getItem("rol");
+
+      // si no hay token  fuera
+      if (!token) {
+        router.replace("/login");
+        return;
+      }
+      setRol(storedRol);
+    };
+
+    loadSession();
+  }, []);
+
+  // evitar render hasta tener rol
+  if (!rol) return null;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <View style={{ flex: 1 }}>
+
+      <MobileNavbar rol={rol} />
+
+      <View style={{ flex: 1 }}>
+        <Slot />
+      </View>
+
+      <MobileFooter />
+
+    </View>
   );
 }

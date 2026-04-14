@@ -4,8 +4,6 @@ import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { globalStyles } from "../../themes/styles";
 
-
-
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,8 +27,12 @@ export default function Login() {
         throw new Error(data.detail || "Error en login");
       }
 
+      // GUARDAR DATOS DE SESIÓN
       await AsyncStorage.setItem("token", data.access_token);
+      await AsyncStorage.setItem("nombre", data.nombre || email);
+      await AsyncStorage.setItem("rol", data.rol || "cliente");
 
+      // REDIRECCIÓN
       router.replace("/");
 
     } catch (err: any) {
