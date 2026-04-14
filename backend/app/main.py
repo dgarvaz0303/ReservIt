@@ -3,12 +3,16 @@ from app.routes import test
 from app.routes.auth import register
 from app.routes.auth import login
 from app.routes.establecimientos import establecimientos
+from app.routes.usuarios import usuarios
+from app.routes.reservas import reservas
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 
 
 
+app.include_router(usuarios.router)
+app.include_router(reservas.router)
 app.include_router(establecimientos.router)
 app.include_router(register.router)
 app.include_router(test.router)
