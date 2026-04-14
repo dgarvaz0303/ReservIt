@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import "@/styles/components.css";
 
 export default function EstablecimientosPage() {
   const [establecimientos, setEstablecimientos] = useState([]);
@@ -22,47 +23,65 @@ export default function EstablecimientosPage() {
   };
 
   return (
-    <div>
+    <div className="container">
       <h1>Establecimientos</h1>
 
-      <button onClick={() => router.push("/")}>
-        Volver al inicio
+      <button className="btn-secondary" onClick={() => router.push("/")}>
+        ← Volver
       </button>
 
-      {establecimientos.map((est) => (
-        <div
-          key={est.id}
-          style={{
-            border: "1px solid black",
-            margin: "10px",
-            padding: "10px",
-          }}
-        >
-          {/* Imagen placeholder */}
+      <div className="est-list">
+        {establecimientos.map((est) => (
           <div
-            style={{
-              height: "150px",
-              background: "#ccc",
-              marginBottom: "10px",
-            }}
+            key={est.id}
+            className="est-card"
+            onClick={() => router.push(`/establecimientos/${est.id}`)}
           >
-            Imagen
+            {/* Imagen */}
+            <div className="est-image">
+              {est.imagen_url ? (
+                <img
+                  src={est.imagen_url}
+                  alt={est.nombre}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                "Sin imagen"
+              )}
+            </div>
+
+            {/* Contenido */}
+            <div className="est-content">
+              <h2 className="est-title">{est.nombre}</h2>
+
+              <p className="est-info">{est.direccion}</p>
+              <p className="est-info">Capacidad: {est.capacidad}</p>
+
+              <div className="est-actions">
+                <button
+                  className="btn-primary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    alert("Reservar próximamente");
+                  }}
+                >
+                  Reservar
+                </button>
+
+                <button
+                  className="btn-secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(est.carta_url);
+                  }}
+                >
+                  Carta
+                </button>
+              </div>
+            </div>
           </div>
-
-          <h2>{est.nombre}</h2>
-          <p>Tipo: {est.tipo}</p>
-          <p>Dirección: {est.direccion}</p>
-          <p>Capacidad: {est.capacidad}</p>
-
-          <button onClick={() => alert("Reservar próximamente")}>
-            Reservar
-          </button>
-
-          <button onClick={() => window.open(est.carta_url)}>
-            Descargar carta
-          </button>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
