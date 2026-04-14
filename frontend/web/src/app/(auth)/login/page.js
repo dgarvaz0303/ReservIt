@@ -30,8 +30,18 @@ export default function LoginPage() {
         throw new Error(data.detail || "Error en login");
       }
 
+      // VALIDACIÓN IMPORTANTE
+      if (!data.access_token || !data.rol) {
+        throw new Error("Respuesta de login incompleta");
+      }
+
+      // GUARDAR SESIÓN
       localStorage.setItem("token", data.access_token);
-      router.push("/");
+      localStorage.setItem("nombre", data.nombre || email);
+      localStorage.setItem("rol", data.rol); // ❗ SIN fallback
+
+      // REDIRECCIÓN
+      router.replace("/");
 
     } catch (err) {
       setError(err.message);

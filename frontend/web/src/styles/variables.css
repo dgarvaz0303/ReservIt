@@ -15,6 +15,7 @@
 
   /* Tipografía */
   --font-main: 'Inter', sans-serif;
+  --font-logo: 'Great Vibes', cursive;
 
   /* Espaciado */
   --spacing-sm: 8px;
@@ -23,4 +24,5 @@
 
   /* Bordes */
   --radius: 12px;
+
 }

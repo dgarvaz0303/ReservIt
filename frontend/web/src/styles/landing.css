@@ -40,8 +40,10 @@
 .section-title {
   text-align: center;
   margin-bottom: 24px;
-  font-size: 26px;
-  font-weight: 600;
+  font-family: var(--font-logo);
+  font-size: 40px;
+  line-height: 1.2;
+  letter-spacing: 1px;
   color: var(--color-primary);
 }
 
