@@ -1,4 +1,4 @@
-/* Card base (reutilizable) */
+/* ===== CARD BASE ===== */
 .card {
   background: var(--color-surface);
   padding: var(--spacing-md);
@@ -6,7 +6,7 @@
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-/* Botón principal */
+/* ===== BOTONES ===== */
 .btn-primary {
   background: var(--color-primary);
   color: white;
@@ -21,7 +21,6 @@
   opacity: 0.9;
 }
 
-/* Botón secundario */
 .btn-secondary {
   background: transparent;
   border: 2px solid var(--color-primary);
@@ -31,7 +30,17 @@
   cursor: pointer;
 }
 
-/* Arregla el fondo negro */
+.btn-accent {
+  background: var(--color-accent);
+  color: white;
+}
+
+/* ===== ESTADOS ===== */
+.text-success {
+  color: var(--color-success);
+}
+
+/* ===== LAYOUT ===== */
 .page {
   background: var(--color-bg);
   min-height: 100vh;
@@ -39,23 +48,54 @@
   flex-direction: column;
 }
 
-/* Hace que el contenido estire */
 .container {
   flex: 1;
 }
 
-/* Botón premium */
-.btn-accent {
-  background: var(--color-accent);
-  color: white;
+/* ===== HEADER ===== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-/* Estado éxito */
-.text-success {
-  color: var(--color-success);
+.page-title {
+  font-family: var(--font-logo);
+  font-size: 40px;
+  line-height: 1.2;
+  letter-spacing: 1px;
+  color: var(--color-primary);
+  margin: 0;
 }
 
-/* Grid de establecimientos */
+.page-subtitle {
+  font-size: 14px;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* ===== FILTROS ===== */
+.filters {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0 30px;
+  flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 1px solid #ddd;
+  font-size: 14px;
+  background: white;
+  font-family: var(--font-main);
+}
+
+/* ===== ESTABLECIMIENTOS ===== */
 .est-list {
   display: grid;
   grid-template-columns: 1fr;
@@ -74,7 +114,6 @@
   }
 }
 
-/* Card establecimiento */
 .est-card {
   background: white;
   border-radius: var(--radius);
@@ -89,7 +128,6 @@
   box-shadow: 0 12px 30px rgba(0,0,0,0.12);
 }
 
-/* Imagen */
 .est-image {
   height: 160px;
   background: #ddd;
@@ -105,7 +143,6 @@
   object-fit: cover;
 }
 
-/* Contenido */
 .est-content {
   padding: 16px;
 }
@@ -114,21 +151,89 @@
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #222; 
-  
+  color: #222;
 }
 
 .est-info {
   font-size: 13px;
-  color: #333; 
+  color: #333;
   margin: 6px 0;
 }
 
-/* Acciones */
 .est-actions {
   display: flex;
   gap: 10px;
   margin-top: 12px;
+}
+
+/* ===== RESERVAS ===== */
+.reservas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reserva-card {
+  display: flex;
+  gap: 16px;
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid #eee;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.reserva-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+
+.reserva-img {
+  width: 140px;
+  height: 100px;
+  background: #ddd;
+}
+
+.reserva-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reserva-content {
+  padding: 12px;
+}
+
+.reserva-content h2 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-primary);
+}
+
+.reserva-info {
+  font-size: 13px;
+  color: #444;
+  margin-top: 6px;
+}
+
+/* ===== BADGES (OPCIONAL PRO) ===== */
+.reserva-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.reserva-proxima {
+  background: #e8f5e9;
+  color: var(--color-success);
+}
+
+.reserva-pasada {
+  background: #eee;
+  color: #777;
 }
 
 /* Filtros */
@@ -180,4 +285,15 @@
   font-size: 14px;
   color: #555;
   margin-top: 4px;
+}
+
+/* Botón premium */
+.btn-accent {
+  background: var(--color-accent);
+  color: white;
+}
+
+/* Estado éxito */
+.text-success {
+  color: var(--color-success);
 }
