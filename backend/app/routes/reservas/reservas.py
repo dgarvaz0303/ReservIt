@@ -57,20 +57,20 @@ def get_reserva(id: int):
         raise HTTPException(status_code=404, detail="Reserva no encontrada")
 
 
-# 🔥 POST crear reserva (CORREGIDO)
+#  POST crear reserva (CORREGIDO)
 @router.post("/reservas")
 async def create_reserva(request: Request):
     try:
         body = await request.json()
 
-        # 🔐 token
+        # token
         auth_header = request.headers.get("Authorization")
         if not auth_header:
             raise HTTPException(status_code=401, detail="No autorizado")
 
         token = auth_header.replace("Bearer ", "")
 
-        # 🔥 obtener usuario real
+        #  obtener usuario real
         user_response = supabase.auth.get_user(token)
 
         if user_response.user is None:
@@ -78,7 +78,7 @@ async def create_reserva(request: Request):
 
         auth_id = user_response.user.id
 
-        # 🔥 buscar en tabla usuarios
+        #  buscar en tabla usuarios
         db_user = supabase.table("usuarios")\
             .select("*")\
             .eq("auth_id", auth_id)\
@@ -89,7 +89,7 @@ async def create_reserva(request: Request):
 
         usuario = db_user.data[0]
 
-        # 🔥 VALIDAR CAPACIDAD
+        # VALIDAR CAPACIDAD
         zona_res = supabase.table("zonas")\
             .select("*")\
             .eq("id", body["zona_id"])\
@@ -116,15 +116,15 @@ async def create_reserva(request: Request):
                 detail=f"Solo quedan {disponibles} plazas disponibles"
             )
 
-        # 🔥 generar QR
+        #  generar QR
         qr_token = str(uuid.uuid4())
 
-        # ✅ INSERT FINAL
+        # INSERT FINAL
         supabase.table("reserva").insert({
             "fecha": str(body["fecha"]),
             "hora": str(body["hora"]),
             "num_personas": body["num_personas"],
-            "id_user": usuario["id"],  # 🔥 USUARIO REAL
+            "id_user": usuario["id"],  
             "id_establecimiento": body["establecimiento_id"],
             "zona_id": body["zona_id"],
             "qr_token": qr_token,
