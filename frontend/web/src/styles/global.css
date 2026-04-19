@@ -1,0 +1,28 @@
+@import './variables.css';
+
+html, body {
+  background-color: var(--color-bg);
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+h1 {
+  margin-bottom: var(--spacing-md);
+  font-family: var(--font-logo);
+  font-size: 40px;
+  line-height: 1.2;
+  letter-spacing: 1px;
+  
+}
+
+/* Títulos */
+ h2, h3 {
+  margin-bottom: var(--spacing-md);
+  font-family: var(--font-main);
+}
+
+/* Contenedor */
+.container {
+  padding: var(--spacing-lg);
+}
