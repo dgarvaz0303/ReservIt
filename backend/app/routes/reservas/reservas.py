@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Header
 from app.supabase_client import supabase
 from app.models.reserva import ReservaCreate
 import uuid
@@ -16,18 +16,64 @@ def get_all_reservas():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-# GET reservas por usuario
-@router.get("/reservas/usuario/{id_user}")
-def get_reservas_by_user(id_user: int):
+@router.get("/reservas/mis")
+async def get_mis_reservas(authorization: str = Header(None, alias="Authorization")):
     try:
-        response = supabase.table("reserva")\
+        if not authorization:
+            raise HTTPException(status_code=401, detail="No autorizado")
+
+        token = authorization.replace("Bearer ", "")
+
+        user_response = supabase.auth.get_user(token)
+        auth_id = user_response.user.id
+
+        db_user = supabase.table("usuarios")\
             .select("*")\
-            .eq("id_user", id_user)\
+            .eq("auth_id", auth_id)\
             .execute()
-        return response.data
+
+        if not db_user.data:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+        usuario = db_user.data[0]
+
+        reservas = supabase.table("reserva")\
+            .select("id, fecha, hora, id_establecimiento, zona_id")\
+            .eq("id_user", usuario["id"])\
+            .execute()
+
+        resultado = []
+
+        for r in reservas.data:
+
+            est = supabase.table("establecimiento")\
+                .select("nombre, imagen_url")\
+                .eq("id", r["id_establecimiento"])\
+                .execute()
+
+            zona = supabase.table("zonas")\
+                .select("nombre")\
+                .eq("id", r["zona_id"])\
+                .execute()
+
+            est_data = est.data[0] if est.data else {}
+            zona_data = zona.data[0] if zona.data else {}
+
+            resultado.append({
+                "id": r["id"],
+                "fecha": r["fecha"],
+                "hora": r["hora"],
+                "establecimiento_nombre": est_data.get("nombre"),
+                "imagen_url": est_data.get("imagen_url"),
+                "zona": zona_data.get("nombre")
+            })
+
+        return resultado
+
     except Exception as e:
+        print("ERROR:", str(e))  # 🔥 importante para debug
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 # GET reservas por establecimiento
@@ -47,12 +93,43 @@ def get_reservas_by_establecimiento(id_establecimiento: int):
 @router.get("/reservas/{id}")
 def get_reserva(id: int):
     try:
-        response = supabase.table("reserva")\
+        r = supabase.table("reserva")\
             .select("*")\
             .eq("id", id)\
             .single()\
             .execute()
-        return response.data
+
+        if not r.data:
+            raise HTTPException(status_code=404, detail="Reserva no encontrada")
+
+        reserva = r.data
+
+        est = supabase.table("establecimiento")\
+            .select("nombre, imagen_url")\
+            .eq("id", reserva["id_establecimiento"])\
+            .single()\
+            .execute()
+
+        zona = supabase.table("zonas")\
+            .select("nombre")\
+            .eq("id", reserva["zona_id"])\
+            .single()\
+            .execute()
+
+        user = supabase.table("usuarios")\
+            .select("nombre")\
+            .eq("id", reserva["id_user"])\
+            .single()\
+            .execute()
+
+        return {
+            **reserva,
+            "establecimiento_nombre": est.data["nombre"],
+            "imagen_url": est.data["imagen_url"],
+            "zona": zona.data["nombre"],
+            "nombre_usuario": user.data["nombre"]
+        }
+
     except Exception:
         raise HTTPException(status_code=404, detail="Reserva no encontrada")
 
@@ -194,3 +271,66 @@ def usar_qr(qr_token: str):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+    
+@router.put("/reservas/{id}")
+async def update_reserva(id: int, request: Request):
+    try:
+        body = await request.json()
+
+        res = supabase.table("reserva")\
+            .select("*")\
+            .eq("id", id)\
+            .single()\
+            .execute()
+
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Reserva no encontrada")
+
+        reserva = res.data
+
+        nueva_hora = body["hora"]
+        nuevas_personas = body["num_personas"]
+
+        zona_res = supabase.table("zonas")\
+            .select("*")\
+            .eq("id", reserva["zona_id"])\
+            .single()\
+            .execute()
+
+        zona = zona_res.data
+
+        reservas_res = supabase.table("reserva")\
+            .select("num_personas")\
+            .eq("zona_id", reserva["zona_id"])\
+            .eq("fecha", reserva["fecha"])\
+            .eq("hora", nueva_hora)\
+            .neq("id", id)\
+            .execute()
+
+        ocupadas = sum(r["num_personas"] for r in reservas_res.data)
+        disponibles = zona["capacidad"] - ocupadas
+
+        if nuevas_personas > disponibles:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Solo quedan {disponibles} plazas disponibles"
+            )
+
+        supabase.table("reserva")\
+            .update({
+                "hora": nueva_hora,
+                "num_personas": nuevas_personas
+            })\
+            .eq("id", id)\
+            .execute()
+
+        return {"message": "Reserva actualizada"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+

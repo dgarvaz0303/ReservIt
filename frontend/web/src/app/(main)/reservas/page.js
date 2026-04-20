@@ -17,24 +17,27 @@ export default function MisReservas() {
   }, []);
 
   const fetchReservas = async () => {
-    const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
-    const res = await fetch("http://localhost:8000/api/reservas/mis", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  const res = await fetch("http://localhost:8000/api/reservas/mis", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-    const data = await res.json();
+  const raw = await res.json();
 
-    const ordenadas = data.sort(
-      (a, b) =>
-        new Date(`${a.fecha} ${a.hora}`) -
-        new Date(`${b.fecha} ${b.hora}`)
-    );
+  
+  const data = Array.isArray(raw) ? raw : raw.data || [];
 
-    setReservas(ordenadas);
-  };
+  const ordenadas = data.sort(
+    (a, b) =>
+      new Date(`${a.fecha} ${a.hora}`) -
+      new Date(`${b.fecha} ${b.hora}`)
+  );
+
+  setReservas(ordenadas);
+};
 
   const filtrar = (reserva) => {
     const matchFecha = !filtroFecha || reserva.fecha === filtroFecha;
@@ -63,26 +66,40 @@ export default function MisReservas() {
         <h1>Mis reservas</h1>
 
         {/* FILTROS */}
-        <div className="filters">
+        <div className="filters-bar">
 
-          <input
-            type="date"
-            value={filtroFecha}
-            onChange={(e) => setFiltroFecha(e.target.value)}
-          />
+          <div className="filter-group">
+            <span className="filter-icon">📅</span>
+            <input
+              type="date"
+              value={filtroFecha}
+              onChange={(e) => setFiltroFecha(e.target.value)}
+              className="filter-input"
+            />
+          </div>
 
-          <input
-            placeholder="Buscar por nombre"
-            value={filtroNombre}
-            onChange={(e) => setFiltroNombre(e.target.value)}
-          />
+          <div className="filter-group">
+            <span className="filter-icon">🔍</span>
+            <input
+              placeholder="Buscar establecimiento"
+              value={filtroNombre}
+              onChange={(e) => setFiltroNombre(e.target.value)}
+              className="filter-input"
+            />
+          </div>
 
-          <select onChange={(e) => setFiltroTramo(e.target.value)}>
-            <option value="">Todos</option>
-            <option value="mañana">Mañana</option>
-            <option value="tarde">Tarde</option>
-            <option value="noche">Noche</option>
-          </select>
+          <div className="filter-group small">
+            <select
+              value={filtroTramo}
+              onChange={(e) => setFiltroTramo(e.target.value)}
+              className="filter-select"
+            >
+              <option value="">Todos</option>
+              <option value="mañana">Mañana</option>
+              <option value="tarde">Tarde</option>
+              <option value="noche">Noche</option>
+            </select>
+          </div>
 
         </div>
 
