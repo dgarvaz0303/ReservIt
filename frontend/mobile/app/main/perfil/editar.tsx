@@ -25,10 +25,10 @@ export default function EditarPerfilScreen() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    cargarDatos();
+    fetchPerfil();
   }, []);
 
-  const cargarDatos = async () => {
+  const fetchPerfil = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
 
@@ -51,8 +51,6 @@ export default function EditarPerfilScreen() {
 
     } catch (err) {
       console.log(err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -64,40 +62,35 @@ export default function EditarPerfilScreen() {
   };
 
   const guardar = async () => {
-    try {
-      setSaving(true);
+  try {
+    const token = await AsyncStorage.getItem("token");
 
-      const token = await AsyncStorage.getItem("token");
-
-      const res = await fetch(
-        "http://192.168.1.132:8000/api/usuarios/me",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(form),
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        Alert.alert("Error", data.detail || "Error al guardar");
-        return;
+    const res = await fetch(
+      "http://192.168.1.132:8000/api/usuarios/me",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(form),
       }
+    );
 
-      Alert.alert("Éxito", "Perfil actualizado");
+    const data = await res.json();
 
-      navigation.goBack();
-
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setSaving(false);
+    if (!res.ok) {
+      Alert.alert("Error", data.detail || "Error al guardar");
+      return;
     }
-  };
+
+    Alert.alert("Perfil actualizado");
+
+    navigation.goBack();
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   if (loading) {
     return (
