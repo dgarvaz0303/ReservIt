@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   TextInput,
-  ScrollView,
   TouchableOpacity,
+  FlatList,
   Image,
+  ScrollView,
+  StyleSheet,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { globalStyles } from "../../themes/styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
-
-import { globalStyles } from "@/themes/styles";
-import { COLORS } from "@/themes/colors";
+import { COLORS } from "../../themes/colors";
 
 export default function MisReservas() {
   const [reservas, setReservas] = useState<any[]>([]);
@@ -19,28 +20,41 @@ export default function MisReservas() {
   const [filtroNombre, setFiltroNombre] = useState("");
   const [filtroTramo, setFiltroTramo] = useState("");
 
+  const navigation = useNavigation<any>();
+
   useEffect(() => {
     fetchReservas();
   }, []);
 
   const fetchReservas = async () => {
-    const token = await AsyncStorage.getItem("token");
+    try {
+      const token = await AsyncStorage.getItem("token");
 
-    const res = await fetch("http://192.168.1.132:8000/api/reservas/mis", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      if (!token) {
+        console.log("No hay token");
+        return;
+      }
 
-    const data = await res.json();
+      const res = await fetch("http://192.168.1.132:8000/api/reservas/mis", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const ordenadas = data.sort(
-      (a: any, b: any) =>
-        new Date(`${a.fecha} ${a.hora}`).getTime() -
-        new Date(`${b.fecha} ${b.hora}`).getTime()
-    );
+      const raw = await res.json();
 
-    setReservas(ordenadas);
+      const data = Array.isArray(raw) ? raw : raw.data || [];
+
+      const ordenadas = data.sort(
+        (a: any, b: any) =>
+          new Date(`${a.fecha} ${a.hora}`).getTime() -
+          new Date(`${b.fecha} ${b.hora}`).getTime()
+      );
+
+      setReservas(ordenadas);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const filtrar = (r: any) => {
@@ -63,82 +77,110 @@ export default function MisReservas() {
     return matchFecha && matchNombre && matchTramo;
   };
 
+  const filtradas = reservas.filter(filtrar);
+
   return (
-    <ScrollView style={globalStyles.container}>
-      <View style={globalStyles.section}>
+    <View style={globalStyles.container}>
 
-        {/* HEADER */}
-        <Text style={globalStyles.title}>
-          Mis reservas
-        </Text>
+      {/* HEADER */}
+      <Text style={globalStyles.title}>Mis reservas</Text>
 
-        {/* FILTROS */}
-        <TextInput
-          placeholder="Filtrar por fecha (YYYY-MM-DD)"
-          value={filtroFecha}
-          onChangeText={setFiltroFecha}
-          style={globalStyles.input}
-        />
+      {/* FILTROS */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={styles.filters}>
 
-        <TextInput
-          placeholder="Buscar por nombre"
-          value={filtroNombre}
-          onChangeText={setFiltroNombre}
-          style={globalStyles.input}
-        />
+          <TextInput
+            placeholder="📅 Fecha"
+            value={filtroFecha}
+            onChangeText={setFiltroFecha}
+            style={globalStyles.input}
+          />
 
-        {/* LISTA */}
-        {reservas.filter(filtrar).map((r) => {
+          <TextInput
+            placeholder="🔍 Buscar"
+            value={filtroNombre}
+            onChangeText={setFiltroNombre}
+            style={globalStyles.input}
+          />
 
-          const fechaReserva = new Date(`${r.fecha} ${r.hora}`);
-          const ahora = new Date();
-          const esPasada = fechaReserva < ahora;
+          <TextInput
+            placeholder="🌙 mañana / tarde / noche"
+            value={filtroTramo}
+            onChangeText={setFiltroTramo}
+            style={globalStyles.input}
+          />
+
+        </View>
+      </ScrollView>
+
+      {/* LISTA */}
+      <FlatList
+        data={filtradas}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        renderItem={({ item }) => {
+
+          const fechaReserva = new Date(`${item.fecha} ${item.hora}`);
+          const esPasada = fechaReserva < new Date();
 
           return (
             <TouchableOpacity
-              key={r.id}
-              onPress={() => router.push(`/reservas/${r.id}`)}
               style={globalStyles.cardList}
+              onPress={() =>
+                navigation.navigate("DetalleReserva", { id: item.id })
+              }
             >
-
-              {/* IMAGEN */}
               <Image
-                source={{ uri: r.imagen_url }}
+                source={{
+                  uri:
+                    item.imagen_url ||
+                    "https://via.placeholder.com/300",
+                }}
                 style={globalStyles.imagePlaceholder}
               />
 
               <View style={globalStyles.cardContent}>
 
                 <Text style={globalStyles.cardTitle}>
-                  {r.establecimiento_nombre}
+                  {item.establecimiento_nombre}
                 </Text>
 
                 <Text style={globalStyles.cardText}>
-                  {r.fecha} - {r.hora}
+                  📅 {item.fecha} - {item.hora}
                 </Text>
 
                 <Text style={globalStyles.cardText}>
-                  Zona: {r.zona}
+                  Zona: {item.zona}
                 </Text>
 
                 {/* ESTADO */}
                 <Text
                   style={{
                     marginTop: 6,
-                    color: esPasada ? "#888" : COLORS.success,
                     fontSize: 12,
+                    color: esPasada
+                      ? "#999"
+                      : COLORS.success,
                   }}
                 >
                   {esPasada ? "Reserva pasada" : "Próxima reserva"}
                 </Text>
 
               </View>
-
             </TouchableOpacity>
           );
-        })}
+        }}
+      />
 
-      </View>
-    </ScrollView>
+    </View>
   );
 }
+
+/* SOLO LO ESPECÍFICO */
+const styles = StyleSheet.create({
+  filters: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 15,
+  },
+});
