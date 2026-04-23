@@ -5,7 +5,36 @@ from app.models.establecimiento import EstablecimientoCreate
 
 router = APIRouter(prefix="/api/establecimientos")
 
+@router.get("/propietario")
+def get_mis_establecimientos(current_user=Depends(get_current_user)):
+    try:
+        # 1. auth_id del token
+        auth_id = current_user.id
 
+        # 2. buscar usuario en tabla usuarios
+        user_res = supabase.table("usuarios") \
+            .select("*") \
+            .eq("auth_id", auth_id) \
+            .single() \
+            .execute()
+
+        if not user_res.data:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+        user_id = user_res.data["id"]
+
+        # 3. obtener establecimientos
+        res = supabase.table("establecimiento") \
+            .select("*") \
+            .eq("id_user", user_id) \
+            .execute()
+
+        return res.data or []  
+
+    except Exception as e:
+        print("ERROR:", e) 
+        raise HTTPException(status_code=500, detail=str(e))
+    
 # GET todos
 @router.get("")
 def get_establecimientos():
@@ -30,35 +59,6 @@ def get_establecimiento(id: int):
 
     except Exception:
         raise HTTPException(status_code=404, detail="No encontrado")
-
-@router.get("/propietario")
-def get_mis_establecimientos(current_user=Depends(get_current_user)):
-    try:
-        # 1. auth_id del token
-        auth_id = current_user.id
-
-        # 2. buscar usuario en tu tabla
-        user_res = supabase.table("usuarios") \
-            .select("*") \
-            .eq("auth_id", auth_id) \
-            .single() \
-            .execute()
-
-        if user_res.data is None:
-            raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
-        user_id = user_res.data["id"]
-
-        # 3. obtener sus establecimientos
-        res = supabase.table("establecimiento") \
-            .select("*") \
-            .eq("id_user", user_id) \
-            .execute()
-
-        return res.data
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("")
 def create_establecimiento(
