@@ -48,46 +48,54 @@ def get_user_by_auth(auth_id: str):
 
 # UPDATE usuario (perfil)
 @router.put("/usuarios/{id}")
-def update_user(id: int, data: dict):
+def update_user(id: int, data: UserUpdate):
     try:
-        response = supabase.table("usuarios")\
-            .update(data)\
+        res = supabase.table("usuarios")\
+            .update(data.dict())\
             .eq("id", id)\
             .execute()
 
-        if not response.data:
+        if not res.data:
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
         return {
-            "message": "Usuario actualizado correctamente",
-            "data": response.data
+            "message": "Usuario actualizado",
+            "data": res.data
         }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# DELETE usuario (ADMIN → eliminar)
+# =========================
+# DELETE CUENTA COMPLETA
+# =========================
 @router.delete("/usuarios/{id}")
 def delete_user(id: int):
     try:
-        # comprobar si existe
-        existing = supabase.table("usuarios")\
+        # 1. Obtener usuario
+        user = supabase.table("usuarios")\
             .select("*")\
             .eq("id", id)\
+            .single()\
             .execute()
 
-        if not existing.data:
+        if not user.data:
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-        # eliminar usuario
+        auth_id = user.data["auth_id"]
+
+        # 2. Borrar tabla usuarios
         supabase.table("usuarios")\
             .delete()\
             .eq("id", id)\
             .execute()
 
+        # 3. Borrar auth (NECESITA SERVICE ROLE KEY)
+        supabase.auth.admin.delete_user(auth_id)
+
         return {
-            "message": f"Usuario {id} eliminado correctamente"
+            "message": "Cuenta eliminada completamente"
         }
 
     except Exception as e:
