@@ -37,7 +37,7 @@ export default function DetalleEstablecimientoSupervisor() {
       }
     );
 
-    router.push("/mis-establecimientos");
+    router.push("/locales");
   };
 
   if (!establecimiento) return <p className="page">Cargando...</p>;
@@ -114,7 +114,7 @@ export default function DetalleEstablecimientoSupervisor() {
               <button
                 className="btn-secondary"
                 onClick={() =>
-                  router.push(`/establecimientos/${id}/reservas`)
+                  router.push(`/locales/${id}/reservas`)
                 }
               >
                 Ver reservas

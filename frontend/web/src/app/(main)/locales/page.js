@@ -98,7 +98,7 @@ export default function MisEstablecimientos() {
                 {/* CLICKABLE */}
                 <div
                   onClick={() =>
-                    router.push(`/establecimientos/${e.id}`)
+                    router.push(`/locales/${e.id}`)
                   }
                   style={{ cursor: "pointer" }}
                 >
@@ -120,7 +120,7 @@ export default function MisEstablecimientos() {
                   <button
                     className="btn-secondary"
                     onClick={() =>
-                      router.push(`/establecimientos/${e.id}`)
+                      router.push(`/locales/${e.id}`)
                     }
                   >
                     Ver
