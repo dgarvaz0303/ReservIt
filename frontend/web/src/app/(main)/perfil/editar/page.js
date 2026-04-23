@@ -4,9 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "@/styles/components.css";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "https://TU-CODESPACE-8000.app.github.dev";
 
 export default function EditarPerfil() {
   const router = useRouter();
@@ -28,7 +25,7 @@ export default function EditarPerfil() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${API_URL}/api/usuarios/me`, {
+      const res = await fetch(`http://localhost:8000/api/usuarios/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -67,7 +64,7 @@ export default function EditarPerfil() {
 
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${API_URL}/api/usuarios/me`, {
+      const res = await fetch(`http://localhost:8000/api/usuarios/me`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

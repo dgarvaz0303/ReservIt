@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import "@/styles/components.css";
-
+import { useRouter } from "next/navigation";
 export default function PerfilPage() {
   const [user, setUser] = useState(null);
   const [historial, setHistorial] = useState([]);
@@ -14,7 +14,7 @@ export default function PerfilPage() {
     cargarUsuario();
     cargarHistorial();
   }, []);
-
+  const router = useRouter();
   const cargarUsuario = () => {
     const nombre = localStorage.getItem("nombre");
     const rol = localStorage.getItem("rol");
@@ -124,7 +124,10 @@ export default function PerfilPage() {
 
           <div className="perfil-actions">
 
-            <button className="btn-primary">
+            <button
+              className="btn-primary"
+              onClick={() => router.push("/perfil/editar")}
+            >
               Editar datos
             </button>
 

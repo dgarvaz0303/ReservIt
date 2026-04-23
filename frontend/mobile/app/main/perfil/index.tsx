@@ -29,14 +29,30 @@ export default function PerfilScreen() {
   }, []);
 
   const fetchPerfil = async () => {
-    const auth_id = await AsyncStorage.getItem("user_id");
+    try {
+      const token = await AsyncStorage.getItem("token");
 
-    const res = await fetch(
-      `http://192.168.1.132:8000/api/usuarios/me/${auth_id}`
-    );
-    const data = await res.json();
+      const res = await fetch(
+        "http://192.168.1.132:8000/api/usuarios/me",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    setUser(data);
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.log(data);
+        return;
+      }
+
+      setUser(data);
+
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const fetchHistorial = async () => {
@@ -61,15 +77,27 @@ export default function PerfilScreen() {
   };
 
   const eliminarCuenta = async () => {
-    await fetch(
-      `http://192.168.1.132:8000/api/usuarios/${user.id}`,
-      { method: "DELETE" }
-    );
+    try {
+      const token = await AsyncStorage.getItem("token");
 
-    await AsyncStorage.clear();
+      await fetch(
+        "http://192.168.1.132:8000/api/usuarios/me",
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    Alert.alert("Cuenta eliminada");
-    navigation.navigate("Login");
+      await AsyncStorage.clear();
+
+      Alert.alert("Cuenta eliminada");
+      navigation.navigate("Login");
+
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   if (!user) {
@@ -145,7 +173,7 @@ export default function PerfilScreen() {
 
         <TouchableOpacity
           style={globalStyles.button}
-          onPress={() => navigation.navigate("EditarPerfil")}
+          onPress={() => navigation.navigate("EditarPerfilScreen")}
         >
           <Text style={globalStyles.buttonText}>
             Editar perfil
