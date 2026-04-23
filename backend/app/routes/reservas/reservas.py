@@ -71,7 +71,7 @@ async def get_mis_reservas(authorization: str = Header(None, alias="Authorizatio
         return resultado
 
     except Exception as e:
-        print("ERROR:", str(e))  # 🔥 importante para debug
+        print("ERROR:", str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 
