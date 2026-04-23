@@ -1,8 +1,80 @@
 from fastapi import APIRouter, HTTPException
 from app.supabase_client import supabase
-
+from app.models.user import UserUpdate
+from fastapi import Depends
+from app.routes.auth.dependencies import get_current_user
 router = APIRouter(prefix="/api", tags=["usuarios"])
 
+@router.get("/usuarios/me")
+def get_me(current_user=Depends(get_current_user)):
+    try:
+        
+        auth_id = current_user.id
+        
+        res = supabase.table("usuarios") \
+            .select("*") \
+            .eq("auth_id", auth_id) \
+            .single() \
+            .execute()
+
+        return res.data
+
+    except Exception:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+
+@router.put("/usuarios/me")
+def update_me(data: UserUpdate, current_user=Depends(get_current_user)):
+    try:
+        auth_id = current_user.id
+
+        update_data = data.dict(exclude_unset=True)
+
+        res = supabase.table("usuarios") \
+            .update(update_data) \
+            .eq("auth_id", auth_id) \
+            .execute()
+
+        return {
+            "message": "Perfil actualizado correctamente",
+            "data": res.data
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+@router.delete("/usuarios/me")
+def delete_me(current_user=Depends(get_current_user)):
+    try:
+        auth_id = current_user.id
+
+        # obtener usuario
+        user = supabase.table("usuarios") \
+            .select("*") \
+            .eq("auth_id", auth_id) \
+            .single() \
+            .execute()
+
+        if not user.data:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+        user_id = user.data["id"]
+
+        # borrar usuario
+        supabase.table("usuarios") \
+            .delete() \
+            .eq("id", user_id) \
+            .execute()
+
+        # borrar auth
+        supabase.auth.admin.delete_user(auth_id)
+
+        return {"message": "Cuenta eliminada"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 #  GET todos los usuarios (tabla admin)
 @router.get("/usuarios")
@@ -44,51 +116,4 @@ def get_user_by_auth(auth_id: str):
 
     except Exception:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
-
-# UPDATE usuario (perfil)
-@router.put("/usuarios/{id}")
-def update_user(id: int, data: dict):
-    try:
-        response = supabase.table("usuarios")\
-            .update(data)\
-            .eq("id", id)\
-            .execute()
-
-        if not response.data:
-            raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
-        return {
-            "message": "Usuario actualizado correctamente",
-            "data": response.data
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-# DELETE usuario (ADMIN → eliminar)
-@router.delete("/usuarios/{id}")
-def delete_user(id: int):
-    try:
-        # comprobar si existe
-        existing = supabase.table("usuarios")\
-            .select("*")\
-            .eq("id", id)\
-            .execute()
-
-        if not existing.data:
-            raise HTTPException(status_code=404, detail="Usuario no encontrado")
-
-        # eliminar usuario
-        supabase.table("usuarios")\
-            .delete()\
-            .eq("id", id)\
-            .execute()
-
-        return {
-            "message": f"Usuario {id} eliminado correctamente"
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    

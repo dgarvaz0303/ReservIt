@@ -1,9 +1,16 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
+from typing import Optional
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
     
+class UserUpdate(BaseModel):
+    nombre: Optional[str] = Field(None, min_length=2, max_length=50)
+    nombre_user: Optional[str] = Field(None, min_length=3, max_length=30)
+    email: Optional[EmailStr] = None
+    telefono: Optional[str] = Field(None, pattern="^[0-9]+$", min_length=9, max_length=15)
+
 class UserCreate(BaseModel):
     nombre: str = Field(..., min_length=2, max_length=50)
     nombre_user: str = Field(..., min_length=3, max_length=30)
