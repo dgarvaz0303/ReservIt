@@ -119,31 +119,37 @@ export default function CrearEstablecimiento() {
     }
   };
 
-  return (
+    return (
     <ScrollView style={globalStyles.container}>
 
       <Text style={globalStyles.title}>Crear establecimiento</Text>
 
       <View style={globalStyles.card}>
 
+        {/* NOMBRE */}
+        <Text style={globalStyles.label}>Nombre</Text>
         <TextInput
-          placeholder="Nombre"
+          placeholder="Ej: Restaurante La Plaza"
           value={form.nombre}
           onChangeText={(t) => setForm({ ...form, nombre: t })}
           style={globalStyles.input}
           placeholderTextColor="#888"
         />
 
+        {/* DIRECCIÓN */}
+        <Text style={globalStyles.label}>Dirección</Text>
         <TextInput
-          placeholder="Dirección"
+          placeholder="Calle, número..."
           value={form.direccion}
           onChangeText={(t) => setForm({ ...form, direccion: t })}
           style={globalStyles.input}
           placeholderTextColor="#888"
         />
 
+        {/* CAPACIDAD */}
+        <Text style={globalStyles.label}>Capacidad</Text>
         <TextInput
-          placeholder="Capacidad"
+          placeholder="Ej: 50"
           value={form.capacidad}
           onChangeText={(t) => setForm({ ...form, capacidad: t })}
           keyboardType="numeric"
@@ -151,8 +157,10 @@ export default function CrearEstablecimiento() {
           placeholderTextColor="#888"
         />
 
+        {/* TIPO */}
+        <Text style={globalStyles.label}>Tipo</Text>
         <TextInput
-          placeholder="Tipo"
+          placeholder="Restaurante, Bar..."
           value={form.tipo}
           onChangeText={(t) => setForm({ ...form, tipo: t })}
           style={globalStyles.input}
@@ -160,47 +168,48 @@ export default function CrearEstablecimiento() {
         />
 
         {/* IMAGEN */}
+        <Text style={globalStyles.label}>Imagen</Text>
+
         <TouchableOpacity
           onPress={pickImage}
-          style={[globalStyles.buttonSecondary]}
+          style={globalStyles.secondaryButton}
         >
-          <Text style={globalStyles.buttonSecondaryText}>
+          <Text style={globalStyles.secondaryButtonText}>
             Seleccionar imagen
           </Text>
         </TouchableOpacity>
 
         {imagen && (
-          <Image
-            source={{ uri: imagen.uri }}
-            style={{
-              width: "100%",
-              height: 150,
-              borderRadius: 10,
-              marginTop: 10,
-            }}
-          />
+          <View style={globalStyles.previewCard}>
+            <Image
+              source={{ uri: imagen.uri }}
+              style={globalStyles.previewImage}
+            />
+          </View>
         )}
 
         {/* PDF */}
+        <Text style={globalStyles.label}>Carta (PDF)</Text>
+
         <TouchableOpacity
           onPress={pickPdf}
-          style={[globalStyles.buttonSecondary]}
+          style={globalStyles.secondaryButton}
         >
-          <Text style={globalStyles.buttonSecondaryText}>
-            Seleccionar carta (PDF)
+          <Text style={globalStyles.secondaryButtonText}>
+            Seleccionar PDF
           </Text>
         </TouchableOpacity>
 
         {pdf && (
-          <Text style={{ color: COLORS.text, marginTop: 8 }}>
-            {pdf.name}
+          <Text style={globalStyles.fileName}>
+            📄 {pdf.name}
           </Text>
         )}
 
         {/* BOTÓN */}
         <TouchableOpacity
           onPress={crear}
-          style={globalStyles.button}
+          style={[globalStyles.button, { marginTop: 20 }]}
         >
           <Text style={globalStyles.buttonText}>
             Crear establecimiento

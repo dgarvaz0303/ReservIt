@@ -18,7 +18,11 @@ import { globalStyles } from "@/themes/styles";
 import { COLORS } from "@/themes/colors";
 
 export default function DetalleReserva() {
-  const { reservaId } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+
+  const reservaId = Array.isArray(params.reservaId)
+    ? params.reservaId[0]
+    : params.reservaId;
   const router = useRouter();
 
   const [reserva, setReserva] = useState<any>(null);
@@ -51,6 +55,7 @@ export default function DetalleReserva() {
   }, [scanning]);
 
   const fetchReserva = async () => {
+    if (!reservaId) return;
     const res = await fetch(
       `http://192.168.1.132:8000/api/reservas/${reservaId}`
     );

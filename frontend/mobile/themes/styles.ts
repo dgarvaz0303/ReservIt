@@ -36,7 +36,45 @@ export const globalStyles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "500",
   },
+label: {
+    fontSize: 13,
+    color: COLORS.text,
+    marginBottom: 6,
+    marginTop: 10,
+    fontWeight: "500",
+  },
 
+  secondaryButton: {
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 5,
+  },
+
+  secondaryButtonText: {
+    color: COLORS.primary,
+    fontWeight: "500",
+  },
+
+  previewCard: {
+    marginTop: 10,
+    borderRadius: 12,
+    overflow: "hidden",
+    elevation: 3,
+  },
+
+  previewImage: {
+    width: "100%",
+    height: 160,
+  },
+
+  fileName: {
+    marginTop: 8,
+    color: COLORS.text,
+    fontSize: 13,
+  },
   link: {
     marginTop: 16,
     textAlign: "center",

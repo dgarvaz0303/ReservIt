@@ -78,15 +78,15 @@ export default function MisEstablecimientosScreen() {
     return matchNombre && matchTipo;
   });
 
-  return (
+    return (
     <View style={globalStyles.container}>
 
       {/* HEADER */}
-      <View style={{ marginBottom: 20 }}>
+      <View style={{ marginBottom: 25 }}>
         <Text style={globalStyles.title}>Mis establecimientos</Text>
 
         <TouchableOpacity
-          style={globalStyles.button}
+          style={[globalStyles.button, { marginTop: 10 }]}
           onPress={() => navigation.navigate("CrearEstablecimiento")}
         >
           <Text style={globalStyles.buttonText}>+ Crear nuevo</Text>
@@ -94,7 +94,7 @@ export default function MisEstablecimientosScreen() {
       </View>
 
       {/* FILTROS */}
-      <View style={{ marginBottom: 15 }}>
+      <View style={{ marginBottom: 20, gap: 10 }}>
         <TextInput
           placeholder="Buscar establecimiento..."
           value={search}
@@ -116,11 +116,12 @@ export default function MisEstablecimientosScreen() {
       <FlatList
         data={filtrados}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        contentContainerStyle={{ paddingBottom: 40 }}
         renderItem={({ item }) => (
-          <View style={globalStyles.cardList}>
+          <View style={[globalStyles.cardList, { marginBottom: 16 }]}>
 
             <TouchableOpacity
+              activeOpacity={0.9}
               onPress={() =>
                 navigation.navigate("DetalleEstablecimiento", {
                   id: item.id,
@@ -133,7 +134,12 @@ export default function MisEstablecimientosScreen() {
                     item.imagen_url ||
                     "https://via.placeholder.com/300",
                 }}
-                style={{ width: "100%", height: 140 }}
+                style={{
+                  width: "100%",
+                  height: 150,
+                  borderTopLeftRadius: 12,
+                  borderTopRightRadius: 12,
+                }}
               />
 
               <View style={globalStyles.cardContent}>
@@ -157,13 +163,17 @@ export default function MisEstablecimientosScreen() {
 
             {/* BOTÓN ELIMINAR */}
             <TouchableOpacity
-              style={[
-                globalStyles.buttonSecondary,
-                { marginTop: 10 },
-              ]}
+              style={{
+                borderWidth: 1,
+                borderColor: COLORS.accent,
+                padding: 10,
+                borderRadius: 10,
+                margin: 12,
+                alignItems: "center",
+              }}
               onPress={() => setSelectedId(item.id)}
             >
-              <Text style={globalStyles.buttonSecondaryText}>
+              <Text style={{ color: COLORS.accent }}>
                 Eliminar
               </Text>
             </TouchableOpacity>
@@ -177,18 +187,24 @@ export default function MisEstablecimientosScreen() {
         <View
           style={{
             flex: 1,
-            backgroundColor: "#00000088",
+            backgroundColor: "rgba(0,0,0,0.5)",
             justifyContent: "center",
             alignItems: "center",
+            padding: 20,
           }}
         >
-          <View style={globalStyles.card}>
+          <View
+            style={[
+              globalStyles.card,
+              { width: "100%", maxWidth: 320 },
+            ]}
+          >
 
             <Text style={globalStyles.sectionTitle}>
               ¿Eliminar establecimiento?
             </Text>
 
-            <Text style={{ color: COLORS.text }}>
+            <Text style={{ color: COLORS.text, marginBottom: 10 }}>
               Escribe DELETE para confirmar
             </Text>
 
@@ -205,6 +221,7 @@ export default function MisEstablecimientosScreen() {
               style={[
                 globalStyles.button,
                 {
+                  marginTop: 10,
                   backgroundColor:
                     confirmText === "DELETE"
                       ? COLORS.accent
@@ -223,7 +240,7 @@ export default function MisEstablecimientosScreen() {
                 setSelectedId(null);
                 setConfirmText("");
               }}
-              style={{ marginTop: 10 }}
+              style={{ marginTop: 12, alignItems: "center" }}
             >
               <Text style={{ color: COLORS.secondary }}>
                 Cancelar
