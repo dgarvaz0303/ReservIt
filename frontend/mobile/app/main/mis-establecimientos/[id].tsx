@@ -2,11 +2,9 @@ import { useEffect, useState } from "react";
 import {
   View,
   Text,
-  ScrollView,
-  Image,
+  FlatList,
   TouchableOpacity,
-  Modal,
-  TextInput,
+  StyleSheet,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -14,193 +12,226 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { globalStyles } from "@/themes/styles";
 import { COLORS } from "@/themes/colors";
 
-export default function DetalleEstablecimientoSupervisor() {
+export default function ReservasEstablecimiento() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
-  const [establecimiento, setEstablecimiento] = useState<any>(null);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [confirmText, setConfirmText] = useState("");
+  const [reservas, setReservas] = useState<any[]>([]);
+  const [fecha, setFecha] = useState(new Date());
+  const [filtro, setFiltro] = useState("todas");
 
   useEffect(() => {
-    fetchEstablecimiento();
-  }, []);
+    fetchReservas();
+  }, [fecha]);
 
-  const fetchEstablecimiento = async () => {
-    const res = await fetch(
-      `http://192.168.1.132:8000/api/establecimientos/${id}`
-    );
-    const data = await res.json();
-    setEstablecimiento(data.data || data);
+  const formatDate = (date: Date) =>
+    date.toISOString().split("T")[0];
+
+  const fetchReservas = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+
+      const res = await fetch(
+        `http://192.168.1.132:8000/api/reservas/establecimiento/${id}?fecha=${formatDate(fecha)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+      setReservas(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const eliminar = async () => {
-    const token = await AsyncStorage.getItem("token");
+  const filtrarReservas = () => {
+    if (filtro === "todas") return reservas;
 
-    await fetch(
-      `http://192.168.1.132:8000/api/establecimientos/${id}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    return reservas.filter((r) => {
+      const hora = parseInt(r.hora.split(":")[0]);
 
-    router.replace("/(tabs)/establecimientos");
+      if (filtro === "mañana") return hora >= 8 && hora <= 12;
+      if (filtro === "tarde") return hora >= 13 && hora <= 19;
+      if (filtro === "noche") return hora >= 20;
+
+      return true;
+    });
   };
 
-  if (!establecimiento)
-    return (
-      <View style={globalStyles.container}>
-        <Text style={globalStyles.text}>Cargando...</Text>
-      </View>
-    );
+  const cambiarDia = (dias: number) => {
+    const nuevaFecha = new Date(fecha);
+    nuevaFecha.setDate(nuevaFecha.getDate() + dias);
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    if (nuevaFecha < hoy) return;
+
+    setFecha(nuevaFecha);
+  };
+
+  const reservasFiltradas = filtrarReservas();
 
   return (
-    <ScrollView style={globalStyles.container}>
+    <View style={globalStyles.container}>
 
-      {/* IMAGEN */}
-      <Image
-        source={{
-          uri:
-            establecimiento.imagen_url ||
-            "https://via.placeholder.com/300",
-        }}
-        style={{
-          width: "100%",
-          height: 220,
-          borderRadius: 12,
-          marginBottom: 15,
-        }}
+      {/* HEADER */}
+      <Text style={globalStyles.title}>Reservas</Text>
+
+      {/* FECHA */}
+      <View style={styles.dateCard}>
+        <TouchableOpacity onPress={() => cambiarDia(-1)}>
+          <Text style={styles.arrow}>←</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.dateText}>
+          {fecha.toLocaleDateString("es-ES", {
+            weekday: "short",
+            day: "numeric",
+            month: "short",
+          })}
+        </Text>
+
+        <TouchableOpacity onPress={() => cambiarDia(1)}>
+          <Text style={styles.arrow}>→</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* FILTROS */}
+      <View style={styles.filters}>
+        {["mañana", "tarde", "noche", "todas"].map((f) => (
+          <TouchableOpacity
+            key={f}
+            onPress={() => setFiltro(f)}
+            style={[
+              styles.filterBtn,
+              filtro === f && styles.filterActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.filterText,
+                filtro === f && styles.filterTextActive,
+              ]}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* LISTA */}
+      <FlatList
+        data={reservasFiltradas}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        ListEmptyComponent={
+          <Text style={globalStyles.text}>
+            No hay reservas para este día
+          </Text>
+        }
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() =>
+              router.push(`/main/reservas/${item.id}`)
+            }
+          >
+            <Text style={styles.cardTitle}>
+              {item.nombre_cliente || "Reserva"}
+            </Text>
+
+            <Text style={styles.cardInfo}>
+              🕒 {item.hora}
+            </Text>
+
+            <Text style={styles.cardInfo}>
+              👥 {item.num_personas} personas
+            </Text>
+
+            <Text style={styles.cardInfo}>
+              📍 Zona: {item.zona_nombre || item.zona_id}
+            </Text>
+          </TouchableOpacity>
+        )}
       />
 
-      {/* INFO */}
-      <View style={globalStyles.card}>
-
-        <Text style={globalStyles.title}>
-          {establecimiento.nombre}
-        </Text>
-
-        <Text style={globalStyles.cardText}>
-          Tipo: {establecimiento.tipo}
-        </Text>
-
-        <Text style={globalStyles.cardText}>
-          Dirección: {establecimiento.direccion}
-        </Text>
-
-        <Text style={globalStyles.cardText}>
-          Teléfono: {establecimiento.telefono}
-        </Text>
-
-        <Text style={globalStyles.cardText}>
-          Capacidad: {establecimiento.capacidad}
-        </Text>
-
-      </View>
-
-      {/* ACCIONES */}
-      <View style={{ marginTop: 20 }}>
-
-        <TouchableOpacity
-          style={globalStyles.button}
-          onPress={() =>
-            router.push(`/establecimientos/editar/${id}`)
-          }
-        >
-          <Text style={globalStyles.buttonText}>
-            Editar establecimiento
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={globalStyles.buttonSecondary}
-          onPress={() =>
-            router.push(`/establecimientos/${id}/reservas`)
-          }
-        >
-          <Text style={globalStyles.buttonSecondaryText}>
-            Ver reservas
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            globalStyles.button,
-            { backgroundColor: COLORS.accent },
-          ]}
-          onPress={() => setShowConfirm(true)}
-        >
-          <Text style={globalStyles.buttonText}>
-            Eliminar establecimiento
-          </Text>
-        </TouchableOpacity>
-
-      </View>
-
-      {/* MODAL */}
-      <Modal visible={showConfirm} transparent animationType="fade">
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "#00000088",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <View style={globalStyles.card}>
-
-            <Text style={globalStyles.sectionTitle}>
-              ¿Eliminar establecimiento?
-            </Text>
-
-            <Text style={{ color: COLORS.text, marginBottom: 10 }}>
-              Escribe DELETE para confirmar
-            </Text>
-
-            <TextInput
-              placeholder="DELETE"
-              value={confirmText}
-              onChangeText={setConfirmText}
-              style={globalStyles.input}
-              placeholderTextColor="#888"
-            />
-
-            <TouchableOpacity
-              disabled={confirmText !== "DELETE"}
-              style={[
-                globalStyles.button,
-                {
-                  backgroundColor:
-                    confirmText === "DELETE"
-                      ? COLORS.accent
-                      : "#ccc",
-                },
-              ]}
-              onPress={eliminar}
-            >
-              <Text style={globalStyles.buttonText}>
-                Confirmar eliminación
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => {
-                setShowConfirm(false);
-                setConfirmText("");
-              }}
-              style={{ marginTop: 10 }}
-            >
-              <Text style={{ color: COLORS.secondary }}>
-                Cancelar
-              </Text>
-            </TouchableOpacity>
-
-          </View>
-        </View>
-      </Modal>
-
-    </ScrollView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  /* FECHA */
+  dateCard: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+
+  arrow: {
+    fontSize: 20,
+    color: COLORS.primary,
+  },
+
+  dateText: {
+    fontWeight: "600",
+    color: COLORS.text,
+  },
+
+  /* FILTROS */
+  filters: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginBottom: 20,
+  },
+
+  filterBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    backgroundColor: "#eee",
+  },
+
+  filterActive: {
+    backgroundColor: COLORS.primary,
+  },
+
+  filterText: {
+    fontSize: 12,
+    color: "#555",
+  },
+
+  filterTextActive: {
+    color: "white",
+    fontWeight: "600",
+  },
+
+  /* CARD */
+  card: {
+    backgroundColor: "white",
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.success,
+  },
+
+  cardTitle: {
+    fontWeight: "600",
+    color: COLORS.primary,
+    marginBottom: 4,
+  },
+
+  cardInfo: {
+    color: COLORS.text,
+    fontSize: 13,
+  },
+});
