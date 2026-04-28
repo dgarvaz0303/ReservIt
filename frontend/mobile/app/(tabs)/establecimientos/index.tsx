@@ -7,8 +7,8 @@ import {
   Image,
 } from "react-native";
 import { router } from "expo-router";
-import { globalStyles } from "../../themes/styles";
-import { COLORS } from "../../themes/colors";
+import { globalStyles } from "@/themes/styles";
+import { COLORS } from "@/themes/colors";
 
 export default function Establecimientos() {
   const [establecimientos, setEstablecimientos] = useState<any[]>([]);
@@ -34,7 +34,7 @@ export default function Establecimientos() {
       <View style={globalStyles.section}>
         <Text style={globalStyles.title}>Establecimientos</Text>
 
-        <TouchableOpacity onPress={() => router.push("/")}>
+        <TouchableOpacity onPress={() => router.back()}>
           <Text style={globalStyles.link}>← Volver</Text>
         </TouchableOpacity>
       </View>
@@ -46,9 +46,12 @@ export default function Establecimientos() {
             key={est.id}
             style={globalStyles.cardList}
             onPress={() =>
-              router.push(`/`)
-            }
-          >
+                router.push({
+                    pathname: "/establecimientos/[id]",
+                    params: { id: est.id },
+                })
+                }
+            >
             {/* IMAGEN */}
             <Image
               source={{
