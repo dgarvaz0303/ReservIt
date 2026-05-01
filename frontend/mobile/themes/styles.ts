@@ -5,7 +5,6 @@ export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bg,
-    justifyContent: "center",
     padding: 20,
   },
 
@@ -29,6 +28,12 @@ export const globalStyles = StyleSheet.create({
     padding: 14,
     borderRadius: 10,
     marginTop: 10,
+  },
+
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
   },
 
   buttonText: {

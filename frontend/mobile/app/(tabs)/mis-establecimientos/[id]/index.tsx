@@ -53,7 +53,7 @@ export default function DetalleEstablecimientoSupervisor() {
         }
       );
 
-      router.replace("/main/mis-establecimientos");
+      router.replace("/mis-establecimientos");
     } catch (err) {
       console.log(err);
     }
@@ -109,7 +109,7 @@ export default function DetalleEstablecimientoSupervisor() {
         <TouchableOpacity
           style={globalStyles.button}
           onPress={() =>
-            router.push(`/main/mis-establecimientos/${id}/reservas`)
+            router.push(`/mis-establecimientos/${id}/reservas`)
           }
         >
           <Text style={globalStyles.buttonText}>
@@ -248,3 +248,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
+
+

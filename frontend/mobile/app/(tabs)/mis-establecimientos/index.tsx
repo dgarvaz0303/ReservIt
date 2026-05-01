@@ -9,7 +9,7 @@ import {
   Modal,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+import { router } from "expo-router";
 
 import { globalStyles } from "../../../themes/styles";
 import { COLORS } from "../../../themes/colors";
@@ -22,7 +22,7 @@ export default function MisEstablecimientosScreen() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [confirmText, setConfirmText] = useState("");
 
-  const navigation = useNavigation<any>();
+
 
   useEffect(() => {
     fetchEstablecimientos();
@@ -33,7 +33,7 @@ export default function MisEstablecimientosScreen() {
       const token = await AsyncStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:8000/api/establecimientos/propietario",
+        "http://192.168.1.132:8000/api/establecimientos/propietario",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -51,7 +51,7 @@ export default function MisEstablecimientosScreen() {
       const token = await AsyncStorage.getItem("token");
 
       await fetch(
-        `http://localhost:8000/api/establecimientos/${selectedId}`,
+        `http://192.168.1.132:8000/api/establecimientos/${selectedId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -87,7 +87,9 @@ export default function MisEstablecimientosScreen() {
 
         <TouchableOpacity
           style={[globalStyles.button, { marginTop: 10 }]}
-          onPress={() => navigation.navigate("CrearEstablecimiento")}
+          onPress={() =>
+            router.push("/mis-establecimientos/crear-establecimiento")
+          }
         >
           <Text style={globalStyles.buttonText}>+ Crear nuevo</Text>
         </TouchableOpacity>
@@ -123,8 +125,9 @@ export default function MisEstablecimientosScreen() {
             <TouchableOpacity
               activeOpacity={0.9}
               onPress={() =>
-                navigation.navigate("DetalleEstablecimiento", {
-                  id: item.id,
+                router.push({
+                  pathname: "/mis-establecimientos/[id]",
+                  params: { id: item.id },
                 })
               }
             >

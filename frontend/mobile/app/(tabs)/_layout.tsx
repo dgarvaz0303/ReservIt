@@ -15,9 +15,6 @@ export default function TabLayout() {
       const token = await AsyncStorage.getItem("token");
       const storedRol = await AsyncStorage.getItem("rol");
 
-      console.log("TOKEN:", token);
-      console.log("ROL:", storedRol);
-
       if (!token || !storedRol) {
         router.replace("/login");
         return;

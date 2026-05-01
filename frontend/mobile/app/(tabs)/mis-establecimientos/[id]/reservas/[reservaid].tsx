@@ -20,9 +20,9 @@ import { COLORS } from "@/themes/colors";
 export default function DetalleReserva() {
   const params = useLocalSearchParams();
 
-  const reservaId = Array.isArray(params.reservaId)
-    ? params.reservaId[0]
-    : params.reservaId;
+  const reservaId = Array.isArray(params.reservaid)
+  ? params.reservaid[0]
+  : params.reservaid;   
   const router = useRouter();
 
   const [reserva, setReserva] = useState<any>(null);

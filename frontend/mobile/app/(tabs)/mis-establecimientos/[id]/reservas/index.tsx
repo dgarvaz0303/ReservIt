@@ -16,13 +16,17 @@ export default function ReservasEstablecimiento() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
+  const establecimientoId = Array.isArray(id) ? id[0] : id;
+
   const [reservas, setReservas] = useState<any[]>([]);
   const [fecha, setFecha] = useState(new Date());
   const [filtro, setFiltro] = useState("todas");
 
   useEffect(() => {
-    fetchReservas();
-  }, [fecha]);
+    if (establecimientoId) {
+      fetchReservas();
+    }
+  }, [fecha, establecimientoId]);
 
   const formatDate = (date: Date) =>
     date.toISOString().split("T")[0];
@@ -32,7 +36,7 @@ export default function ReservasEstablecimiento() {
       const token = await AsyncStorage.getItem("token");
 
       const res = await fetch(
-        `http://192.168.1.132:8000/api/reservas/establecimiento/${id}?fecha=${formatDate(fecha)}`,
+        `http://192.168.1.132:8000/api/reservas/establecimiento/${establecimientoId}?fecha=${formatDate(fecha)}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -41,9 +45,10 @@ export default function ReservasEstablecimiento() {
       );
 
       const data = await res.json();
-      setReservas(Array.isArray(data) ? data : []);
+
+      setReservas(Array.isArray(data) ? data : data.data || []);
     } catch (err) {
-      console.log(err);
+      console.log("ERROR FETCH RESERVAS:", err);
     }
   };
 
@@ -75,10 +80,16 @@ export default function ReservasEstablecimiento() {
 
   const reservasFiltradas = filtrarReservas();
 
+  if (!establecimientoId) {
+    return (
+      <View style={globalStyles.container}>
+        <Text>Cargando...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={globalStyles.container}>
-
-      {/* HEADER */}
       <Text style={globalStyles.title}>Reservas</Text>
 
       {/* FECHA */}
@@ -137,7 +148,14 @@ export default function ReservasEstablecimiento() {
           <TouchableOpacity
             style={styles.card}
             onPress={() =>
-              router.push(`/main/reservas/${item.id}`)
+              router.push({
+                pathname:
+                  "/mis-establecimientos/[id]/reservas/[reservaid]",
+                params: {
+                  id: establecimientoId,
+                  reservaid: item.id,
+                },
+              })
             }
           >
             <Text style={styles.cardTitle}>
@@ -158,34 +176,22 @@ export default function ReservasEstablecimiento() {
           </TouchableOpacity>
         )}
       />
-
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  /* FECHA */
   dateCard: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     backgroundColor: "white",
     padding: 14,
     borderRadius: 12,
     marginBottom: 20,
   },
+  arrow: { fontSize: 20, color: COLORS.primary },
+  dateText: { fontWeight: "600", color: COLORS.text },
 
-  arrow: {
-    fontSize: 20,
-    color: COLORS.primary,
-  },
-
-  dateText: {
-    fontWeight: "600",
-    color: COLORS.text,
-  },
-
-  /* FILTROS */
   filters: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -194,27 +200,16 @@ const styles = StyleSheet.create({
   },
 
   filterBtn: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    padding: 6,
     borderRadius: 20,
     backgroundColor: "#eee",
   },
 
-  filterActive: {
-    backgroundColor: COLORS.primary,
-  },
+  filterActive: { backgroundColor: COLORS.primary },
 
-  filterText: {
-    fontSize: 12,
-    color: "#555",
-  },
+  filterText: { fontSize: 12 },
+  filterTextActive: { color: "white" },
 
-  filterTextActive: {
-    color: "white",
-    fontWeight: "600",
-  },
-
-  /* CARD */
   card: {
     backgroundColor: "white",
     padding: 14,
@@ -224,14 +219,6 @@ const styles = StyleSheet.create({
     borderLeftColor: COLORS.success,
   },
 
-  cardTitle: {
-    fontWeight: "600",
-    color: COLORS.primary,
-    marginBottom: 4,
-  },
-
-  cardInfo: {
-    color: COLORS.text,
-    fontSize: 13,
-  },
+  cardTitle: { fontWeight: "600" },
+  cardInfo: { fontSize: 13 },
 });
