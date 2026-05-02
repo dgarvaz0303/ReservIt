@@ -78,13 +78,20 @@ async def get_mis_reservas(authorization: str = Header(None, alias="Authorizatio
 
 # GET reservas por establecimiento
 @router.get("/reservas/establecimiento/{id_establecimiento}")
-def get_reservas_by_establecimiento(id_establecimiento: int):
+def get_reservas_by_establecimiento(
+    id_establecimiento: int,
+    fecha: str,
+):
     try:
         response = supabase.table("reserva")\
             .select("*")\
             .eq("id_establecimiento", id_establecimiento)\
+            .eq("fecha", fecha)\
+            .order("hora")\
             .execute()
+
         return response.data
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

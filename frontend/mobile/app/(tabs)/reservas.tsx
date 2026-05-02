@@ -9,7 +9,7 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { router } from "expo-router";
 import { globalStyles } from "../../themes/styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { COLORS } from "../../themes/colors";
@@ -20,7 +20,6 @@ export default function MisReservas() {
   const [filtroNombre, setFiltroNombre] = useState("");
   const [filtroTramo, setFiltroTramo] = useState("");
 
-  const navigation = useNavigation<any>();
 
   useEffect(() => {
     fetchReservas();
@@ -127,7 +126,10 @@ export default function MisReservas() {
             <TouchableOpacity
               style={globalStyles.cardList}
               onPress={() =>
-                navigation.navigate("DetalleReserva", { id: item.id })
+                router.push({
+                  pathname: "/reservas/[id]",
+                  params: { id: item.id },
+                })
               }
             >
               <Image

@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import "@/styles/components.css"; 
+import "@/styles/navbar.css"; 
+import "@/styles/detalle-reserva.css"; 
+import "@/styles/detalle.css"; 
+import "@/styles/footer.css"; 
+import "@/styles/global.css"; 
+import "@/styles/landing.css"; 
+import "@/styles/login.css"; 
+import "@/styles/variables.css"; 
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 

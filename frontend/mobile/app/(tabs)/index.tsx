@@ -55,7 +55,10 @@ export default function Home() {
             key={est.id}
             style={globalStyles.cardList}
             onPress={() =>
-              router.push(`/`)
+              router.push({
+                pathname: "/establecimientos/[id]",
+                params: { id: est.id },
+              })
             }
           >
             <View style={globalStyles.imagePlaceholder} />

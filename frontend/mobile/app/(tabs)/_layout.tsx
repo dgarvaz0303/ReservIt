@@ -1,44 +1,61 @@
+<<<<<<< HEAD
 import { View } from "react-native";
-import { Slot, router } from "expo-router";
+import { Slot } from "expo-router";
+
+export default function RootLayout() {
+  return (
+    <View style={{ flex: 1 }}>
+      <Slot />
+=======
+import { Tabs, router } from "expo-router";
 import { useEffect, useState } from "react";
+import { View, Text } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import MobileNavbar from "@/components/MobileNavbar";
 import MobileFooter from "@/components/MobileFooter";
 
-export default function MainLayout() {
+export default function TabLayout() {
+  const [loading, setLoading] = useState(true);
   const [rol, setRol] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadSession = async () => {
+    const checkAuth = async () => {
       const token = await AsyncStorage.getItem("token");
       const storedRol = await AsyncStorage.getItem("rol");
 
-      // si no hay token  fuera
-      if (!token) {
+      if (!token || !storedRol) {
         router.replace("/login");
         return;
       }
+
       setRol(storedRol);
+      setLoading(false);
     };
 
-    loadSession();
+    checkAuth();
   }, []);
 
-  // evitar render hasta tener rol
-  if (!rol) return null;
+  if (loading || !rol) {
+    return <Text>Cargando...</Text>;
+  }
 
   return (
     <View style={{ flex: 1 }}>
 
+      
       <MobileNavbar rol={rol} />
 
       <View style={{ flex: 1 }}>
-        <Slot />
+        <Tabs screenOptions={{ headerShown: false }}>
+          <Tabs.Screen name="index" />
+          <Tabs.Screen name="explore" />
+        </Tabs>
       </View>
 
       <MobileFooter />
 
+>>>>>>> origin/feature/gestionlocales
     </View>
   );
 }
