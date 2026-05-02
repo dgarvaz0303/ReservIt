@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-import { View } from "react-native";
-import { Slot } from "expo-router";
-
-export default function RootLayout() {
-  return (
-    <View style={{ flex: 1 }}>
-      <Slot />
-=======
 import { Tabs, router } from "expo-router";
 import { useEffect, useState } from "react";
 import { View, Text } from "react-native";
@@ -50,12 +41,15 @@ export default function TabLayout() {
         <Tabs screenOptions={{ headerShown: false }}>
           <Tabs.Screen name="index" />
           <Tabs.Screen name="explore" />
+          <Tabs.Screen name="perfil" />
+          <Tabs.Screen name="reservas" />
+          <Tabs.Screen name="establecimientos" />
+          <Tabs.Screen name="mis-establecimientos" />
         </Tabs>
       </View>
 
       <MobileFooter />
 
->>>>>>> origin/feature/gestionlocales
     </View>
   );
 }
