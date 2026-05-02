@@ -147,7 +147,7 @@ export default function ReservasEstablecimiento() {
                 key={r.id}
                 className="reserva-card"
                 onClick={() =>
-                  window.location.href = `/reservas/${r.id}`
+                  window.location.href = `/locales/${id}/reservas/${r.id}`
                 }
               >
                 {/* LATERAL COLOR */}

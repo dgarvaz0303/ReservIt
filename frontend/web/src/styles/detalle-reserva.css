@@ -1,0 +1,139 @@
+/* ===== PAGE ===== */
+.page {
+  background: #f5f5f5;
+  min-height: 100vh;
+  padding: 40px 20px;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #111;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ===== HEADER ===== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  color: #222;
+}
+
+/* ===== BOTONES ===== */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+}
+
+/* estilo marrón como tu ejemplo */
+.btn-primary {
+  background: #7b5236;
+  color: white;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #7b5236;
+  color: #7b5236;
+}
+
+.btn-danger {
+  background: white;
+  border: 1px solid #7b5236;
+  color: #7b5236;
+}
+
+/* ===== ESTADO ===== */
+.estado-big {
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 25px;
+  letter-spacing: 1px;
+}
+
+/* 👇 SOLO AQUÍ hay color */
+.estado-activa {
+  background: #dfeee2;
+  color: #2e7d32;
+}
+
+.estado-pendiente {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.estado-espera {
+  background: #eee;
+  color: #555;
+}
+
+/* ===== CARD ===== */
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+/* ===== INFO ===== */
+.reserva-info-card h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.reserva-info-card p {
+  margin: 6px 0;
+  color: #222;
+  font-size: 14px;
+}
+
+/* ===== ACTIONS ===== */
+.reserva-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* ===== OVERLAY ===== */
+.validation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: white;
+  z-index: 999;
+}
+
+.validation-overlay.success {
+  background: #4CAF50;
+}
+
+.validation-overlay.error {
+  background: #e53935;
+}
