@@ -10,8 +10,7 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
-
+import { router } from "expo-router";
 import { globalStyles } from "../../../themes/styles";
 import { COLORS } from "../../../themes/colors";
 
@@ -21,7 +20,6 @@ export default function PerfilScreen() {
   const [showDelete, setShowDelete] = useState(false);
   const [confirmText, setConfirmText] = useState("");
 
-  const navigation = useNavigation<any>();
 
   useEffect(() => {
     fetchPerfil();
@@ -173,7 +171,11 @@ export default function PerfilScreen() {
 
         <TouchableOpacity
           style={globalStyles.button}
-          onPress={() => navigation.navigate("EditarPerfilScreen")}
+          onPress={() =>
+                          router.push({
+                            pathname: "/perfil/editar"
+                          })
+                        }
         >
           <Text style={globalStyles.buttonText}>
             Editar perfil

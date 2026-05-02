@@ -7,13 +7,12 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
-
+import { router } from "expo-router";
 import { globalStyles } from "../../../themes/styles";
 import { COLORS } from "../../../themes/colors";
 
 export default function EditarPerfilScreen() {
-  const navigation = useNavigation<any>();
+
 
   const [form, setForm] = useState({
     nombre: "",
@@ -29,30 +28,32 @@ export default function EditarPerfilScreen() {
   }, []);
 
   const fetchPerfil = async () => {
-    try {
-      const token = await AsyncStorage.getItem("token");
+  try {
+    const token = await AsyncStorage.getItem("token");
 
-      const res = await fetch(
-        "http://192.168.1.132:8000/api/usuarios/me",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    const res = await fetch(
+      "http://192.168.1.132:8000/api/usuarios/me",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-      const data = await res.json();
+    const data = await res.json();
 
-      setForm({
-        nombre: data.nombre || "",
-        nombre_user: data.nombre_user || "",
-        telefono: data.telefono || "",
-      });
+    setForm({
+      nombre: data.nombre || "",
+      nombre_user: data.nombre_user || "",
+      telefono: data.telefono || "",
+    });
 
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  } catch (err) {
+    console.log(err);
+  } finally {
+    setLoading(false); 
+  }
+};
 
   const handleChange = (field: string, value: string) => {
     setForm({
@@ -86,7 +87,7 @@ export default function EditarPerfilScreen() {
 
     Alert.alert("Perfil actualizado");
 
-    navigation.goBack();
+    router.push({pathname: "/(tabs)/perfil"})
   } catch (err) {
     console.log(err);
   }
@@ -157,7 +158,10 @@ export default function EditarPerfilScreen() {
       </View>
 
       {/* VOLVER */}
-      <TouchableOpacity onPress={() => navigation.goBack()}>
+      <TouchableOpacity onPress={() =>
+                                router.push({
+                                  pathname: "/(tabs)/perfil"
+                                })}>
         <Text style={globalStyles.link}>
           ← Volver
         </Text>

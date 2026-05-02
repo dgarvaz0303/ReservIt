@@ -25,7 +25,7 @@ export default function CrearEstablecimiento() {
   const [loading, setLoading] = useState(false);
 
   // =========================
-  // CAPACIDAD TOTAL AUTOMÁTICA
+  // CAPACIDAD TOTAL
   // =========================
   const capacidadTotal = zonas.reduce(
     (acc, z) => acc + Number(z.capacidad || 0),
@@ -35,36 +35,60 @@ export default function CrearEstablecimiento() {
   // =========================
   // SUBIR ARCHIVOS
   // =========================
-  const uploadFile = async (file, carpeta) => {
+  const uploadFile = async (file, bucket) => {
     const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}.${fileExt}`;
-    const filePath = `${carpeta}/${fileName}`;
 
     const { error } = await supabase.storage
-      .from("establecimientos-img")
-      .upload(filePath, file);
+      .from(bucket)
+      .upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
 
-    if (error) throw new Error("Error subiendo archivo");
+    if (error) {
+      console.log("UPLOAD ERROR:", error);
+      throw new Error(error.message);
+    }
 
     const { data } = supabase.storage
-      .from("establecimientos-img")
-      .getPublicUrl(filePath);
+      .from(bucket)
+      .getPublicUrl(fileName);
 
     return data.publicUrl;
   };
 
   // =========================
-  // BUSCADOR DIRECCIÓN
+  // BUSCADOR DIRECCIÓN (BACKEND)
   // =========================
   const buscarDireccion = async (query) => {
     if (query.length < 3) return;
 
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${query}`
-    );
+    try {
+      const res = await fetch(
+        `http://localhost:8000/api/geo/buscar?q=${query}`
+      );
 
-    const data = await res.json();
-    setSugerencias(data);
+      const json = await res.json();
+
+      const lista = Array.isArray(json) ? json : json.data || [];
+
+      const direcciones = lista.map((item) => ({
+        display: item.display_name,
+        calle:
+          item.address?.road ||
+          item.address?.pedestrian ||
+          item.address?.residential ||
+          "Dirección",
+        lat: item.lat,
+        lng: item.lon,
+      }));
+
+      setSugerencias(direcciones);
+
+    } catch (err) {
+      console.error("Error buscando dirección:", err);
+    }
   };
 
   // =========================
@@ -79,8 +103,10 @@ export default function CrearEstablecimiento() {
     setZonas(updated);
   };
 
-  const removeZona = (i) =>
+  const removeZona = (i) => {
+    if (zonas.length === 1) return;
     setZonas(zonas.filter((_, index) => index !== i));
+  };
 
   // =========================
   // HORARIOS
@@ -98,7 +124,7 @@ export default function CrearEstablecimiento() {
     setHorarios(horarios.filter((_, index) => index !== i));
 
   // =========================
-  // CREAR
+  // CREAR ESTABLECIMIENTO
   // =========================
   const crear = async () => {
     try {
@@ -107,21 +133,56 @@ export default function CrearEstablecimiento() {
       const token = localStorage.getItem("token");
       if (!token) return alert("No autenticado");
 
-      // validar teléfono
+      // VALIDAR DIRECCIÓN
+      const direccionLimpia = form.direccion.trim();
+
+      if (!direccionLimpia) {
+        return alert("La dirección es obligatoria");
+      }
+
+      const direccionCompleta = direccionLimpia
+        .toLowerCase()
+        .includes("lebrija")
+        ? direccionLimpia
+        : `${direccionLimpia}, Lebrija`;
+
+      // VALIDAR TELÉFONO
       if (!/^[0-9]{9,15}$/.test(form.telefono)) {
         return alert("Teléfono inválido");
       }
 
-      // validar zonas
-      if (zonas.some(z => !z.nombre || !z.capacidad)) {
-        return alert("Completa todas las zonas");
+      // VALIDAR ZONAS
+      if (
+        zonas.some(
+          (z) => !z.nombre.trim() || Number(z.capacidad) <= 0
+        )
+      ) {
+        return alert("Zonas inválidas");
       }
 
       let imagen_url = null;
       let carta_url = null;
 
-      if (imagen) imagen_url = await uploadFile(imagen, "establecimientos");
-      if (pdf) carta_url = await uploadFile(pdf, "cartas");
+      // IMAGEN
+      if (imagen) {
+        if (!imagen.type.startsWith("image/")) {
+          return alert("La imagen no es válida");
+        }
+
+        imagen_url = await uploadFile(
+          imagen,
+          "establecimientos-img"
+        );
+      }
+
+      // PDF
+      if (pdf) {
+        if (pdf.type !== "application/pdf") {
+          return alert("La carta debe ser un PDF");
+        }
+
+        carta_url = await uploadFile(pdf, "cartas-pdf");
+      }
 
       const res = await fetch(
         "http://localhost:8000/api/establecimientos",
@@ -133,7 +194,7 @@ export default function CrearEstablecimiento() {
           },
           body: JSON.stringify({
             ...form,
-            capacidad: capacidadTotal, 
+            direccion: direccionCompleta,
             imagen_url,
             carta_url,
             zonas,
@@ -143,7 +204,11 @@ export default function CrearEstablecimiento() {
       );
 
       const data = await res.json();
-      if (!res.ok) return alert(data.detail);
+
+      if (!res.ok) {
+        alert(data.detail);
+        return;
+      }
 
       alert("Establecimiento creado correctamente");
       router.push("/establecimientos/mis");
@@ -156,6 +221,9 @@ export default function CrearEstablecimiento() {
     }
   };
 
+  // =========================
+  // UI
+  // =========================
   return (
     <div className="page">
       <div className="container">
@@ -166,7 +234,6 @@ export default function CrearEstablecimiento() {
 
         <div className="card">
 
-          {/* FORM */}
           <div className="filters">
 
             <label>Nombre</label>
@@ -188,17 +255,21 @@ export default function CrearEstablecimiento() {
               }}
             />
 
+            <p style={{ fontSize: 12, color: "#888" }}>
+              Ubicación dentro de Lebrija
+            </p>
+
             {sugerencias.map((s, i) => (
               <div
                 key={i}
                 className="card"
                 style={{ cursor: "pointer", padding: 10 }}
                 onClick={() => {
-                  setForm({ ...form, direccion: s.display_name });
+                  setForm({ ...form, direccion: s.display });
                   setSugerencias([]);
                 }}
               >
-                {s.display_name}
+                {s.display}
               </div>
             ))}
 
@@ -222,12 +293,10 @@ export default function CrearEstablecimiento() {
 
           </div>
 
-          {/* CAPACIDAD AUTOMÁTICA */}
           <p style={{ marginTop: 10 }}>
             <strong>Capacidad total:</strong> {capacidadTotal}
           </p>
 
-          {/* ZONAS */}
           <h2 className="page-subtitle">Zonas</h2>
 
           {zonas.map((z, i) => (
@@ -264,7 +333,6 @@ export default function CrearEstablecimiento() {
             + Añadir zona
           </button>
 
-          {/* HORARIOS */}
           <h2 className="page-subtitle">Horarios</h2>
 
           {horarios.map((h, i) => (
@@ -273,7 +341,7 @@ export default function CrearEstablecimiento() {
                 className="input-filter"
                 value={h.dia_semana}
                 onChange={(e) =>
-                  updateHorario(i, "dia_semana", e.target.value)
+                  updateHorario(i, "dia_semana", Number(e.target.value))
                 }
               >
                 <option value={1}>Lunes</option>
@@ -307,22 +375,20 @@ export default function CrearEstablecimiento() {
             + Añadir horario
           </button>
 
-          {/* ARCHIVOS */}
-          <h2 className="page-subtitle">Archivos</h2>
-
+          <h2 className="page-subtitle">Imagen principal</h2>
           <input
-            className="input-filter"
             type="file"
+            accept="image/*"
             onChange={(e) => setImagen(e.target.files[0])}
           />
 
+          <h2 className="page-subtitle">Carta (PDF)</h2>
           <input
-            className="input-filter"
             type="file"
+            accept="application/pdf"
             onChange={(e) => setPdf(e.target.files[0])}
           />
 
-          {/* BOTÓN */}
           <button
             className="btn-primary"
             style={{ marginTop: 30, width: "100%" }}
@@ -333,7 +399,6 @@ export default function CrearEstablecimiento() {
           </button>
 
         </div>
-
       </div>
     </div>
   );

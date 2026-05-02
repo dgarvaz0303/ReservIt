@@ -66,10 +66,9 @@ def create_establecimiento(
     current_user=Depends(get_current_user)
 ):
     try:
-        # obtener auth_id del token
         auth_id = current_user.id
 
-        # buscar usuario en tabla
+        #  Buscar usuario
         user_res = supabase.table("usuarios") \
             .select("*") \
             .eq("auth_id", auth_id) \
@@ -81,25 +80,44 @@ def create_establecimiento(
 
         user_id = user_res.data["id"]
 
-        # insertar establecimiento
-        res = supabase.table("establecimiento").insert({
+        # Crear establecimiento 
+        est_res = supabase.table("establecimiento").insert({
             "nombre": est.nombre,
             "direccion": est.direccion,
             "tipo": est.tipo,
             "telefono": est.telefono,
-            "capacidad": est.capacidad,
+            "imagen_url": est.imagen_url,
             "carta_url": est.carta_url,
             "id_user": user_id
         }).execute()
 
+        establecimiento_id = est_res.data[0]["id"]
+
+        #  Crear zonas
+        if est.zonas:
+            for zona in est.zonas:
+                supabase.table("zonas").insert({
+                    "establecimiento_id": establecimiento_id,
+                    "nombre": zona["nombre"],
+                    "capacidad": zona["capacidad"]
+                }).execute()
+
+        # Crear horarios
+        if est.horarios:
+            for h in est.horarios:
+                supabase.table("horarios_establecimiento").insert({
+                    "id_establecimiento": establecimiento_id,
+                    "dia_semana": h["dia_semana"],
+                    "hora": h["hora"]
+                }).execute()
+
         return {
             "message": "Establecimiento creado correctamente",
-            "data": res.data
+            "data": est_res.data
         }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 @router.delete("/{id}")
 def delete_establecimiento(
     id: int,
