@@ -1,80 +1,86 @@
-/* Navbar */
+/* ===== NAVBAR ===== */
 .navbar {
   background: var(--color-primary);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
-/* Contenido */
+/* CONTENIDO */
 .navbar-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 60px;
+  height: 70px; 
 }
 
-/* Logo */
+/* ===== LOGO ===== */
 .navbar-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  font-family: var(--font-logo);
-  font-size: 28px;
-  color: white;
   cursor: pointer;
 }
 
-/* Imagen */
+/* 🔥 LOGO BIEN ESCALADO */
 .navbar-logo-img {
-  width: 28px;
-  height: 28px;
+  height: 44px;          
+  width: auto;
   object-fit: contain;
+  transition: 0.25s ease;
 }
 
-/* Links */
+/* hover elegante */
+.navbar-logo-img:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* ===== LINKS ===== */
 .navbar-links {
   display: flex;
-  gap: 12px;
+  gap: 14px;
 }
 
-/* Botones */
+/* BOTONES */
 .navbar-link {
   background: transparent;
   border: none;
-  padding: 8px 12px;
+  padding: 8px 14px;
   border-radius: var(--radius);
   cursor: pointer;
   font-size: 14px;
   color: rgba(255,255,255,0.85);
-  transition: 0.2s;
+  transition: all 0.2s ease;
 }
 
+/* hover más fino */
 .navbar-link:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.12);
   color: white;
 }
 
+/* ===== USER ===== */
 .navbar-user {
   position: relative;
 }
 
+/* ===== DROPDOWN ===== */
 .navbar-dropdown {
   position: absolute;
   right: 0;
-  top: 40px;
+  top: 45px;
   background: white;
   border-radius: var(--radius);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
   padding: 8px;
   display: flex;
   flex-direction: column;
-  min-width: 140px;
+  min-width: 160px;
   z-index: 200;
 }
 
+/* ITEMS */
 .navbar-dropdown button {
   background: transparent;
   border: none;
@@ -82,6 +88,7 @@
   text-align: left;
   cursor: pointer;
   border-radius: var(--radius);
+  font-size: 14px;
 }
 
 .navbar-dropdown button:hover {

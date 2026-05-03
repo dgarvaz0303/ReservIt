@@ -19,15 +19,21 @@ export default function EstablecimientosPage() {
     try {
       const res = await fetch("http://localhost:8000/api/establecimientos");
       const data = await res.json();
-      setEstablecimientos(data);
+
+      
+      setEstablecimientos(Array.isArray(data) ? data : []);
     } catch (err) {
       console.log(err);
     }
   };
 
   const filtrados = establecimientos.filter((est) => {
-    const matchNombre = est.nombre.toLowerCase().includes(search.toLowerCase());
+    const matchNombre = est.nombre
+      ?.toLowerCase()
+      .includes(search.toLowerCase());
+
     const matchTipo = tipo ? est.tipo === tipo : true;
+
     return matchNombre && matchTipo;
   });
 
@@ -35,8 +41,8 @@ export default function EstablecimientosPage() {
     <div className="page">
       <div className="container">
 
+        {/* HEADER */}
         <div className="page-header">
-
           <div>
             <h1 className="page-title">Establecimientos</h1>
             <p className="page-subtitle">
@@ -50,7 +56,6 @@ export default function EstablecimientosPage() {
           >
             ← Volver al Inicio
           </button>
-
         </div>
 
         {/* FILTROS */}
@@ -77,54 +82,92 @@ export default function EstablecimientosPage() {
 
         {/* LISTADO */}
         <div className="est-list">
-          {filtrados.map((est) => (
-            <div
-              key={est.id}
-              className="est-card"
-              onClick={() => router.push(`/establecimientos/${est.id}`)}
-            >
-              <div className="est-image">
-                {est.imagen_url ? (
-                  <img
-                    src={est.imagen_url}
-                    alt={est.nombre}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                ) : (
-                  "Sin imagen"
-                )}
-              </div>
+          {filtrados.map((est) => {
 
-              <div className="est-content">
-                <h2 className="est-title">{est.nombre}</h2>
+            // CAPACIDAD DESDE ZONAS
+            const capacidadTotal =
+              est.zonas?.reduce(
+                (acc, z) => acc + Number(z.capacidad || 0),
+                0
+              ) || 0;
 
-                <p className="est-info">{est.direccion}</p>
-                <p className="est-info">Capacidad: {est.capacidad}</p>
+            return (
+              <div
+                key={est.id}
+                className="est-card"
+                onClick={() =>
+                  router.push(`/establecimientos/${est.id}`)
+                }
+              >
+                {/* IMAGEN */}
+                <div className="est-image">
+                  {est.imagen_url ? (
+                    <img
+                      src={est.imagen_url}
+                      alt={est.nombre}
+                    />
+                  ) : (
+                    "Sin imagen"
+                  )}
+                </div>
 
-                <div className="est-actions">
-                  <button
-                    className="btn-primary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      alert("Reservar próximamente");
-                    }}
-                  >
-                    Reservar
-                  </button>
+                {/* CONTENIDO */}
+                <div className="est-content">
 
-                  <button
-                    className="btn-secondary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.open(est.carta_url);
-                    }}
-                  >
-                    Carta
-                  </button>
+                  <h2 className="est-title">
+                    {est.nombre}
+                  </h2>
+
+                  <p className="est-info">
+                    {est.direccion}
+                  </p>
+
+                  <p className="est-info">
+                    Capacidad: {est.capacidad_total}
+                  </p>
+
+                  {/* ACCIONES */}
+                  <div className="est-actions">
+
+                    {/* RESERVAR */}
+                    <button
+                      className="btn-primary"
+                      onClick={(e) => {
+                        router.push(
+                          `/establecimientos/${est.id}`
+                        );
+                      }}
+                    >
+                      Reservar
+                    </button>
+
+                    {/* CARTA PDF */}
+                    <button
+                      className="btn-secondary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+
+                        if (!est.carta_url) {
+                          alert(
+                            "Este establecimiento no tiene carta"
+                          );
+                          return;
+                        }
+
+                        window.open(
+                          est.carta_url,
+                          "_blank"
+                        );
+                      }}
+                    >
+                      Carta
+                    </button>
+
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
       </div>

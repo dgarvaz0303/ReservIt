@@ -15,11 +15,13 @@ export default function EstablecimientoDetalle() {
   const [mesActual, setMesActual] = useState(new Date());
   const [ocupacionMes, setOcupacionMes] = useState({});
 
+  // =========================
+  // INIT
+  // =========================
   useEffect(() => {
-    fetchEstablecimiento();
-
     const hoy = new Date().toISOString().split("T")[0];
     setFecha(hoy);
+    fetchEstablecimiento();
     fetchDisponibilidad(hoy);
   }, []);
 
@@ -27,6 +29,9 @@ export default function EstablecimientoDetalle() {
     fetchMes();
   }, [mesActual]);
 
+  // =========================
+  // FETCH
+  // =========================
   const fetchEstablecimiento = async () => {
     const res = await fetch(`http://localhost:8000/api/establecimientos/${id}`);
     const data = await res.json();
@@ -64,6 +69,9 @@ export default function EstablecimientoDetalle() {
     }
   };
 
+  // =========================
+  // RESERVA
+  // =========================
   const handleReservar = async () => {
     if (!seleccion) return;
 
@@ -88,6 +96,9 @@ export default function EstablecimientoDetalle() {
     setSeleccion(null);
   };
 
+  // =========================
+  // UTIL
+  // =========================
   const ahora = new Date();
 
   const horaPasada = (hora) => {
@@ -97,12 +108,18 @@ export default function EstablecimientoDetalle() {
     return d < ahora;
   };
 
+  // =========================
+  // ZONAS
+  // =========================
   const zonas = {};
   (disponibilidad || []).forEach((item) => {
     if (!zonas[item.zona]) zonas[item.zona] = [];
     zonas[item.zona].push(item);
   });
 
+  // =========================
+  // CALENDARIO
+  // =========================
   const generarCalendario = () => {
     const year = mesActual.getFullYear();
     const month = mesActual.getMonth();
@@ -115,11 +132,13 @@ export default function EstablecimientoDetalle() {
 
     for (let i = 1; i <= ultimo.getDate(); i++) {
       const d = new Date(year, month, i);
+      d.setHours(0, 0, 0, 0);
 
       dias.push({
         fecha: d.toISOString().split("T")[0],
         label: i,
         pasado: d < hoy,
+        hoy: d.getTime() === hoy.getTime(),
       });
     }
 
@@ -155,7 +174,6 @@ export default function EstablecimientoDetalle() {
 
           <div className="detalle-card">
 
-            {/* INFO MEJORADA */}
             <div className="detalle-info-block">
               <p><strong>Nombre:</strong> {establecimiento.nombre}</p>
               <p><strong>Tipo:</strong> {establecimiento.tipo}</p>
@@ -163,16 +181,25 @@ export default function EstablecimientoDetalle() {
               <p><strong>Teléfono:</strong> {establecimiento.telefono}</p>
             </div>
 
-            {/* ACCIONES */}
             <div className="card-actions">
               <a href={`tel:${establecimiento.telefono}`}>
                 <button className="btn-secondary">Contactar</button>
               </a>
 
-              <button className="btn-secondary">Carta PDF</button>
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  if (!establecimiento.carta_url) {
+                    alert("No hay carta disponible");
+                    return;
+                  }
+                  window.open(establecimiento.carta_url, "_blank");
+                }}
+              >
+                Carta PDF
+              </button>
             </div>
 
-            {/* CTA */}
             <button
               className="btn-primary full"
               disabled={!seleccion}
@@ -187,20 +214,16 @@ export default function EstablecimientoDetalle() {
         {/* CALENDARIO HEADER */}
         <div className="calendar-header">
 
-        <button className="calendar-nav" onClick={prevMes}>
-            ←
-        </button>
+          <button className="calendar-nav" onClick={prevMes}>←</button>
 
-        <h2 className="calendar-title">
+          <h2 className="calendar-title">
             {mesActual.toLocaleString("es-ES", {
-            month: "long",
-            year: "numeric",
+              month: "long",
+              year: "numeric",
             })}
-        </h2>
+          </h2>
 
-        <button className="calendar-nav" onClick={nextMes}>
-            →
-        </button>
+          <button className="calendar-nav" onClick={nextMes}>→</button>
 
         </div>
 
@@ -217,10 +240,13 @@ export default function EstablecimientoDetalle() {
               <button
                 key={dia.fecha}
                 disabled={dia.pasado}
-                className={`calendar-day ${estado} ${
-                  fecha === dia.fecha ? "active" : ""
-                }`}
+                className={`calendar-day ${estado} 
+                  ${fecha === dia.fecha ? "active" : ""} 
+                  ${dia.pasado ? "past" : ""}
+                  ${dia.hoy ? "today" : ""}
+                `}
                 onClick={() => {
+                  if (dia.pasado) return;
                   setFecha(dia.fecha);
                   fetchDisponibilidad(dia.fecha);
                   setSeleccion(null);
@@ -243,7 +269,7 @@ export default function EstablecimientoDetalle() {
           </div>
         </div>
 
-        {/* ZONAS NUEVAS */}
+        {/* ZONAS */}
         <div className="zonas-flex">
           {Object.keys(zonas).map((zona) => {
 
@@ -271,15 +297,21 @@ export default function EstablecimientoDetalle() {
                       <button
                         key={i}
                         disabled={disabled}
-                        className={`hora-btn ${
-                          seleccion?.hora === item.hora &&
-                          seleccion?.zona_id === item.zona_id
-                            ? "active"
-                            : ""
-                        }`}
-                        onClick={() => setSeleccion(item)}
+                        className={`hora-btn 
+                          ${disabled ? "disabled" : ""}
+                          ${
+                            seleccion?.hora === item.hora &&
+                            seleccion?.zona_id === item.zona_id
+                              ? "active"
+                              : ""
+                          }
+                        `}
+                        onClick={() => !disabled && setSeleccion(item)}
                       >
-                        {item.hora}
+                        <div>{item.hora}</div>
+                        <small>
+                          {item.disponibles} plazas
+                        </small>
                       </button>
                     );
                   })}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import "@/styles/components.css";
+import "@/styles/reserva-detalle.css";
 
 export default function DetalleReserva() {
   const { id } = useParams();
@@ -31,91 +31,92 @@ export default function DetalleReserva() {
 
   const generarPDF = () => window.print();
 
-  if (!reserva) return <p>Cargando...</p>;
+  if (!reserva) return <p className="page">Cargando...</p>;
 
   return (
-    <div className="page">
-      <div className="container">
+    <div className="reserva-page">
+      <div className="reserva-container">
 
         {/* HEADER */}
-        <div className="page-header">
+        <div className="reserva-header">
           <div>
-            <h1 className="page-title">Reserva</h1>
-            <p className="page-subtitle">
-              Gestiona tu reserva fácilmente
-            </p>
+            <h1>Tu reserva</h1>
+            <p>Presenta el QR en el establecimiento</p>
           </div>
 
-          <button className="btn-secondary" onClick={generarPDF}>
-            Descargar PDF
+          <button className="btn-primary" onClick={generarPDF}>
+            Descargar en formato PDF
           </button>
         </div>
 
-        {/* TOP */}
-        <div className="detalle-reserva-top">
+        {/* CONTENT */}
+        <div className="reserva-content">
 
           {/* QR */}
           <div className="qr-card">
             <img
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${reserva.qr_token}`}
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${reserva.qr_token}`}
               alt="QR"
             />
-            <p className="qr-text">Presenta este código en el local</p>
+            <p>Escanéalo en el local</p>
           </div>
 
           {/* INFO */}
-          <div className="reserva-info-card">
-
-            <div className="reserva-img">
-              <img
-                src={reserva.imagen_url || "/placeholder.jpg"}
-                alt="establecimiento"
-              />
-            </div>
+          <div className="reserva-card">
 
             <h2 className="reserva-title">
               {reserva.establecimiento_nombre}
             </h2>
 
-            <div className="reserva-info-block">
-              <p><strong>Cliente:</strong> {reserva.nombre_usuario}</p>
-              <p><strong>Personas:</strong> {reserva.num_personas}</p>
-              <p><strong>Zona:</strong> {reserva.zona}</p>
-              <p><strong>Fecha:</strong> {reserva.fecha}</p>
-              <p><strong>Hora:</strong> {reserva.hora}</p>
+            <div className="reserva-grid">
+
+              <div className="info-box">
+                <span>Cliente</span>
+                <strong>{reserva.nombre_usuario}</strong>
+              </div>
+
+              <div className="info-box">
+                <span>Personas</span>
+                <strong>{reserva.num_personas}</strong>
+              </div>
+
+              <div className="info-box">
+                <span>Zona</span>
+                <strong>{reserva.zona}</strong>
+              </div>
+
+              <div className="info-box">
+                <span>Fecha</span>
+                <strong>{reserva.fecha}</strong>
+              </div>
+
+              <div className="info-box">
+                <span>Hora</span>
+                <strong>{reserva.hora}</strong>
+              </div>
+
             </div>
 
-            <p className="reserva-note">
-              Las reservas se guardan durante 30 minutos.
+            <p className="reserva-warning">
+              Llega con puntualidad o podrías perder tu reserva
             </p>
 
-          </div>
+            <div className="reserva-actions">
+              <button
+                className="btn-danger"
+                onClick={() => setShowConfirm(true)}
+              >
+                Eliminar reserva
+              </button>
+            </div>
 
-        </div>
-
-        {/* EDIT */}
-        <div className="reserva-edit">
-
-          <h2>Cambiar reserva</h2>
-
-          <button className="btn-primary" disabled>
-            Próximamente
-          </button>
-
-          <div className="reserva-actions">
-            <button
-              className="btn-secondary"
-              onClick={() => setShowConfirm(true)}
-            >
-              Eliminar
-            </button>
           </div>
 
         </div>
 
       </div>
 
-      {/*MODAL CONFIRM */}
+      {/* MODAL */}
       {showConfirm && (
         <div className="modal-overlay">
           <div className="modal">
@@ -123,20 +124,20 @@ export default function DetalleReserva() {
             <h2>¿Eliminar reserva?</h2>
 
             <p>
-              Esta acción no se puede deshacer.
-              <br />
+              Esta acción no se puede deshacer.<br />
               Escribe <strong>DELETE</strong> para confirmar.
             </p>
 
             <input
               type="text"
-              placeholder="Escribe DELETE"
+              placeholder="DELETE"
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
               className="input-filter"
             />
 
             <div className="modal-actions">
+
               <button
                 className="btn-secondary"
                 onClick={() => {
@@ -148,18 +149,18 @@ export default function DetalleReserva() {
               </button>
 
               <button
-                className="btn-primary"
+                className="btn-danger"
                 disabled={confirmText !== "DELETE"}
                 onClick={eliminar}
               >
                 Confirmar eliminación
               </button>
+
             </div>
 
           </div>
         </div>
       )}
-
     </div>
   );
 }

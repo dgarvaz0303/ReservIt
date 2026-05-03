@@ -39,8 +39,34 @@ def get_mis_establecimientos(current_user=Depends(get_current_user)):
 @router.get("")
 def get_establecimientos():
     try:
-        res = supabase.table("establecimiento").select("*").execute()
-        return res.data
+        establecimientos = supabase.table("establecimiento") \
+            .select("*") \
+            .execute().data or []
+
+        zonas = supabase.table("zonas") \
+            .select("*") \
+            .execute().data or []
+
+        resultado = []
+
+        for est in establecimientos:
+
+            zonas_est = [
+                z for z in zonas
+                if z["establecimiento_id"] == est["id"]
+            ]
+
+            capacidad_total = sum(
+                z["capacidad"] for z in zonas_est
+            )
+
+            resultado.append({
+                **est,
+                "capacidad_total": capacidad_total
+            })
+
+        return resultado
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

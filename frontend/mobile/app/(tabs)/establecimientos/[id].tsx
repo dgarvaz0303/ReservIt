@@ -7,6 +7,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Linking,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -51,7 +52,6 @@ export default function EstablecimientoDetalle() {
     );
     const data = await res.json();
 
-    // eliminar duplicados por hora + zona
     const unique = Array.from(
       new Map(
         (Array.isArray(data) ? data : data.data || []).map((item: any) => [
@@ -96,8 +96,16 @@ export default function EstablecimientoDetalle() {
       }),
     });
 
-    // REDIRECCIÓN
     router.replace("/reservas");
+  };
+
+  const abrirCarta = async () => {
+    if (!establecimiento?.carta_url) {
+      alert("Este establecimiento no tiene carta");
+      return;
+    }
+
+    await Linking.openURL(establecimiento.carta_url);
   };
 
   // agrupar zonas
@@ -110,12 +118,34 @@ export default function EstablecimientoDetalle() {
   if (!establecimiento) return <Text>Cargando...</Text>;
 
   const ahora = new Date();
-  const esHoy =
-    fecha.toDateString() === ahora.toDateString();
+  const esHoy = fecha.toDateString() === ahora.toDateString();
 
   return (
     <ScrollView style={globalStyles.container}>
       <View style={globalStyles.section}>
+
+        {/* HEADER */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginBottom: 10,
+          }}
+        >
+          <TouchableOpacity
+            style={[globalStyles.button, { backgroundColor: COLORS.secondary }]}
+            onPress={() => router.push("/establecimientos")}
+          >
+            <Text style={globalStyles.buttonText}>← Volver</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[globalStyles.button, { backgroundColor: COLORS.accent }]}
+            onPress={abrirCarta}
+          >
+            <Text style={globalStyles.buttonText}>📄 Carta</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* IMAGEN */}
         <Image
@@ -152,15 +182,38 @@ export default function EstablecimientoDetalle() {
           <View
             style={{
               flexDirection: "row",
+              alignItems: "center",
               justifyContent: "space-between",
               width: "100%",
+              backgroundColor: COLORS.surface,
+              padding: 12,
+              borderRadius: 12,
+              marginBottom: 10,
             }}
           >
-            <TouchableOpacity onPress={() => cambiarDia(-1)}>
-              <Text>{"<"}</Text>
+            {/* BOTÓN IZQUIERDA */}
+            <TouchableOpacity
+              onPress={() => cambiarDia(-1)}
+              style={{
+                backgroundColor: COLORS.primary,
+                padding: 10,
+                borderRadius: 20,
+                width: 40,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: "white", fontSize: 16 }}>‹</Text>
             </TouchableOpacity>
 
-            <Text>
+            {/* FECHA */}
+            <Text
+              style={{
+                color: COLORS.text,
+                fontWeight: "600",
+                fontSize: 15,
+                textTransform: "capitalize",
+              }}
+            >
               {fecha.toLocaleDateString("es-ES", {
                 weekday: "long",
                 day: "numeric",
@@ -168,8 +221,18 @@ export default function EstablecimientoDetalle() {
               })}
             </Text>
 
-            <TouchableOpacity onPress={() => cambiarDia(1)}>
-              <Text>{">"}</Text>
+            {/* BOTÓN DERECHA */}
+            <TouchableOpacity
+              onPress={() => cambiarDia(1)}
+              style={{
+                backgroundColor: COLORS.primary,
+                padding: 10,
+                borderRadius: 20,
+                width: 40,
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: "white", fontSize: 16 }}>›</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -211,7 +274,7 @@ export default function EstablecimientoDetalle() {
               </Text>
 
               <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-                {zonas[zona].map((item, i) => {
+                {zonas[zona].map((item) => {
                   const hora = parseInt(item.hora.split(":")[0]);
 
                   const horaPasada =
@@ -222,34 +285,52 @@ export default function EstablecimientoDetalle() {
 
                   const disabled = horaPasada || sinCapacidad;
 
+                  const isSelected =
+                    seleccion?.hora === item.hora &&
+                    seleccion?.zona_id === item.zona_id;
+
                   return (
                     <TouchableOpacity
-                      key={i}
+                      key={`${item.hora}-${item.zona_id}`}
                       disabled={disabled}
                       onPress={() => setSeleccion(item)}
                       style={{
                         margin: 5,
                         padding: 10,
                         borderRadius: 20,
-                        backgroundColor:
-                          seleccion?.hora === item.hora &&
-                          seleccion?.zona_id === item.zona_id
-                            ? COLORS.primary
-                            : disabled
-                            ? "#ddd"
-                            : "#e8f0ea",
+                        alignItems: "center",
+                        backgroundColor: isSelected
+                          ? COLORS.primary
+                          : disabled
+                          ? "#ddd"
+                          : item.disponibles <= 2
+                          ? "#ffe5e5"
+                          : "#e8f5e9",
                       }}
                     >
+                      {/* HORA */}
                       <Text
                         style={{
-                          color:
-                            seleccion?.hora === item.hora &&
-                            seleccion?.zona_id === item.zona_id
-                              ? "white"
-                              : COLORS.text,
+                          color: isSelected ? "white" : COLORS.text,
+                          fontSize: 13,
                         }}
                       >
                         {item.hora}
+                      </Text>
+
+                      {/* CAPACIDAD */}
+                      <Text
+                        style={{
+                          fontSize: 11,
+                          marginTop: 2,
+                          color: isSelected
+                            ? "white"
+                            : item.disponibles <= 2
+                            ? COLORS.accent
+                            : COLORS.success,
+                        }}
+                      >
+                        👥 {item.disponibles}
                       </Text>
                     </TouchableOpacity>
                   );

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -10,7 +12,10 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
+import { router } from "expo-router";
+import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
 
 import { globalStyles } from "@/themes/styles";
 import { COLORS } from "@/themes/colors";
@@ -30,7 +35,7 @@ interface Reserva {
 
 export default function DetalleReserva() {
   const route = useRoute<any>();
-  const navigation = useNavigation<any>();
+ 
 
   const { id } = route.params;
 
@@ -49,7 +54,7 @@ export default function DetalleReserva() {
 
       if (data.detail) {
         Alert.alert("Error", data.detail);
-        navigation.goBack();
+        router.push("/reservas");
         return;
       }
 
@@ -65,7 +70,64 @@ export default function DetalleReserva() {
     });
 
     setShowConfirm(false);
-    navigation.navigate("MisReservas");
+    router.push("/reservas");
+  };
+
+  // =========================
+  // PDF GENERADOR
+  // =========================
+  const generarPDF = async () => {
+    if (!reserva) return;
+
+    const html = `
+      <html>
+        <body style="font-family: Arial; padding: 20px; background:#FAF9F6;">
+
+          <!-- HEADER -->
+          <div style="background:#6F4E37; color:white; padding:15px; border-radius:12px;">
+            <h2 style="margin:0;">ReservIt</h2>
+            <p style="margin:0;">Detalle de la reserva</p>
+          </div>
+
+          <!-- CARD -->
+          <div style="margin-top:20px; padding:15px; background:white; border-radius:12px;">
+
+            <h3 style="color:#6F4E37;">${reserva.establecimiento_nombre}</h3>
+
+            <p><strong>Cliente:</strong> ${reserva.nombre_usuario}</p>
+            <p><strong>Personas:</strong> ${reserva.num_personas}</p>
+            <p><strong>Zona:</strong> ${reserva.zona}</p>
+            <p><strong>Fecha:</strong> ${reserva.fecha}</p>
+            <p><strong>Hora:</strong> ${reserva.hora}</p>
+
+          </div>
+
+          <!-- QR -->
+          <div style="text-align:center; margin-top:30px;">
+            <img 
+              src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${reserva.qr_token}" 
+            />
+            <p style="color:#666;">Presenta este código en el local</p>
+          </div>
+
+          <!-- FOOTER -->
+          <p style="text-align:center; margin-top:30px; font-size:12px; color:#aaa;">
+            Generado por ReservIt
+          </p>
+
+        </body>
+      </html>
+    `;
+
+    try {
+      const { uri } = await Print.printToFileAsync({ html });
+
+      await Sharing.shareAsync(uri);
+
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error", "No se pudo generar el PDF");
+    }
   };
 
   if (!reserva) {
@@ -83,7 +145,7 @@ export default function DetalleReserva() {
       <View style={styles.header}>
         <Text style={globalStyles.title}>Reserva</Text>
 
-        <TouchableOpacity style={styles.outlineBtn}>
+        <TouchableOpacity style={styles.outlineBtn} onPress={generarPDF}>
           <Text style={{ color: COLORS.primary }}>PDF</Text>
         </TouchableOpacity>
       </View>
@@ -125,10 +187,6 @@ export default function DetalleReserva() {
 
       {/* ACTIONS */}
       <View style={styles.actions}>
-
-        <TouchableOpacity style={globalStyles.button} disabled>
-          <Text style={globalStyles.buttonText}>Próximamente</Text>
-        </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.outlineBtn}
@@ -198,7 +256,7 @@ export default function DetalleReserva() {
   );
 }
 
-/* ===== SOLO LO ESPECÍFICO ===== */
+/* ===== STYLES ===== */
 const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
