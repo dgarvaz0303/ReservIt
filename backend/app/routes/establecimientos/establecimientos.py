@@ -45,6 +45,51 @@ def get_establecimientos():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/admin")
+def get_establecimientos_admin():
+    try:
+        establecimientos = supabase.table("establecimiento").select("*").execute().data or []
+
+        reservas = supabase.table("reserva").select("*").execute().data or []
+
+        from datetime import datetime
+
+        now = datetime.now()
+
+        resultado = []
+
+        for est in establecimientos:
+            est_reservas = [r for r in reservas if r["id_establecimiento"] == est["id"]]
+
+            activas = 0
+            pasadas = 0
+            usadas = 0
+
+            for r in est_reservas:
+                fecha_hora = datetime.fromisoformat(f"{r['fecha']}T{r['hora']}")
+
+                if r["qr_usado"]:
+                    usadas += 1
+                else:
+                    if fecha_hora >= now:
+                        activas += 1
+                    else:
+                        pasadas += 1
+
+            resultado.append({
+                **est,
+                "reservas_activas": activas,
+                "reservas_pasadas": pasadas,
+                "reservas_usadas": usadas,
+                "reservas_total": len(est_reservas)
+            })
+
+        return resultado
+
+    except Exception as e:
+        print("ERROR ADMIN LOCALES:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
 # GET por ID
 @router.get("/{id}")
 def get_establecimiento(id: int):
@@ -160,3 +205,6 @@ def delete_establecimiento(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+

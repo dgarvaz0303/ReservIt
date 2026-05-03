@@ -53,7 +53,7 @@ export default function Navbar({ rol }) {
       { name: "Inicio", path: "/" },
       { name: "Establecimientos", path: "/establecimientos" },
       { name: "Mis reservas", path: "/reservas" },
-      { name: "Administración", path: "/admin" },
+      { name: "Administración", path: "/administracion" },
     ],
   };
 
