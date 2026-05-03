@@ -76,21 +76,55 @@ async def get_mis_reservas(authorization: str = Header(None, alias="Authorizatio
 
 
 
-# GET reservas por establecimiento
 @router.get("/reservas/establecimiento/{id_establecimiento}")
 def get_reservas_by_establecimiento(
     id_establecimiento: int,
     fecha: str,
 ):
     try:
-        response = supabase.table("reserva")\
+        # reservas
+        reservas = supabase.table("reserva")\
             .select("*")\
             .eq("id_establecimiento", id_establecimiento)\
             .eq("fecha", fecha)\
             .order("hora")\
-            .execute()
+            .execute().data or []
 
-        return response.data
+        if not reservas:
+            return []
+
+        # usuarios
+        usuarios = supabase.table("usuarios")\
+            .select("*")\
+            .execute().data or []
+
+        # zonas
+        zonas = supabase.table("zonas")\
+            .select("*")\
+            .execute().data or []
+
+        resultado = []
+
+        for r in reservas:
+
+            user = next(
+                (u for u in usuarios if u["id"] == r["id_user"]),
+                None
+            )
+
+            zona = next(
+                (z for z in zonas if z["id"] == r["zona_id"]),
+                None
+            )
+
+            resultado.append({
+                "hora": r["hora"],
+                "num_personas": r["num_personas"],
+                "nombre_cliente": user["nombre"] if user else "Cliente",
+                "zona_nombre": zona["nombre"] if zona else "General"
+            })
+
+        return resultado
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

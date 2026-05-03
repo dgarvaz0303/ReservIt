@@ -68,8 +68,11 @@ export default function Navbar({ rol }) {
           className="navbar-logo"
           onClick={() => router.push("/")}
         >
-          <img src="/logo.png" alt="ReservIt" className="navbar-logo-img" />
-          <span>ReservIt</span>
+          <img
+            src="https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png"
+            alt="ReservIt"
+            className="navbar-logo-img"
+          />
         </div>
 
         {/* LINKS */}

@@ -13,7 +13,8 @@ import { router } from "expo-router";
 import { globalStyles } from "../../themes/styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { COLORS } from "../../themes/colors";
-
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 export default function MisReservas() {
   const [reservas, setReservas] = useState<any[]>([]);
   const [filtroFecha, setFiltroFecha] = useState("");
@@ -21,9 +22,11 @@ export default function MisReservas() {
   const [filtroTramo, setFiltroTramo] = useState("");
 
 
-  useEffect(() => {
+useFocusEffect(
+  useCallback(() => {
     fetchReservas();
-  }, []);
+  }, [])
+);
 
   const fetchReservas = async () => {
     try {

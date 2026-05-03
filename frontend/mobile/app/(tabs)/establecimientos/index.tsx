@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import {
   View,
@@ -5,6 +7,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Linking,
+  StyleSheet,
 } from "react-native";
 import { router } from "expo-router";
 import { globalStyles } from "@/themes/styles";
@@ -21,21 +25,51 @@ export default function Establecimientos() {
     try {
       const res = await fetch("http://192.168.1.132:8000/api/establecimientos");
       const data = await res.json();
-      setEstablecimientos(data);
+      setEstablecimientos(Array.isArray(data) ? data : []);
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  // =========================
+  // ABRIR PDF CARTA
+  // =========================
+  const abrirCarta = async (url: string) => {
+    if (!url) {
+      alert("Este establecimiento no tiene carta");
+      return;
+    }
+
+    const supported = await Linking.canOpenURL(url);
+
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      alert("No se puede abrir la carta");
     }
   };
 
   return (
     <ScrollView style={{ backgroundColor: COLORS.bg }}>
 
-      {/* HEADER */}
-      <View style={globalStyles.section}>
-        <Text style={globalStyles.title}>Establecimientos</Text>
+      {/* LOGO */}
+      <View style={styles.logoContainer}>
+        <Image
+          source={{
+            uri: "https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png",
+          }}
+          style={styles.logo}
+        />
+      </View>
 
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={globalStyles.link}>← Volver</Text>
+      {/* HEADER */}
+      <View style={styles.header}>
+
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.backText}>← Volver</Text>
         </TouchableOpacity>
       </View>
 
@@ -46,12 +80,12 @@ export default function Establecimientos() {
             key={est.id}
             style={globalStyles.cardList}
             onPress={() =>
-                router.push({
-                    pathname: "/establecimientos/[id]",
-                    params: { id: est.id },
-                })
-                }
-            >
+              router.push({
+                pathname: "/establecimientos/[id]",
+                params: { id: est.id },
+              })
+            }
+          >
             {/* IMAGEN */}
             <Image
               source={{
@@ -62,28 +96,33 @@ export default function Establecimientos() {
 
             {/* CONTENIDO */}
             <View style={globalStyles.cardContent}>
-              <Text style={globalStyles.cardTitle}>{est.nombre}</Text>
+              <Text style={globalStyles.cardTitle}>
+                {est.nombre}
+              </Text>
 
               <Text style={globalStyles.cardText}>
                 {est.tipo}
               </Text>
 
               <Text style={globalStyles.cardText}>
-                 {est.direccion}
+                {est.direccion}
               </Text>
 
               <Text style={globalStyles.cardText}>
-                 Capacidad: {est.capacidad}
+                Capacidad: {est.capacidad_total || est.capacidad || 0}
               </Text>
 
               {/* BOTONES */}
-              <View style={{ marginTop: 10, gap: 8 }}>
-                
+              <View style={styles.actions}>
+
                 <TouchableOpacity
                   style={globalStyles.button}
                   onPress={(e) => {
                     e.stopPropagation();
-                    alert("Reserva próximamente");
+                    router.push({
+                      pathname: "/establecimientos/[id]",
+                      params: { id: est.id },
+                    });
                   }}
                 >
                   <Text style={globalStyles.buttonText}>
@@ -92,13 +131,14 @@ export default function Establecimientos() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
+                  style={styles.pdfBtn}
                   onPress={(e) => {
                     e.stopPropagation();
-                    console.log(est.carta_url);
+                    abrirCarta(est.carta_url);
                   }}
                 >
-                  <Text style={globalStyles.link}>
-                    Ver carta
+                  <Text style={styles.pdfText}>
+                    📄 Ver carta
                   </Text>
                 </TouchableOpacity>
 
@@ -111,3 +151,58 @@ export default function Establecimientos() {
     </ScrollView>
   );
 }
+
+/* =========================
+   STYLES
+========================= */
+
+const styles = StyleSheet.create({
+  logoContainer: {
+    alignItems: "center",
+    marginTop: 20,
+  },
+
+  logo: {
+    width: 120,
+    height: 60,
+    resizeMode: "contain",
+  },
+
+  header: {
+    paddingHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+
+  backBtn: {
+    marginTop: 8,
+    alignSelf: "flex-start",
+    backgroundColor: COLORS.surface,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+
+  backText: {
+    color: COLORS.primary,
+    fontWeight: "600",
+  },
+
+  actions: {
+    marginTop: 10,
+    gap: 8,
+  },
+
+  pdfBtn: {
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+
+  pdfText: {
+    color: COLORS.primary,
+    fontWeight: "500",
+  },
+});
