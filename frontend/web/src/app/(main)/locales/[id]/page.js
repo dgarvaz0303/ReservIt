@@ -105,7 +105,7 @@ export default function DetalleEstablecimientoSupervisor() {
               <button
                 className="btn-primary"
                 onClick={() =>
-                  router.push(`/establecimientos/editar/${id}`)
+                  router.push(`/locales/${id}/editar`)
                 }
               >
                 Editar
