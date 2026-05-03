@@ -1,25 +1,39 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import "@/styles/components.css";
 import { useRouter } from "next/navigation";
+import "@/styles/perfil.css";
+
 export default function PerfilPage() {
   const [user, setUser] = useState(null);
   const [historial, setHistorial] = useState([]);
-
   const [showModal, setShowModal] = useState(false);
   const [confirmText, setConfirmText] = useState("");
+
+  const router = useRouter();
 
   useEffect(() => {
     cargarUsuario();
     cargarHistorial();
   }, []);
-  const router = useRouter();
-  const cargarUsuario = () => {
-    const nombre = localStorage.getItem("nombre");
-    const rol = localStorage.getItem("rol");
 
-    setUser({ nombre, rol });
+  // 🔥 AHORA DESDE BACKEND
+  const cargarUsuario = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://localhost:8000/api/usuarios/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      setUser(data);
+
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const cargarHistorial = async () => {
@@ -43,73 +57,96 @@ export default function PerfilPage() {
   };
 
   const eliminarCuenta = async () => {
-    try {
-      const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
-      await fetch("http://localhost:8000/api/usuarios/me", {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    await fetch("http://localhost:8000/api/usuarios/me", {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      localStorage.clear();
-      window.location.href = "/login";
-    } catch (err) {
-      console.log(err);
-    }
+    localStorage.clear();
+    window.location.href = "/login";
   };
 
-  if (!user) return <p className="text-center">Cargando...</p>;
+  if (!user) return <p className="perfil-loading">Cargando...</p>;
 
   return (
-    <div className="page">
-      <div className="container">
+    <div className="perfil-page">
+      <div className="perfil-container">
 
         {/* HEADER */}
-        <div className="page-header">
+        <div className="perfil-header">
+          <button
+            className="btn-back"
+            onClick={() => router.push("/")}
+          >
+            ← Inicio
+          </button>
+
           <div>
-            <h1 className="page-title">Mi Perfil</h1>
-            <p className="page-subtitle">
+            <h1 className="perfil-title">Mi Perfil</h1>
+            <p className="perfil-subtitle">
               Gestiona tu cuenta y revisa tu actividad
             </p>
           </div>
         </div>
 
         {/* INFO */}
-        <div className="card perfil-card">
-          <h2 className="section-title">Información</h2>
+        <div className="perfil-card">
+          <h2>Información personal</h2>
 
-          <p className="perfil-text">
-            <strong>Nombre:</strong> {user.nombre}
-          </p>
+          <div className="perfil-grid">
 
-          <p className="perfil-text">
-            <strong>Rol:</strong> {user.rol}
-          </p>
+            <div>
+              <span>Nombre</span>
+              <strong>{user.nombre}</strong>
+            </div>
+
+            <div>
+              <span>Usuario</span>
+              <strong>{user.nombre_user}</strong>
+            </div>
+
+            <div>
+              <span>Email</span>
+              <strong>{user.email}</strong>
+            </div>
+
+            <div>
+              <span>Teléfono</span>
+              <strong>{user.telefono}</strong>
+            </div>
+
+            <div>
+              <span>Rol</span>
+              <strong>{user.roll}</strong>
+            </div>
+
+          </div>
         </div>
 
         {/* HISTORIAL */}
-        <div className="card perfil-card">
-          <h2 className="section-title">Historial de reservas</h2>
+        <div className="perfil-card">
+          <h2>Historial de reservas</h2>
 
-          <div className="historial-scroll">
+          <div className="historial-list">
             {historial.length === 0 ? (
-              <p className="perfil-empty">
-                No hay reservas pasadas
-              </p>
+              <p className="perfil-empty">No hay reservas pasadas</p>
             ) : (
               historial.map((r) => (
-                <div key={r.id} className="historial-card">
+                <div key={r.id} className="historial-item">
 
                   <img
                     src={r.imagen_url || "/placeholder.jpg"}
                     alt={r.establecimiento_nombre}
                   />
 
-                  <div>
+                  <div className="historial-info">
                     <h3>{r.establecimiento_nombre}</h3>
-                    <p>{r.fecha} - {r.hora}</p>
+                    <p>{r.fecha} · {r.hora}</p>
+                    <span>{r.zona}</span>
                   </div>
 
                 </div>
@@ -119,8 +156,8 @@ export default function PerfilPage() {
         </div>
 
         {/* ACCIONES */}
-        <div className="card perfil-card">
-          <h2 className="section-title">Acciones</h2>
+        <div className="perfil-card">
+          <h2>Acciones</h2>
 
           <div className="perfil-actions">
 
@@ -131,8 +168,11 @@ export default function PerfilPage() {
               Editar datos
             </button>
 
-            <button className="btn-secondary">
-              Solicitar ser Supervisor
+            <button
+              className="btn-secondary"
+              onClick={() => router.push("/")}
+            >
+              Ir al inicio
             </button>
 
             <button

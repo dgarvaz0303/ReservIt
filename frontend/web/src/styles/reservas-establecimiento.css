@@ -1,0 +1,97 @@
+.reservas-page {
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.reservas-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* HEADER */
+.reservas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* BOTÓN VOLVER */
+.btn-back {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* FECHA */
+.fecha-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+/* FILTROS */
+.filtros {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filtro-btn {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+}
+
+.filtro-btn.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* CARD */
+.reserva-card {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.reserva-card:hover {
+  transform: translateY(-2px);
+}
+
+.reserva-bar {
+  width: 6px;
+  background: var(--color-success);
+}
+
+.reserva-content {
+  padding: 12px;
+  flex: 1;
+}
+
+.reserva-row {
+  display: flex;
+  gap: 15px;
+  font-size: 13px;
+  color: #666;
+}
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  padding: 40px;
+  color: #777;
+}

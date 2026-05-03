@@ -40,6 +40,13 @@ export default function DetalleReserva() {
         {/* HEADER */}
         <div className="reserva-header">
           <div>
+            {/* BOTÓN VOLVER */}
+            <button
+              className="back-btn"
+              onClick={() => router.push("/reservas")}
+            >
+              ← Volver
+            </button>
             <h1>Tu reserva</h1>
             <p>Presenta el QR en el establecimiento</p>
           </div>

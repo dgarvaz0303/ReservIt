@@ -116,6 +116,80 @@ def get_establecimientos_admin():
         print("ERROR ADMIN LOCALES:", e)
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.delete("/admin/{id}")
+def delete_establecimiento_admin(
+    id: int,
+    current_user=Depends(get_current_user)
+):
+    try:
+        auth_id = current_user.id
+
+        # obtener usuario
+        user_res = supabase.table("usuarios")\
+            .select("*")\
+            .eq("auth_id", auth_id)\
+            .single()\
+            .execute()
+
+        if not user_res.data:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+        # comprobar rol admin
+        if user_res.data.get("roll") != "admin":
+            raise HTTPException(status_code=403, detail="No autorizado")
+
+        # comprobar que existe (SIN .single())
+        est_res = supabase.table("establecimiento")\
+            .select("*")\
+            .eq("id", id)\
+            .execute()
+
+        if not est_res.data:
+            raise HTTPException(status_code=404, detail="No encontrado")
+
+        # =========================
+        # BORRADO COMPLETO (IMPORTANTE)
+        # =========================
+
+        # 1. zonas del establecimiento
+        zonas = supabase.table("zonas")\
+            .select("id")\
+            .eq("establecimiento_id", id)\
+            .execute().data or []
+
+        zona_ids = [z["id"] for z in zonas]
+
+        # 2. borrar reservas de esas zonas
+        if zona_ids:
+            supabase.table("reserva")\
+                .delete()\
+                .in_("zona_id", zona_ids)\
+                .execute()
+
+        # 3. borrar zonas
+        supabase.table("zonas")\
+            .delete()\
+            .eq("establecimiento_id", id)\
+            .execute()
+
+        # 4. borrar horarios
+        supabase.table("horarios_establecimiento")\
+            .delete()\
+            .eq("id_establecimiento", id)\
+            .execute()
+
+        # 5. borrar establecimiento
+        supabase.table("establecimiento")\
+            .delete()\
+            .eq("id", id)\
+            .execute()
+
+        return {"message": "Eliminado por admin correctamente"}
+
+    except Exception as e:
+        print("ERROR ADMIN DELETE:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
 # GET por ID
 @router.get("/{id}")
 def get_establecimiento(id: int):
@@ -374,3 +448,4 @@ def update_establecimiento(
     except Exception as e:
         print("ERROR UPDATE:", e)
         raise HTTPException(status_code=500, detail=str(e))
+    

@@ -15,7 +15,8 @@
 
   /* Tipografía */
   --font-main: 'Inter', sans-serif;
-  --font-logo: 'Great Vibes', cursive;
+  --font-logo: 'Playfair Display', serif;
+  --font-cursive: 'Playfair Display', serif;
 
   /* Espaciado */
   --spacing-sm: 8px;

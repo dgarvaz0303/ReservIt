@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import "@/styles/detalle.css";
 
@@ -14,7 +15,7 @@ export default function EstablecimientoDetalle() {
   const [seleccion, setSeleccion] = useState(null);
   const [mesActual, setMesActual] = useState(new Date());
   const [ocupacionMes, setOcupacionMes] = useState({});
-
+  const router = useRouter();
   // =========================
   // FECHA MADRID
   // =========================
@@ -103,6 +104,7 @@ export default function EstablecimientoDetalle() {
 
     fetchDisponibilidad(fecha);
     setSeleccion(null);
+    router.push("/establecimientos")
   };
 
   // =========================
@@ -199,7 +201,15 @@ export default function EstablecimientoDetalle() {
   return (
     <div className="page">
       <div className="container detalle">
-
+        {/* BOTÓN VOLVER */}
+        <div style={{ marginBottom: 20 }}>
+          <button
+            className="btn-secondary"
+            onClick={() => router.push("/establecimientos")}
+          >
+            ← Volver a establecimientos
+          </button>
+        </div>
         {/* TOP */}
         <div className="detalle-top">
 
@@ -233,7 +243,7 @@ export default function EstablecimientoDetalle() {
                 style={{ marginTop: 10, width: "100%" }}
                 onClick={abrirMapa}
               >
-                📍 Ver en Google Maps
+                Ver en Google Maps
               </button>
             </div>
 
