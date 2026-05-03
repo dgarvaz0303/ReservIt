@@ -106,7 +106,7 @@ useFocusEffect(
           />
 
           <TextInput
-            placeholder="🌙 mañana / tarde / noche"
+            placeholder=" mañana / tarde / noche"
             value={filtroTramo}
             onChangeText={setFiltroTramo}
             style={globalStyles.input}
@@ -151,7 +151,7 @@ useFocusEffect(
                 </Text>
 
                 <Text style={globalStyles.cardText}>
-                  📅 {item.fecha} - {item.hora}
+                   {item.fecha} - {item.hora}
                 </Text>
 
                 <Text style={globalStyles.cardText}>

@@ -108,6 +108,23 @@ export default function EstablecimientoDetalle() {
     await Linking.openURL(establecimiento.carta_url);
   };
 
+
+  // ABRIR GOOGLE MAPS
+const abrirMapa = async () => {
+  if (!establecimiento?.direccion) {
+    alert("Dirección no disponible");
+    return;
+  }
+
+  const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    establecimiento.direccion
+  )}`;
+
+  await Linking.openURL(url);
+};
+
+
+
   // agrupar zonas
   const zonas: Record<string, any[]> = {};
   disponibilidad.forEach((item) => {
@@ -175,6 +192,27 @@ export default function EstablecimientoDetalle() {
           <Text style={globalStyles.cardText}>
             Teléfono: {establecimiento.telefono}
           </Text>
+        </View>
+
+        {/* MAPA */}
+        <View style={[globalStyles.card, { marginBottom: 20 }]}>
+          <Text style={globalStyles.sectionTitle}>Ubicación</Text>
+
+          <Text style={globalStyles.cardText}>
+            {establecimiento.direccion}
+          </Text>
+
+          <TouchableOpacity
+            onPress={abrirMapa}
+            style={[
+              globalStyles.button,
+              { marginTop: 10, backgroundColor: COLORS.primary },
+            ]}
+          >
+            <Text style={globalStyles.buttonText}>
+               Ver en Google Maps
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* FECHA */}
