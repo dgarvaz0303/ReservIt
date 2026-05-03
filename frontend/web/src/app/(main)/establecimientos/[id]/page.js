@@ -16,10 +16,15 @@ export default function EstablecimientoDetalle() {
   const [ocupacionMes, setOcupacionMes] = useState({});
 
   // =========================
-  // INIT
+  // FECHA MADRID
   // =========================
+  const getHoyMadrid = () =>
+    new Date().toLocaleDateString("en-CA", {
+      timeZone: "Europe/Madrid",
+    });
+
   useEffect(() => {
-    const hoy = new Date().toISOString().split("T")[0];
+    const hoy = getHoyMadrid();
     setFecha(hoy);
     fetchEstablecimiento();
     fetchDisponibilidad(hoy);
@@ -39,11 +44,15 @@ export default function EstablecimientoDetalle() {
   };
 
   const fetchDisponibilidad = async (fechaSeleccionada) => {
-    const res = await fetch(
-      `http://localhost:8000/api/disponibilidad?establecimiento_id=${id}&fecha=${fechaSeleccionada}`
-    );
-    const data = await res.json();
-    setDisponibilidad(Array.isArray(data) ? data : data.data || []);
+    try {
+      const res = await fetch(
+        `http://localhost:8000/api/disponibilidad?establecimiento_id=${id}&fecha=${fechaSeleccionada}`
+      );
+      const data = await res.json();
+      setDisponibilidad(Array.isArray(data) ? data : data.data || []);
+    } catch {
+      setDisponibilidad([]);
+    }
   };
 
   const fetchMes = async () => {
@@ -97,15 +106,39 @@ export default function EstablecimientoDetalle() {
   };
 
   // =========================
+  // GOOGLE MAPS
+  // =========================
+  const abrirMapa = () => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      establecimiento.direccion
+    )}`;
+    window.open(url, "_blank");
+  };
+
+  // =========================
   // UTIL
   // =========================
-  const ahora = new Date();
-
   const horaPasada = (hora) => {
+    const ahora = new Date();
+
+    const [year, month, day] = fecha.split("-");
+    const fechaSel = new Date(year, month - 1, day);
+
+    const hoy = new Date();
+
+    const esHoy =
+      fechaSel.getFullYear() === hoy.getFullYear() &&
+      fechaSel.getMonth() === hoy.getMonth() &&
+      fechaSel.getDate() === hoy.getDate();
+
+    if (!esHoy) return false;
+
     const [h, m] = hora.split(":");
-    const d = new Date(fecha);
-    d.setHours(h, m);
-    return d < ahora;
+
+    const horaComparar = new Date();
+    horaComparar.setHours(Number(h), Number(m), 0, 0);
+
+    return horaComparar < ahora;
   };
 
   // =========================
@@ -134,8 +167,10 @@ export default function EstablecimientoDetalle() {
       const d = new Date(year, month, i);
       d.setHours(0, 0, 0, 0);
 
+      const fechaLocal = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
+
       dias.push({
-        fecha: d.toISOString().split("T")[0],
+        fecha: fechaLocal,
         label: i,
         pasado: d < hoy,
         hoy: d.getTime() === hoy.getTime(),
@@ -181,6 +216,27 @@ export default function EstablecimientoDetalle() {
               <p><strong>Teléfono:</strong> {establecimiento.telefono}</p>
             </div>
 
+            {/* MAPA */}
+            <div style={{ marginTop: 15 }}>
+              <iframe
+                width="100%"
+                height="180"
+                style={{ borderRadius: 12, border: "none" }}
+                loading="lazy"
+                src={`https://www.google.com/maps?q=${encodeURIComponent(
+                  establecimiento.direccion
+                )}&output=embed`}
+              ></iframe>
+
+              <button
+                className="btn-secondary"
+                style={{ marginTop: 10, width: "100%" }}
+                onClick={abrirMapa}
+              >
+                📍 Ver en Google Maps
+              </button>
+            </div>
+
             <div className="card-actions">
               <a href={`tel:${establecimiento.telefono}`}>
                 <button className="btn-secondary">Contactar</button>
@@ -213,7 +269,6 @@ export default function EstablecimientoDetalle() {
 
         {/* CALENDARIO HEADER */}
         <div className="calendar-header">
-
           <button className="calendar-nav" onClick={prevMes}>←</button>
 
           <h2 className="calendar-title">
@@ -224,7 +279,6 @@ export default function EstablecimientoDetalle() {
           </h2>
 
           <button className="calendar-nav" onClick={nextMes}>→</button>
-
         </div>
 
         {/* CALENDARIO */}
@@ -309,9 +363,7 @@ export default function EstablecimientoDetalle() {
                         onClick={() => !disabled && setSeleccion(item)}
                       >
                         <div>{item.hora}</div>
-                        <small>
-                          {item.disponibles} plazas
-                        </small>
+                        <small>{item.disponibles} plazas</small>
                       </button>
                     );
                   })}
