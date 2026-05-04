@@ -198,7 +198,7 @@ def get_establecimiento(id: int):
         est = supabase.table("establecimiento") \
             .select("*") \
             .eq("id", id) \
-            .single() \
+            .maybe_single() \
             .execute()
 
         if not est.data:

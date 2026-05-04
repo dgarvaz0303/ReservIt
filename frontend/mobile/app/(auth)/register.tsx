@@ -1,9 +1,19 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Image
+} from "react-native";
 import { router } from "expo-router";
+
 import { globalStyles } from "../../themes/styles";
-
-
+import { registerStyles } from "../../themes/registerStyles";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -16,6 +26,7 @@ export default function Register() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (name: string, value: string) => {
     setForm({ ...form, [name]: value });
@@ -24,6 +35,7 @@ export default function Register() {
   const handleRegister = async () => {
     setError("");
     setSuccess("");
+    setLoading(true);
 
     try {
       const res = await fetch("http://192.168.1.132:8000/api/register", {
@@ -40,68 +52,125 @@ export default function Register() {
         throw new Error(data.detail || "Error en registro");
       }
 
-      setSuccess("Usuario creado");
-      router.replace("/login");
+      setSuccess("Usuario creado correctamente");
+
+      setTimeout(() => {
+        router.replace("/login");
+      }, 1000);
 
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <View style={globalStyles.container}>
-      <View style={globalStyles.card}>
+    <KeyboardAvoidingView
+      style={globalStyles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: "center"
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={globalStyles.card}>
 
-        <Text style={globalStyles.title}>Crear cuenta</Text>
+          {/* LOGO */}
+          <Image
+            src="https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png"
+            style={registerStyles.logo}
+            resizeMode="contain"
+          />
 
-        <TextInput
-          style={globalStyles.input}
-          placeholder="Nombre"
-          onChangeText={(v) => handleChange("nombre", v)}
-        />
+          {/* TITULO */}
+          <Text style={globalStyles.title}>Crear cuenta</Text>
 
-        <TextInput
-          style={globalStyles.input}
-          placeholder="Usuario"
-          onChangeText={(v) => handleChange("nombre_user", v)}
-        />
-
-        <TextInput
-          style={globalStyles.input}
-          placeholder="Email"
-          onChangeText={(v) => handleChange("email", v)}
-        />
-
-        <TextInput
-          style={globalStyles.input}
-          placeholder="Teléfono"
-          onChangeText={(v) => handleChange("telefono", v)}
-        />
-
-        <TextInput
-          style={globalStyles.input}
-          placeholder="Password"
-          secureTextEntry
-          onChangeText={(v) => handleChange("password", v)}
-        />
-
-        <TouchableOpacity
-          style={globalStyles.button}
-          onPress={handleRegister}
-        >
-          <Text style={globalStyles.buttonText}>Registrarse</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => router.push("/login")}>
-          <Text style={globalStyles.link}>
-            ¿Ya tienes cuenta? Inicia sesión
+          <Text style={registerStyles.subtitle}>
+            Completa tus datos para empezar
           </Text>
-        </TouchableOpacity>
 
-        {error ? <Text style={globalStyles.error}>{error}</Text> : null}
-        {success ? <Text style={globalStyles.success}>{success}</Text> : null}
+          {/* NOMBRE + USER */}
+          <View style={registerStyles.row}>
+            <TextInput
+              style={[globalStyles.input, registerStyles.halfInput]}
+              placeholder="Nombre"
+              placeholderTextColor="#999"
+              onChangeText={(v) => handleChange("nombre", v)}
+            />
 
-      </View>
-    </View>
+            <TextInput
+              style={[globalStyles.input, registerStyles.halfInput]}
+              placeholder="Usuario"
+              placeholderTextColor="#999"
+              onChangeText={(v) => handleChange("nombre_user", v)}
+            />
+          </View>
+
+          {/* EMAIL */}
+          <TextInput
+            style={globalStyles.input}
+            placeholder="Email"
+            placeholderTextColor="#999"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            onChangeText={(v) => handleChange("email", v)}
+          />
+
+          {/* TELÉFONO */}
+          <TextInput
+            style={globalStyles.input}
+            placeholder="Teléfono"
+            placeholderTextColor="#999"
+            keyboardType="phone-pad"
+            onChangeText={(v) => handleChange("telefono", v)}
+          />
+
+          {/* PASSWORD */}
+          <TextInput
+            style={globalStyles.input}
+            placeholder="Password"
+            placeholderTextColor="#999"
+            secureTextEntry
+            onChangeText={(v) => handleChange("password", v)}
+          />
+
+          {/* BOTÓN */}
+          <TouchableOpacity
+            style={[
+              globalStyles.button,
+              loading && { opacity: 0.7 }
+            ]}
+            onPress={handleRegister}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={globalStyles.buttonText}>
+                Registrarse
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          {/* LOGIN LINK */}
+          <TouchableOpacity
+            style={registerStyles.footerSpace}
+            onPress={() => router.push("/login")}
+          >
+            <Text style={globalStyles.link}>
+              ¿Ya tienes cuenta? Inicia sesión
+            </Text>
+          </TouchableOpacity>
+
+          {error ? <Text style={globalStyles.error}>{error}</Text> : null}
+          {success ? <Text style={globalStyles.success}>{success}</Text> : null}
+
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

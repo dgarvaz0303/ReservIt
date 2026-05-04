@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+"use client";
+
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,44 +9,39 @@ import {
   FlatList,
   Image,
   ScrollView,
-  StyleSheet,
 } from "react-native";
 import { router } from "expo-router";
-import { globalStyles } from "../../themes/styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { COLORS } from "../../themes/colors";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
+
+import { globalStyles } from "../../themes/styles";
+import { COLORS } from "../../themes/colors";
+import { misReservasStyles as styles } from "../../themes/misReservasStyles";
+
 export default function MisReservas() {
   const [reservas, setReservas] = useState<any[]>([]);
   const [filtroFecha, setFiltroFecha] = useState("");
   const [filtroNombre, setFiltroNombre] = useState("");
   const [filtroTramo, setFiltroTramo] = useState("");
 
-
-useFocusEffect(
-  useCallback(() => {
-    fetchReservas();
-  }, [])
-);
+  useFocusEffect(
+    useCallback(() => {
+      fetchReservas();
+    }, [])
+  );
 
   const fetchReservas = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
 
-      if (!token) {
-        console.log("No hay token");
-        return;
-      }
-
-      const res = await fetch("http://192.168.1.132:8000/api/reservas/mis", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        "http://192.168.1.132:8000/api/reservas/mis",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       const raw = await res.json();
-
       const data = Array.isArray(raw) ? raw : raw.data || [];
 
       const ordenadas = data.sort(
@@ -84,34 +81,61 @@ useFocusEffect(
   return (
     <View style={globalStyles.container}>
 
-      {/* HEADER */}
       <Text style={globalStyles.title}>Mis reservas</Text>
 
       {/* FILTROS */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={styles.filters}>
-
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filters}
+      >
+        {/* FECHA */}
+        <View style={styles.filterBlock}>
+          <Text style={styles.filterLabel}>Fecha</Text>
           <TextInput
-            placeholder="📅 Fecha"
+            placeholder="YYYY-MM-DD"
             value={filtroFecha}
             onChangeText={setFiltroFecha}
-            style={globalStyles.input}
+            style={styles.filterInput}
           />
+        </View>
 
+        {/* NOMBRE */}
+        <View style={styles.filterBlock}>
+          <Text style={styles.filterLabel}>Establecimiento</Text>
           <TextInput
-            placeholder="🔍 Buscar"
+            placeholder="Buscar..."
             value={filtroNombre}
             onChangeText={setFiltroNombre}
-            style={globalStyles.input}
+            style={styles.filterInput}
           />
+        </View>
 
-          <TextInput
-            placeholder=" mañana / tarde / noche"
-            value={filtroTramo}
-            onChangeText={setFiltroTramo}
-            style={globalStyles.input}
-          />
+        {/* TRAMO */}
+        <View style={styles.filterBlock}>
+          <Text style={styles.filterLabel}>Tramo</Text>
 
+          <View style={styles.tramoContainer}>
+            {["mañana", "tarde", "noche"].map((t) => (
+              <TouchableOpacity
+                key={t}
+                onPress={() => setFiltroTramo(t)}
+                style={[
+                  styles.tramoBtn,
+                  filtroTramo === t && styles.tramoActive,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.tramoText,
+                    filtroTramo === t && styles.tramoTextActive,
+                  ]}
+                >
+                  {t}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </ScrollView>
 
@@ -121,7 +145,6 @@ useFocusEffect(
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ paddingBottom: 20 }}
         renderItem={({ item }) => {
-
           const fechaReserva = new Date(`${item.fecha} ${item.hora}`);
           const esPasada = fechaReserva < new Date();
 
@@ -145,20 +168,18 @@ useFocusEffect(
               />
 
               <View style={globalStyles.cardContent}>
-
                 <Text style={globalStyles.cardTitle}>
                   {item.establecimiento_nombre}
                 </Text>
 
                 <Text style={globalStyles.cardText}>
-                   {item.fecha} - {item.hora}
+                  {item.fecha} - {item.hora}
                 </Text>
 
                 <Text style={globalStyles.cardText}>
                   Zona: {item.zona}
                 </Text>
 
-                {/* ESTADO */}
                 <Text
                   style={{
                     marginTop: 6,
@@ -168,24 +189,15 @@ useFocusEffect(
                       : COLORS.success,
                   }}
                 >
-                  {esPasada ? "Reserva pasada" : "Próxima reserva"}
+                  {esPasada
+                    ? "Reserva pasada"
+                    : "Próxima reserva"}
                 </Text>
-
               </View>
             </TouchableOpacity>
           );
         }}
       />
-
     </View>
   );
 }
-
-/* SOLO LO ESPECÍFICO */
-const styles = StyleSheet.create({
-  filters: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 15,
-  },
-});

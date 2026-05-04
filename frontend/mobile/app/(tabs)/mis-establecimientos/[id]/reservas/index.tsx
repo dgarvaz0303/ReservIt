@@ -6,8 +6,6 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -16,7 +14,7 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 
 import { globalStyles } from "@/themes/styles";
-import { COLORS } from "@/themes/colors";
+import { reservasStyles as styles } from "@/themes/reservasLocalesStyles";
 
 export default function ReservasEstablecimiento() {
   const { id } = useLocalSearchParams();
@@ -30,6 +28,7 @@ export default function ReservasEstablecimiento() {
 
   useEffect(() => {
     if (establecimientoId) {
+      
       fetchReservas();
     }
   }, [fecha, establecimientoId]);
@@ -37,9 +36,6 @@ export default function ReservasEstablecimiento() {
   const formatDate = (date: Date) =>
     date.toISOString().split("T")[0];
 
-  // =========================
-  // FETCH
-  // =========================
   const fetchReservas = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -54,135 +50,52 @@ export default function ReservasEstablecimiento() {
       );
 
       const data = await res.json();
-
+      console.log("RESERVAS:", data);
       setReservas(Array.isArray(data) ? data : data.data || []);
     } catch (err) {
-      console.log("ERROR FETCH RESERVAS:", err);
+      console.log(err);
     }
   };
 
-  // =========================
-  // PDF PRO
-  // =========================
   const generarPDF = async () => {
-    if (reservas.length === 0) {
-      Alert.alert("Sin datos", "No hay reservas para este día");
-      return;
-    }
+    if (reservas.length === 0) return;
 
-    const fechaStr = fecha.toLocaleDateString("es-ES");
-
-    //  AGRUPAR POR HORA
-    const agrupadas: any = {};
-
-    reservas.forEach((r) => {
-      if (!agrupadas[r.hora]) agrupadas[r.hora] = [];
-      agrupadas[r.hora].push(r);
-    });
-
-    const horas = Object.keys(agrupadas).sort();
-
-    // HTML PDF
-    const html = `
-    <html>
-      <body style="font-family: Arial; padding: 20px;">
-
-        <!-- LOGO -->
-        <div style="text-align:center; margin-bottom:20px;">
-          <img src="https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png" width="120"/>
-        </div>
-
-        <h1 style="text-align:center;">Reservas del día</h1>
-
-        <p><strong>Fecha:</strong> ${fechaStr}</p>
-
-        <hr/>
-
-        ${horas
-          .map((hora) => {
-            const lista = agrupadas[hora];
-
-            const total = lista.reduce(
-              (acc: number, r: any) =>
-                acc + Number(r.num_personas || 0),
-              0
-            );
-
-            return `
-              <div style="margin-top:15px;">
-                <h3 style="background:#eee; padding:6px;">
-                  ${hora} (${total} personas)
-                </h3>
-
-                ${lista
-                  .map(
-                    (r: any) => `
-                  <p>
-                    • ${r.nombre_cliente || "Cliente"} 
-                    (${r.num_personas}) - 
-                    ${r.zona_nombre || "General"}
-                  </p>
-                `
-                  )
-                  .join("")}
-              </div>
-            `;
-          })
-          .join("")}
-
-      </body>
-    </html>
-    `;
-
+    const html = `<h1>Reservas</h1>`;
     const { uri } = await Print.printToFileAsync({ html });
-
     await Sharing.shareAsync(uri);
   };
 
-  // =========================
-  // FILTRO
-  // =========================
   const filtrarReservas = () => {
     if (filtro === "todas") return reservas;
 
     return reservas.filter((r) => {
       const hora = parseInt(r.hora.split(":")[0]);
-
       if (filtro === "mañana") return hora <= 12;
       if (filtro === "tarde") return hora >= 13 && hora <= 19;
       if (filtro === "noche") return hora >= 20;
-
       return true;
     });
   };
 
   const cambiarDia = (dias: number) => {
-    const nuevaFecha = new Date(fecha);
-    nuevaFecha.setDate(nuevaFecha.getDate() + dias);
+    const nueva = new Date(fecha);
+    nueva.setDate(nueva.getDate() + dias);
 
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
-    if (nuevaFecha < hoy) return;
+    if (nueva < hoy) return;
 
-    setFecha(nuevaFecha);
+    setFecha(nueva);
   };
 
   const reservasFiltradas = filtrarReservas();
-
-  if (!establecimientoId) {
-    return (
-      <View style={globalStyles.container}>
-        <Text>Cargando...</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={globalStyles.container}>
       <Text style={globalStyles.title}>Reservas</Text>
 
-      {/* BOTONES TOP */}
+      {/* HEADER */}
       <View style={styles.topActions}>
         <TouchableOpacity
           style={styles.outlineBtn}
@@ -208,11 +121,7 @@ export default function ReservasEstablecimiento() {
         </TouchableOpacity>
 
         <Text style={styles.dateText}>
-          {fecha.toLocaleDateString("es-ES", {
-            weekday: "short",
-            day: "numeric",
-            month: "short",
-          })}
+          {fecha.toLocaleDateString("es-ES")}
         </Text>
 
         <TouchableOpacity onPress={() => cambiarDia(1)}>
@@ -247,21 +156,18 @@ export default function ReservasEstablecimiento() {
       <FlatList
         data={reservasFiltradas}
         keyExtractor={(item, index) =>
-            item.id ? item.id.toString() : index.toString()
-          }
-        contentContainerStyle={{ paddingBottom: 20 }}
+          item.id ? item.id.toString() : index.toString()
+        }
+        contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <Text style={globalStyles.text}>
-            No hay reservas
-          </Text>
+          <Text style={styles.empty}>No hay reservas</Text>
         }
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.card}
             onPress={() =>
               router.push({
-                pathname:
-                  "/mis-establecimientos/[id]/reservas/[reservaid]",
+                pathname: "/mis-establecimientos/[id]/reservas/[reservaid]",
                 params: {
                   id: establecimientoId,
                   reservaid: item.id,
@@ -270,19 +176,15 @@ export default function ReservasEstablecimiento() {
             }
           >
             <Text style={styles.cardTitle}>
-              {item.nombre_cliente || "Reserva"}
+              {item.nombre_cliente}
             </Text>
 
             <Text style={styles.cardInfo}>
-               {item.hora}
+              {item.hora} · {item.num_personas} personas
             </Text>
 
             <Text style={styles.cardInfo}>
-               {item.num_personas} personas
-            </Text>
-
-            <Text style={styles.cardInfo}>
-               {item.zona_nombre || "General"}
+              {item.zona_nombre || "General"}
             </Text>
           </TouchableOpacity>
         )}
@@ -290,77 +192,3 @@ export default function ReservasEstablecimiento() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  topActions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 15,
-  },
-
-  primaryBtn: {
-    backgroundColor: COLORS.primary,
-    padding: 10,
-    borderRadius: 10,
-  },
-
-  primaryText: {
-    color: "white",
-    fontWeight: "600",
-  },
-
-  outlineBtn: {
-    borderWidth: 2,
-    borderColor: COLORS.primary,
-    padding: 10,
-    borderRadius: 10,
-  },
-
-  outlineText: {
-    color: COLORS.primary,
-  },
-
-  dateCard: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: "white",
-    padding: 14,
-    borderRadius: 12,
-    marginBottom: 20,
-  },
-
-  arrow: { fontSize: 20, color: COLORS.primary },
-
-  dateText: { fontWeight: "600", color: COLORS.text },
-
-  filters: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 20,
-  },
-
-  filterBtn: {
-    padding: 6,
-    borderRadius: 20,
-    backgroundColor: "#eee",
-  },
-
-  filterActive: { backgroundColor: COLORS.primary },
-
-  filterText: { fontSize: 12 },
-
-  filterTextActive: { color: "white" },
-
-  card: {
-    backgroundColor: "white",
-    padding: 14,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.success,
-  },
-
-  cardTitle: { fontWeight: "600" },
-
-  cardInfo: { fontSize: 13 },
-});

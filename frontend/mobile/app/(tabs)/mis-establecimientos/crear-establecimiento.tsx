@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import {
   View,
@@ -14,7 +16,9 @@ import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 
-import { globalStyles } from "../../../themes/styles";
+import { globalStyles } from "@/themes/styles";
+import { crearEstStyles as styles } from "@/themes/crearEstablecimientosStyles";
+import { router } from "expo-router";
 
 // ================= TYPES =================
 type Zona = {
@@ -148,7 +152,9 @@ export default function CrearEstablecimiento() {
       const direccion = form.direccion.includes("Lebrija")
         ? form.direccion
         : `${form.direccion}, Lebrija`;
+
       const token = await AsyncStorage.getItem("token");
+
       const res = await fetch(
         "http://192.168.1.132:8000/api/establecimientos",
         {
@@ -183,12 +189,32 @@ export default function CrearEstablecimiento() {
 
   // ================= UI =================
   return (
-    <ScrollView style={globalStyles.container}>
+    <ScrollView
+      style={{ backgroundColor: globalStyles.container.backgroundColor }}
+      contentContainerStyle={{ padding: 20 }}
+    >
+      <TouchableOpacity
+        onPress={() => router.push("/mis-establecimientos")}
+        style={{
+          alignSelf: "flex-start",
+          backgroundColor: "#f0f0f0",
+          paddingHorizontal: 12,
+          paddingVertical: 6,
+          borderRadius: 8,
+          marginBottom: 10,
+        }}
+      >
+        <Text style={{ color: "#6f4e37", fontWeight: "600" }}>
+          ← Volver
+        </Text>
+      </TouchableOpacity>
       <Text style={globalStyles.title}>Crear establecimiento</Text>
 
       <View style={globalStyles.card}>
 
-        {/* BASICO */}
+        {/* DATOS */}
+        <Text style={styles.sectionTitle}>Datos básicos</Text>
+
         <Text>Nombre</Text>
         <TextInput
           style={globalStyles.input}
@@ -221,18 +247,19 @@ export default function CrearEstablecimiento() {
         <Text>Capacidad total: {capacidadTotal}</Text>
 
         {/* ZONAS */}
-        <Text style={{ marginTop: 20 }}>Zonas</Text>
+        <Text style={styles.sectionTitle}>Zonas</Text>
 
         {zonas.map((z, i) => (
-          <View key={i} style={{ flexDirection: "row", gap: 10 }}>
+          <View key={i} style={styles.row}>
             <TextInput
-              style={[globalStyles.input, { flex: 1 }]}
+              style={[globalStyles.input, styles.zonaInput]}
               placeholder="Zona"
               value={z.nombre}
               onChangeText={(t) => updateZona(i, "nombre", t)}
             />
+
             <TextInput
-              style={[globalStyles.input, { width: 80 }]}
+              style={[globalStyles.input, styles.capInput]}
               placeholder="Cap"
               value={z.capacidad}
               onChangeText={(t) => updateZona(i, "capacidad", t)}
@@ -240,7 +267,10 @@ export default function CrearEstablecimiento() {
             />
 
             {i > 0 && (
-              <TouchableOpacity onPress={() => removeZona(i)}>
+              <TouchableOpacity
+                style={styles.removeBtn}
+                onPress={() => removeZona(i)}
+              >
                 <Text>❌</Text>
               </TouchableOpacity>
             )}
@@ -248,81 +278,69 @@ export default function CrearEstablecimiento() {
         ))}
 
         <TouchableOpacity onPress={addZona}>
-          <Text style={{ color: "blue" }}>+ Añadir zona</Text>
+          <Text style={styles.addText}>+ Añadir zona</Text>
         </TouchableOpacity>
 
         {/* HORARIOS */}
-        <Text style={{ marginTop: 20 }}>Horarios</Text>
+        <Text style={styles.sectionTitle}>Horarios</Text>
 
         {horarios.map((h, i) => (
-          <View key={i} style={{ flexDirection: "row", gap: 10 }}>
+          <View key={i} style={styles.row}>
 
-            {/* DIA */}
-            <View style={{ flexDirection: "row", gap: 10 }}>
-
-              <View style={{
-                flex: 1,
-                backgroundColor: "#eee",
-                borderRadius: 10,
-                justifyContent: "center"
-              }}>
-                <Picker
-                  selectedValue={h.dia_semana}
-                  mode="dropdown"
-                  style={{ height: 50 }}
-                  onValueChange={(value: number) =>
-                    updateHorario(i, "dia_semana", String(value))
-                  }
-                >
-                  <Picker.Item label="Lunes" value={1} />
-                  <Picker.Item label="Martes" value={2} />
-                  <Picker.Item label="Miércoles" value={3} />
-                  <Picker.Item label="Jueves" value={4} />
-                  <Picker.Item label="Viernes" value={5} />
-                  <Picker.Item label="Sábado" value={6} />
-                  <Picker.Item label="Domingo" value={7} />
-                </Picker>
-              </View>
-
-              <TextInput
-                style={[globalStyles.input, { width: 100 }]}
-                placeholder="HH:MM"
-                value={h.hora}
-                onChangeText={(t) => updateHorario(i, "hora", t)}
-              />
-
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={h.dia_semana}
+                onValueChange={(value) =>
+                  updateHorario(i, "dia_semana", String(value))
+                }
+              >
+                {dias.map((d) => (
+                  <Picker.Item
+                    key={d.value}
+                    label={d.label}
+                    value={d.value}
+                  />
+                ))}
+              </Picker>
             </View>
+
+            <TextInput
+              style={[globalStyles.input, { width: 100 }]}
+              placeholder="HH:MM"
+              value={h.hora}
+              onChangeText={(t) => updateHorario(i, "hora", t)}
+            />
+
           </View>
         ))}
 
         <TouchableOpacity onPress={addHorario}>
-          <Text style={{ color: "blue" }}>+ Añadir horario</Text>
+          <Text style={styles.addText}>+ Añadir horario</Text>
         </TouchableOpacity>
 
         {/* IMAGEN */}
-        <Text style={{ marginTop: 20 }}>Imagen</Text>
-        <TouchableOpacity onPress={pickImage}>
-          <Text>Seleccionar imagen</Text>
+        <Text style={styles.sectionTitle}>Imagen</Text>
+
+        <TouchableOpacity style={styles.uploadBtn} onPress={pickImage}>
+          <Text style={styles.uploadText}>Seleccionar imagen</Text>
         </TouchableOpacity>
 
         {imagen && (
-          <Image
-            source={{ uri: imagen.uri }}
-            style={{ width: 100, height: 100 }}
-          />
+          <Image source={{ uri: imagen.uri }} style={styles.imagePreview} />
         )}
 
         {/* PDF */}
-        <Text>Carta PDF</Text>
-        <TouchableOpacity onPress={pickPdf}>
-          <Text>Seleccionar PDF</Text>
+        <Text style={styles.sectionTitle}>Carta PDF</Text>
+
+        <TouchableOpacity style={styles.uploadBtn} onPress={pickPdf}>
+          <Text style={styles.uploadText}>Seleccionar PDF</Text>
         </TouchableOpacity>
 
-        {pdf && <Text>{pdf.name}</Text>}
+        {pdf && <Text style={styles.fileName}>{pdf.name}</Text>}
 
-        {/* BOTON */}
+        {/* BOTÓN */}
         <TouchableOpacity
-          style={globalStyles.button}
+          style={[globalStyles.button, { marginTop: 20 }]}
           onPress={crear}
         >
           <Text style={globalStyles.buttonText}>

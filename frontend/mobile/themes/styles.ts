@@ -6,47 +6,59 @@ export const globalStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.bg,
     padding: 20,
+    justifyContent: "center",
   },
-
+  scroll: {
+  flex: 1,
+  backgroundColor: COLORS.bg,
+},
   card: {
     backgroundColor: "white",
-    borderRadius: 14,
-    padding: 20,
-    elevation: 4,
+    borderRadius: 16,
+    padding: 22,
+    elevation: 5,
   },
 
   title: {
     fontSize: 22,
     fontWeight: "600",
     color: COLORS.primary,
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: "center",
+  },
+
+  cardText: {
+    color: COLORS.text,
+    marginTop: 4,
+    fontSize: 14,
+    opacity: 0.8,
+  },
+  cardTitle: {
+  fontWeight: "600",
+  color: COLORS.text,
+  fontSize: 15,
+},  
+  input: {
+    backgroundColor: "#f7f7f7",
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#eee",
+    color: "#111",
   },
 
   button: {
     backgroundColor: COLORS.primary,
     padding: 14,
-    borderRadius: 10,
+    borderRadius: 12,
     marginTop: 10,
-  },
-
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 20,
   },
 
   buttonText: {
     color: "white",
     textAlign: "center",
-    fontWeight: "500",
-  },
-label: {
-    fontSize: 13,
-    color: COLORS.text,
-    marginBottom: 6,
-    marginTop: 10,
-    fontWeight: "500",
+    fontWeight: "600",
   },
 
   secondaryButton: {
@@ -63,27 +75,18 @@ label: {
     fontWeight: "500",
   },
 
-  previewCard: {
-    marginTop: 10,
-    borderRadius: 12,
-    overflow: "hidden",
-    elevation: 3,
-  },
-
-  previewImage: {
-    width: "100%",
-    height: 160,
-  },
-
-  fileName: {
-    marginTop: 8,
-    color: COLORS.text,
-    fontSize: 13,
-  },
   link: {
     marginTop: 16,
     textAlign: "center",
     color: COLORS.secondary,
+  },
+
+  label: {
+    fontSize: 13,
+    color: COLORS.text,
+    marginBottom: 6,
+    marginTop: 10,
+    fontWeight: "500",
   },
 
   error: {
@@ -97,87 +100,48 @@ label: {
     marginTop: 10,
     textAlign: "center",
   },
-
-  input: {
-    backgroundColor: "#f5f5f5",
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#eee",
-    },
-
-    /*  SECCIONES */
+  /* ===== SECCIONES ===== */
 section: {
-  padding: 20,
+  paddingVertical: 30,
+  paddingHorizontal: 20,
 },
 
 sectionWhite: {
   backgroundColor: "white",
 },
 
-sectionCenter: {
-  alignItems: "center",
-},
-
-/*  TEXTO */
-text: {
-  textAlign: "center",
-  color: "#555",
-},
-
 sectionTitle: {
   fontSize: 18,
   fontWeight: "600",
-  marginBottom: 16,
   color: COLORS.primary,
+  marginBottom: 16,
+  textAlign: "center",
 },
 
-/*  CARDS LISTADO */
+text: {
+  textAlign: "center",
+  color: "#555",
+  fontSize: 14,
+  lineHeight: 20,
+},
 cardList: {
   backgroundColor: "white",
-  borderRadius: 12,
+  borderRadius: 16,
   marginBottom: 16,
   overflow: "hidden",
-  elevation: 3,
+  elevation: 4,
+  shadowColor: "#000",
+  shadowOpacity: 0.08,
+  shadowRadius: 6,
+  shadowOffset: { width: 0, height: 3 },
+},
+
+imagePlaceholder: {
+  width: "100%",
+  height: 150,
 },
 
 cardContent: {
-  padding: 12,
-},
-
-cardTitle: {
-  fontWeight: "600",
-  color: COLORS.text,
-},
-
-cardText: {
-  color: "#666",
-  marginTop: 4,
-},
-
-/*  IMAGEN */
-imagePlaceholder: {
-  height: 140,
-  backgroundColor: "#ddd",
-},
-
-/*  CTA */
-cta: {
-  backgroundColor: COLORS.primary,
-  padding: 30,
-  alignItems: "center",
-},
-
-ctaTitle: {
-  color: "white",
-  fontSize: 20,
-  fontWeight: "600",
-},
-
-ctaText: {
-  color: "white",
-  marginTop: 8,
-  textAlign: "center",
+  padding: 14,
 },
 });

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -7,12 +9,14 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
+
 import { globalStyles } from "../../../themes/styles";
 import { COLORS } from "../../../themes/colors";
+import { editarPerfilStyles as styles } from "../../../themes/editarPerfilStyles";
 
 export default function EditarPerfilScreen() {
-
+  const router = useRouter();
 
   const [form, setForm] = useState({
     nombre: "",
@@ -28,32 +32,32 @@ export default function EditarPerfilScreen() {
   }, []);
 
   const fetchPerfil = async () => {
-  try {
-    const token = await AsyncStorage.getItem("token");
+    try {
+      const token = await AsyncStorage.getItem("token");
 
-    const res = await fetch(
-      "http://192.168.1.132:8000/api/usuarios/me",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+      const res = await fetch(
+        "http://192.168.1.132:8000/api/usuarios/me",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    const data = await res.json();
+      const data = await res.json();
 
-    setForm({
-      nombre: data.nombre || "",
-      nombre_user: data.nombre_user || "",
-      telefono: data.telefono || "",
-    });
+      setForm({
+        nombre: data.nombre || "",
+        nombre_user: data.nombre_user || "",
+        telefono: data.telefono || "",
+      });
 
-  } catch (err) {
-    console.log(err);
-  } finally {
-    setLoading(false); 
-  }
-};
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (field: string, value: string) => {
     setForm({
@@ -63,35 +67,40 @@ export default function EditarPerfilScreen() {
   };
 
   const guardar = async () => {
-  try {
-    const token = await AsyncStorage.getItem("token");
+    try {
+      setSaving(true);
 
-    const res = await fetch(
-      "http://192.168.1.132:8000/api/usuarios/me",
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(form),
+      const token = await AsyncStorage.getItem("token");
+
+      const res = await fetch(
+        "http://192.168.1.132:8000/api/usuarios/me",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(form),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        Alert.alert("Error", data.detail || "Error al guardar");
+        return;
       }
-    );
 
-    const data = await res.json();
+      Alert.alert("Perfil actualizado");
 
-    if (!res.ok) {
-      Alert.alert("Error", data.detail || "Error al guardar");
-      return;
+      router.replace("/perfil");
+
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setSaving(false);
     }
-
-    Alert.alert("Perfil actualizado");
-
-    router.push({pathname: "/(tabs)/perfil"})
-  } catch (err) {
-    console.log(err);
-  }
-};
+  };
 
   if (loading) {
     return (
@@ -104,6 +113,14 @@ export default function EditarPerfilScreen() {
   return (
     <View style={globalStyles.container}>
 
+      {/* BOTÓN VOLVER */}
+      <TouchableOpacity
+        style={styles.backBtn}
+        onPress={() => router.push("/perfil")}
+      >
+        <Text style={styles.backText}>← Volver</Text>
+      </TouchableOpacity>
+
       {/* HEADER */}
       <Text style={globalStyles.title}>
         Editar perfil
@@ -112,7 +129,7 @@ export default function EditarPerfilScreen() {
       {/* FORM */}
       <View style={globalStyles.card}>
 
-        <Text style={globalStyles.sectionTitle}>Nombre</Text>
+        <Text style={styles.label}>Nombre</Text>
         <TextInput
           value={form.nombre}
           onChangeText={(v) => handleChange("nombre", v)}
@@ -120,9 +137,7 @@ export default function EditarPerfilScreen() {
           placeholder="Tu nombre"
         />
 
-        <Text style={globalStyles.sectionTitle}>
-          Nombre de usuario
-        </Text>
+        <Text style={styles.label}>Nombre de usuario</Text>
         <TextInput
           value={form.nombre_user}
           onChangeText={(v) => handleChange("nombre_user", v)}
@@ -130,9 +145,7 @@ export default function EditarPerfilScreen() {
           placeholder="@usuario"
         />
 
-        <Text style={globalStyles.sectionTitle}>
-          Teléfono
-        </Text>
+        <Text style={styles.label}>Teléfono</Text>
         <TextInput
           value={form.telefono}
           onChangeText={(v) => handleChange("telefono", v)}
@@ -145,7 +158,7 @@ export default function EditarPerfilScreen() {
         <TouchableOpacity
           style={[
             globalStyles.button,
-            saving && { backgroundColor: "#aaa" },
+            saving && styles.disabledBtn,
           ]}
           disabled={saving}
           onPress={guardar}
@@ -156,16 +169,6 @@ export default function EditarPerfilScreen() {
         </TouchableOpacity>
 
       </View>
-
-      {/* VOLVER */}
-      <TouchableOpacity onPress={() =>
-                                router.push({
-                                  pathname: "/(tabs)/perfil"
-                                })}>
-        <Text style={globalStyles.link}>
-          ← Volver
-        </Text>
-      </TouchableOpacity>
 
     </View>
   );

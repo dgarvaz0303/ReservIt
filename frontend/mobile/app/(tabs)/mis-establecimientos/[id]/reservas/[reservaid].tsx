@@ -1,10 +1,11 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   Alert,
-  StyleSheet,
   Animated,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -15,21 +16,24 @@ import * as Haptics from "expo-haptics";
 import { Audio } from "expo-av";
 
 import { globalStyles } from "@/themes/styles";
-import { COLORS } from "@/themes/colors";
+import { detalleReservaStyles as styles } from "@/themes/detalleReservaLocalesStyles";
 
 export default function DetalleReserva() {
   const params = useLocalSearchParams();
 
   const reservaId = Array.isArray(params.reservaid)
-  ? params.reservaid[0]
-  : params.reservaid;   
+    ? params.reservaid[0]
+    : params.reservaid;
+
   const router = useRouter();
 
   const [reserva, setReserva] = useState<any>(null);
   const [scanning, setScanning] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
-
+  const establecimientoId = Array.isArray(params.id)
+  ? params.id[0]
+  : params.id;
   const [validacionEstado, setValidacionEstado] = useState<
     "ok" | "error" | null
   >(null);
@@ -40,7 +44,7 @@ export default function DetalleReserva() {
 
   useEffect(() => {
     fetchReserva();
-  }, []);
+  }, [reservaId]);
 
   useEffect(() => {
     if (scanning) {
@@ -56,6 +60,7 @@ export default function DetalleReserva() {
 
   const fetchReserva = async () => {
     if (!reservaId) return;
+
     const res = await fetch(
       `http://192.168.1.132:8000/api/reservas/${reservaId}`
     );
@@ -168,16 +173,13 @@ export default function DetalleReserva() {
     }
 
     return (
-      <View style={{ flex: 1 }}>
+      <View style={styles.scannerContainer}>
         <CameraView
-          style={{ flex: 1 }}
-          barcodeScannerSettings={{
-            barcodeTypes: ["qr"],
-          }}
+          style={styles.camera}
+          barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
           onBarcodeScanned={scanned ? undefined : handleScan}
         />
 
-        {/* MARCO PRO */}
         <View style={styles.cameraOverlay}>
           <View style={styles.scanBox}>
             <View style={[styles.corner, styles.topLeft]} />
@@ -202,20 +204,17 @@ export default function DetalleReserva() {
             />
           </View>
 
-          <Text style={styles.scanText}>
-            Escanea el código QR
-          </Text>
+          <Text style={styles.scanText}>Escanea el QR</Text>
         </View>
 
-        {/* BOTONES */}
-        <View style={styles.scannerOverlay}>
+        <View style={styles.scannerButtons}>
           {scanned && (
             <TouchableOpacity
               style={globalStyles.button}
               onPress={() => setScanned(false)}
             >
               <Text style={globalStyles.buttonText}>
-                Escanear otra vez
+                Reintentar
               </Text>
             </TouchableOpacity>
           )}
@@ -230,41 +229,29 @@ export default function DetalleReserva() {
           </TouchableOpacity>
         </View>
 
-        {/* VALIDACION */}
         {validacionEstado && (
           <View
             style={[
               styles.validationOverlay,
-              {
-                backgroundColor:
-                  validacionEstado === "ok"
-                    ? "#4CAF50"
-                    : "#e53935",
-              },
+              validacionEstado === "ok"
+                ? styles.ok
+                : styles.error,
             ]}
           >
             <Animated.Text
               style={[
                 styles.validationIcon,
-                {
-                  transform: [{ scale: animScale }],
-                  opacity: animOpacity,
-                },
+                { transform: [{ scale: animScale }] },
               ]}
             >
               {validacionEstado === "ok" ? "✔" : "✖"}
             </Animated.Text>
 
-            <Animated.Text
-              style={[
-                styles.validationText,
-                { opacity: animOpacity },
-              ]}
-            >
+            <Text style={styles.validationText}>
               {validacionEstado === "ok"
                 ? "Reserva validada"
                 : "QR inválido"}
-            </Animated.Text>
+            </Text>
           </View>
         )}
       </View>
@@ -274,9 +261,17 @@ export default function DetalleReserva() {
   // ================= NORMAL =================
   return (
     <View style={globalStyles.container}>
+      <TouchableOpacity
+        style={styles.backBtn}
+        onPress={() =>
+          router.push(`/mis-establecimientos/${establecimientoId}/reservas`)
+        }
+      >
+        <Text style={styles.backText}>← Volver</Text>
+      </TouchableOpacity>
       <Text style={globalStyles.title}>Detalle reserva</Text>
 
-      <View style={globalStyles.card}>
+      <View style={styles.card}>
         <Text>📅 {reserva.fecha} - {reserva.hora}</Text>
         <Text>👥 {reserva.num_personas}</Text>
         <Text>👤 {reserva.nombre_usuario}</Text>
@@ -320,71 +315,3 @@ export default function DetalleReserva() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-
-  cameraOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  scanBox: { width: 250, height: 250 },
-
-  corner: {
-    position: "absolute",
-    width: 30,
-    height: 30,
-    borderColor: "white",
-  },
-
-  topLeft: { top: 0, left: 0, borderLeftWidth: 3, borderTopWidth: 3 },
-  topRight: { top: 0, right: 0, borderRightWidth: 3, borderTopWidth: 3 },
-  bottomLeft: { bottom: 0, left: 0, borderLeftWidth: 3, borderBottomWidth: 3 },
-  bottomRight: { bottom: 0, right: 0, borderRightWidth: 3, borderBottomWidth: 3 },
-
-  laser: {
-    position: "absolute",
-    width: "100%",
-    height: 2,
-    backgroundColor: "red",
-  },
-
-  scanText: { color: "white", marginTop: 20 },
-
-  scannerOverlay: {
-    position: "absolute",
-    bottom: 40,
-    width: "100%",
-    padding: 20,
-  },
-
-  validationOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  validationIcon: { fontSize: 80, color: "white" },
-
-  validationText: { fontSize: 18, color: "white", marginTop: 10 },
-
-  badge: { marginTop: 10, padding: 6, borderRadius: 10 },
-
-  badgeActive: { backgroundColor: "#e8f5e9", color: "green" },
-
-  badgeUsed: { backgroundColor: "#eee" },
-
-  deleteBtn: { backgroundColor: COLORS.accent },
-
-  cancelBtn: { backgroundColor: "#666" },
-});
