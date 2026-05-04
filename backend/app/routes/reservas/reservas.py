@@ -118,11 +118,13 @@ def get_reservas_by_establecimiento(
             )
 
             resultado.append({
+                "id": r["id"],
                 "hora": r["hora"],
                 "num_personas": r["num_personas"],
                 "nombre_cliente": user["nombre"] if user else "Cliente",
                 "zona_nombre": zona["nombre"] if zona else "General"
             })
+            
 
         return resultado
 

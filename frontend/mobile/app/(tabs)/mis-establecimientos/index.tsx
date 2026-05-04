@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -11,8 +13,9 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 
-import { globalStyles } from "../../../themes/styles";
-import { COLORS } from "../../../themes/colors";
+import { globalStyles } from "@/themes/styles";
+import { COLORS } from "@/themes/colors";
+import { misEstStyles as styles } from "@/themes/misEstablecimientosStyles";
 
 export default function MisEstablecimientosScreen() {
   const [establecimientos, setEstablecimientos] = useState<any[]>([]);
@@ -21,8 +24,6 @@ export default function MisEstablecimientosScreen() {
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [confirmText, setConfirmText] = useState("");
-
-
 
   useEffect(() => {
     fetchEstablecimientos();
@@ -78,15 +79,15 @@ export default function MisEstablecimientosScreen() {
     return matchNombre && matchTipo;
   });
 
-    return (
+  return (
     <View style={globalStyles.container}>
 
       {/* HEADER */}
-      <View style={{ marginBottom: 25 }}>
+      <View style={styles.header}>
         <Text style={globalStyles.title}>Mis establecimientos</Text>
 
         <TouchableOpacity
-          style={[globalStyles.button, { marginTop: 10 }]}
+          style={[globalStyles.button, styles.createBtn]}
           onPress={() =>
             router.push("/mis-establecimientos/crear-establecimiento")
           }
@@ -96,7 +97,7 @@ export default function MisEstablecimientosScreen() {
       </View>
 
       {/* FILTROS */}
-      <View style={{ marginBottom: 20, gap: 10 }}>
+      <View style={styles.filtros}>
         <TextInput
           placeholder="Buscar establecimiento..."
           value={search}
@@ -120,7 +121,7 @@ export default function MisEstablecimientosScreen() {
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ paddingBottom: 40 }}
         renderItem={({ item }) => (
-          <View style={[globalStyles.cardList, { marginBottom: 16 }]}>
+          <View style={styles.card}>
 
             <TouchableOpacity
               activeOpacity={0.9}
@@ -137,48 +138,28 @@ export default function MisEstablecimientosScreen() {
                     item.imagen_url ||
                     "https://via.placeholder.com/300",
                 }}
-                style={{
-                  width: "100%",
-                  height: 150,
-                  borderTopLeftRadius: 12,
-                  borderTopRightRadius: 12,
-                }}
+                style={styles.image}
               />
 
-              <View style={globalStyles.cardContent}>
-                <Text style={globalStyles.cardTitle}>
-                  {item.nombre}
-                </Text>
+              <View style={styles.content}>
+                <Text style={styles.title}>{item.nombre}</Text>
 
-                <Text style={globalStyles.cardText}>
-                  {item.direccion}
-                </Text>
+                <Text style={styles.text}>{item.direccion}</Text>
 
-                <Text style={globalStyles.cardText}>
+                <Text style={styles.text}>
                   Capacidad: {item.capacidad}
                 </Text>
 
-                <Text style={globalStyles.cardText}>
-                  {item.tipo}
-                </Text>
+                <Text style={styles.text}>{item.tipo}</Text>
               </View>
             </TouchableOpacity>
 
-            {/* BOTÓN ELIMINAR */}
+            {/* ELIMINAR */}
             <TouchableOpacity
-              style={{
-                borderWidth: 1,
-                borderColor: COLORS.accent,
-                padding: 10,
-                borderRadius: 10,
-                margin: 12,
-                alignItems: "center",
-              }}
+              style={styles.deleteBtn}
               onPress={() => setSelectedId(item.id)}
             >
-              <Text style={{ color: COLORS.accent }}>
-                Eliminar
-              </Text>
+              <Text style={styles.deleteText}>Eliminar</Text>
             </TouchableOpacity>
 
           </View>
@@ -187,27 +168,14 @@ export default function MisEstablecimientosScreen() {
 
       {/* MODAL */}
       <Modal visible={!!selectedId} transparent animationType="fade">
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 20,
-          }}
-        >
-          <View
-            style={[
-              globalStyles.card,
-              { width: "100%", maxWidth: 320 },
-            ]}
-          >
+        <View style={styles.modalOverlay}>
+          <View style={[globalStyles.card, styles.modalCard]}>
 
-            <Text style={globalStyles.sectionTitle}>
+            <Text style={globalStyles.title}>
               ¿Eliminar establecimiento?
             </Text>
 
-            <Text style={{ color: COLORS.text, marginBottom: 10 }}>
+            <Text style={styles.modalText}>
               Escribe DELETE para confirmar
             </Text>
 
@@ -243,11 +211,8 @@ export default function MisEstablecimientosScreen() {
                 setSelectedId(null);
                 setConfirmText("");
               }}
-              style={{ marginTop: 12, alignItems: "center" }}
             >
-              <Text style={{ color: COLORS.secondary }}>
-                Cancelar
-              </Text>
+              <Text style={styles.cancelText}>Cancelar</Text>
             </TouchableOpacity>
 
           </View>

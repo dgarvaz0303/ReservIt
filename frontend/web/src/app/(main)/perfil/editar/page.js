@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import "@/styles/components.css";
-
+import "@/styles/editar-perfil.css";
 
 export default function EditarPerfil() {
   const router = useRouter();
@@ -32,11 +31,6 @@ export default function EditarPerfil() {
       });
 
       const data = await res.json();
-
-      if (!res.ok) {
-        console.log(data);
-        return;
-      }
 
       setForm({
         nombre: data.nombre || "",
@@ -82,9 +76,6 @@ export default function EditarPerfil() {
 
       alert("Perfil actualizado correctamente");
 
-      // actualizar localStorage
-      localStorage.setItem("nombre", form.nombre);
-
       router.push("/perfil");
 
     } catch (err) {
@@ -94,56 +85,85 @@ export default function EditarPerfil() {
     }
   };
 
-  if (loading) return <p className="page">Cargando...</p>;
+  if (loading) return <p className="editar-loading">Cargando...</p>;
 
   return (
-    <div className="page">
-      <div className="container">
+    <div className="editar-page">
+      <div className="editar-container">
 
-        <div className="page-header">
-          <h1 className="page-title">Editar perfil</h1>
+        {/* HEADER */}
+        <div className="editar-header">
 
+          {/* BOTÓN NUEVO */}
           <button
-            className="btn-secondary"
-            onClick={() => router.back()}
+            className="btn-back"
+            onClick={() => router.push("/perfil")}
           >
-            ← Volver
+            ← Volver a perfil
           </button>
+
+          <div>
+            <h1 className="editar-title">Editar perfil</h1>
+            <p className="editar-subtitle">
+              Actualiza tu información personal
+            </p>
+          </div>
+
         </div>
 
-        <div className="card perfil-card">
+        {/* FORM */}
+        <div className="editar-card">
 
-          <label>Nombre</label>
-          <input
-            name="nombre"
-            value={form.nombre}
-            onChange={handleChange}
-            className="input-filter"
-          />
+          <div className="form-grid">
 
-          <label>Nombre de usuario</label>
-          <input
-            name="nombre_user"
-            value={form.nombre_user}
-            onChange={handleChange}
-            className="input-filter"
-          />
+            <div className="form-group">
+              <label>Nombre</label>
+              <input
+                name="nombre"
+                value={form.nombre}
+                onChange={handleChange}
+              />
+            </div>
 
-          <label>Teléfono</label>
-          <input
-            name="telefono"
-            value={form.telefono}
-            onChange={handleChange}
-            className="input-filter"
-          />
+            <div className="form-group">
+              <label>Usuario</label>
+              <input
+                name="nombre_user"
+                value={form.nombre_user}
+                onChange={handleChange}
+              />
+            </div>
 
-          <button
-            className="btn-primary"
-            onClick={guardar}
-            disabled={saving}
-          >
-            {saving ? "Guardando..." : "Guardar cambios"}
-          </button>
+            <div className="form-group full">
+              <label>Teléfono</label>
+              <input
+                name="telefono"
+                value={form.telefono}
+                onChange={handleChange}
+              />
+            </div>
+
+          </div>
+
+          {/* BOTONES */}
+          <div className="editar-actions">
+
+            <button
+              className="btn-secondary"
+              onClick={() => router.push("/perfil")}
+            >
+              Cancelar
+            </button>
+
+            <button
+              className="btn-primary"
+              onClick={guardar}
+              disabled={saving}
+            >
+              {saving ? "Guardando..." : "Guardar cambios"}
+            </button>
+
+          </div>
 
         </div>
 

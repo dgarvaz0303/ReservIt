@@ -30,17 +30,14 @@ export default function LoginPage() {
         throw new Error(data.detail || "Error en login");
       }
 
-      // VALIDACIÓN IMPORTANTE
       if (!data.access_token || !data.rol) {
         throw new Error("Respuesta de login incompleta");
       }
 
-      // GUARDAR SESIÓN
       localStorage.setItem("token", data.access_token);
       localStorage.setItem("nombre", data.nombre || email);
-      localStorage.setItem("rol", data.rol); // ❗ SIN fallback
+      localStorage.setItem("rol", data.rol);
 
-      // REDIRECCIÓN
       router.replace("/");
 
     } catch (err) {
@@ -50,14 +47,25 @@ export default function LoginPage() {
 
   return (
     <div className="login-container">
+
+      {/* LOGO */}
+      <div className="login-logo">
+        <img src="https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png" alt="Logo" />
+      </div>
+
       <div className="login-card">
         <h1 className="login-title">Bienvenido</h1>
 
+        <p className="login-subtitle">
+          Accede a tu cuenta para continuar
+        </p>
+
         <form onSubmit={handleSubmit} className="login-form">
+
           <input
             className="login-input"
             type="email"
-            placeholder="Email"
+            placeholder="Correo electrónico"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -65,7 +73,7 @@ export default function LoginPage() {
           <input
             className="login-input"
             type="password"
-            placeholder="Password"
+            placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />

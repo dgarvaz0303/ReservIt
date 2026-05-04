@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  ImageBackground
+} from "react-native";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { globalStyles } from "../../themes/styles";
+import { landingStyles } from "../../themes/landingStyles";
 import { COLORS } from "../../themes/colors";
-
 
 export default function Home() {
   const [establecimientos, setEstablecimientos] = useState<any[]>([]);
@@ -37,14 +44,25 @@ export default function Home() {
     <ScrollView style={{ backgroundColor: COLORS.bg }}>
 
       {/* HERO */}
-      <View style={globalStyles.section}>
-        <Text style={globalStyles.title}>ReservIt</Text>
+      <ImageBackground
+        src="https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/flautas-transformed.jpeg"
+        style={landingStyles.hero}
+        imageStyle={{ opacity: 0.6 }}
+      >
+        <View style={landingStyles.overlay} />
 
-        <Text style={globalStyles.text}>
-          Reserva en segundos, descubre nuevos sitios y gestiona tus experiencias
-          gastronómicas como nunca antes.
-        </Text>
-      </View>
+        <View style={landingStyles.heroContent}>
+          <Image
+            src="https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png"
+            style={landingStyles.logo}
+            resizeMode="contain"
+          />
+
+          <Text style={landingStyles.heroText}>
+            Reserva en segundos y descubre nuevos sitios
+          </Text>
+        </View>
+      </ImageBackground>
 
       {/* TOP ESTABLECIMIENTOS */}
       <View style={[globalStyles.section, globalStyles.sectionWhite]}>
@@ -53,7 +71,7 @@ export default function Home() {
         {establecimientos.map((est) => (
           <TouchableOpacity
             key={est.id}
-            style={globalStyles.cardList}
+            style={landingStyles.card}
             onPress={() =>
               router.push({
                 pathname: "/establecimientos/[id]",
@@ -61,12 +79,17 @@ export default function Home() {
               })
             }
           >
-            <View style={globalStyles.imagePlaceholder} />
+            <Image
+              source={{
+                uri: est.imagen_url || "https://via.placeholder.com/400x200"
+              }}
+              style={landingStyles.cardImage}
+            />
 
-            <View style={globalStyles.cardContent}>
-              <Text style={globalStyles.cardTitle}>{est.nombre}</Text>
-              <Text style={globalStyles.cardText}>{est.tipo}</Text>
-              <Text style={globalStyles.cardText}>{est.direccion}</Text>
+            <View style={landingStyles.cardContent}>
+              <Text style={landingStyles.cardTitle}>{est.nombre}</Text>
+              <Text style={landingStyles.cardSubtitle}>{est.tipo}</Text>
+              <Text style={landingStyles.cardText}>{est.direccion}</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -74,46 +97,36 @@ export default function Home() {
 
       {/* FUTURO */}
       <View style={globalStyles.section}>
-        <Text style={globalStyles.sectionTitle}> Lo que viene</Text>
+        <Text style={globalStyles.sectionTitle}>Lo que viene</Text>
 
-        <Text style={globalStyles.text}>
-          Estamos construyendo la plataforma definitiva para salir, descubrir y disfrutar.
-          Esto es solo el comienzo.
-        </Text>
-
-        <View style={{ marginTop: 16 }}>
-          <Text style={globalStyles.cardTitle}>Pedidos a domicilio</Text>
-          <Text style={globalStyles.cardText}>
+        <View style={landingStyles.feature}>
+          <Text style={landingStyles.featureTitle}>Pedidos a domicilio</Text>
+          <Text style={landingStyles.featureText}>
             Pide directamente desde tus restaurantes favoritos sin salir de la app.
-            Más rápido, más fácil, más tuyo.
           </Text>
         </View>
 
-        <View style={{ marginTop: 16 }}>
-          <Text style={globalStyles.cardTitle}>Búsqueda de hoteles</Text>
-          <Text style={globalStyles.cardText}>
-            Planea escapadas completas: reserva mesa y alojamiento en un solo lugar.
+        <View style={landingStyles.feature}>
+          <Text style={landingStyles.featureTitle}>Hoteles</Text>
+          <Text style={landingStyles.featureText}>
+            Reserva mesa y alojamiento en un solo lugar.
           </Text>
         </View>
 
-        <View style={{ marginTop: 16 }}>
-          <Text style={globalStyles.cardTitle}>Eventos y comunidad</Text>
-          <Text style={globalStyles.cardText}>
-            Descubre eventos locales, experiencias gastronómicas y conecta con gente.
+        <View style={landingStyles.feature}>
+          <Text style={landingStyles.featureTitle}>Eventos</Text>
+          <Text style={landingStyles.featureText}>
+            Descubre experiencias y conecta con gente.
           </Text>
         </View>
       </View>
 
-      {/* CTA FINAL */}
-      <View style={globalStyles.cta}>
-        <Text style={globalStyles.ctaTitle}>Empieza a descubrir</Text>
-
-        <Text style={globalStyles.ctaText}>
-          Encuentra tu próximo sitio favorito hoy mismo.
-        </Text>
+      {/* CTA */}
+      <View style={landingStyles.cta}>
+        <Text style={landingStyles.ctaTitle}>Empieza a descubrir</Text>
 
         <TouchableOpacity
-          style={[globalStyles.button, { marginTop: 16 }]}
+          style={globalStyles.button}
           onPress={() => router.push("/establecimientos")}
         >
           <Text style={globalStyles.buttonText}>

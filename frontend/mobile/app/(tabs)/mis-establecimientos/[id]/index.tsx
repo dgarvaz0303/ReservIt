@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import {
   View,
@@ -7,13 +9,12 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
-  StyleSheet,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { globalStyles } from "@/themes/styles";
-import { COLORS } from "@/themes/colors";
+import { detalleSupervisorStyles as styles } from "@/themes/detalleSupervisorStyles";
 
 export default function DetalleEstablecimientoSupervisor() {
   const { id } = useLocalSearchParams();
@@ -24,8 +25,10 @@ export default function DetalleEstablecimientoSupervisor() {
   const [confirmText, setConfirmText] = useState("");
 
   useEffect(() => {
-    fetchEstablecimiento();
-  }, []);
+    if (id) {
+      fetchEstablecimiento();
+    }
+  }, [id]);
 
   const fetchEstablecimiento = async () => {
     try {
@@ -62,13 +65,23 @@ export default function DetalleEstablecimientoSupervisor() {
   if (!establecimiento) {
     return (
       <View style={globalStyles.container}>
-        <Text style={globalStyles.text}>Cargando...</Text>
+        <Text>Cargando...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={globalStyles.container}>
+    <ScrollView style={globalStyles.scroll}>
+
+      {/* HEADER */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => router.push("/mis-establecimientos")}
+        >
+          <Text style={styles.backText}>← Volver</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* IMAGEN */}
       <Image
@@ -82,46 +95,43 @@ export default function DetalleEstablecimientoSupervisor() {
 
       {/* INFO */}
       <View style={globalStyles.card}>
-        <Text style={globalStyles.title}>
+        <Text style={styles.title}>
           {establecimiento.nombre}
         </Text>
 
         <Text style={styles.info}>
-          Tipo: {establecimiento.tipo}
+          Direccion: {establecimiento.direccion}
         </Text>
 
         <Text style={styles.info}>
-          Dirección: {establecimiento.direccion}
+          Tipo Establecimiento: {establecimiento.tipo}
         </Text>
 
         <Text style={styles.info}>
-          Teléfono: {establecimiento.telefono}
+          Telefono: {establecimiento.telefono}
         </Text>
 
-        <Text style={styles.info}>
-          Capacidad: {establecimiento.capacidad}
-        </Text>
       </View>
 
       {/* ACCIONES */}
       <View style={styles.actions}>
 
         <TouchableOpacity
-          style={globalStyles.button}
+          style={styles.primaryBtn}
           onPress={() =>
             router.push(`/mis-establecimientos/${id}/reservas`)
           }
         >
-          <Text style={globalStyles.buttonText}>
+          <Text style={styles.primaryText}>
             Ver reservas
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[globalStyles.button, styles.dangerBtn]}
+          style={styles.deleteBtn}
           onPress={() => setShowConfirm(true)}
         >
-          <Text style={globalStyles.buttonText}>
+          <Text style={styles.deleteText}>
             Eliminar establecimiento
           </Text>
         </TouchableOpacity>
@@ -146,7 +156,8 @@ export default function DetalleEstablecimientoSupervisor() {
               value={confirmText}
               onChangeText={setConfirmText}
               placeholder="DELETE"
-              style={globalStyles.input}
+              style={styles.input}
+              placeholderTextColor="#888"
             />
 
             <View style={styles.modalActions}>
@@ -183,70 +194,3 @@ export default function DetalleEstablecimientoSupervisor() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  image: {
-    width: "100%",
-    height: 220,
-    borderRadius: 12,
-    marginBottom: 20,
-  },
-
-  info: {
-    color: COLORS.text,
-    marginTop: 6,
-  },
-
-  actions: {
-    marginTop: 20,
-    gap: 12,
-  },
-
-  dangerBtn: {
-    backgroundColor: COLORS.accent,
-  },
-
-  /* MODAL */
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "#00000088",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  modal: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 12,
-    width: "80%",
-  },
-
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: COLORS.primary,
-    marginBottom: 10,
-  },
-
-  modalText: {
-    color: COLORS.text,
-    marginBottom: 10,
-  },
-
-  modalActions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-  },
-
-  cancel: {
-    color: COLORS.secondary,
-  },
-
-  confirm: {
-    color: COLORS.accent,
-    fontWeight: "600",
-  },
-});
-
-

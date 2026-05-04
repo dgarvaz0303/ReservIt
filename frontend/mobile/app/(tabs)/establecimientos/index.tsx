@@ -8,11 +8,10 @@ import {
   TouchableOpacity,
   Image,
   Linking,
-  StyleSheet,
 } from "react-native";
 import { router } from "expo-router";
-import { globalStyles } from "@/themes/styles";
 import { COLORS } from "@/themes/colors";
+import { establecimientosStyles as styles } from "@/themes/establecimientosStyles";
 
 export default function Establecimientos() {
   const [establecimientos, setEstablecimientos] = useState<any[]>([]);
@@ -31,9 +30,6 @@ export default function Establecimientos() {
     }
   };
 
-  // =========================
-  // ABRIR PDF CARTA
-  // =========================
   const abrirCarta = async (url: string) => {
     if (!url) {
       alert("Este establecimiento no tiene carta");
@@ -52,8 +48,12 @@ export default function Establecimientos() {
   return (
     <ScrollView style={{ backgroundColor: COLORS.bg }}>
 
-      {/* LOGO */}
-      <View style={styles.logoContainer}>
+      {/* HEADER */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={styles.backText}>← Volver</Text>
+        </TouchableOpacity>
+
         <Image
           source={{
             uri: "https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png",
@@ -62,23 +62,13 @@ export default function Establecimientos() {
         />
       </View>
 
-      {/* HEADER */}
-      <View style={styles.header}>
-
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backText}>← Volver</Text>
-        </TouchableOpacity>
-      </View>
-
       {/* LISTADO */}
-      <View style={globalStyles.section}>
+      <View style={styles.container}>
         {establecimientos.map((est) => (
           <TouchableOpacity
             key={est.id}
-            style={globalStyles.cardList}
+            style={styles.card}
+            activeOpacity={0.9}
             onPress={() =>
               router.push({
                 pathname: "/establecimientos/[id]",
@@ -89,34 +79,28 @@ export default function Establecimientos() {
             {/* IMAGEN */}
             <Image
               source={{
-                uri: est.imagen_url || "https://via.placeholder.com/300",
+                uri: est.imagen_url || "https://via.placeholder.com/400x200",
               }}
-              style={globalStyles.imagePlaceholder}
+              style={styles.image}
             />
 
             {/* CONTENIDO */}
-            <View style={globalStyles.cardContent}>
-              <Text style={globalStyles.cardTitle}>
-                {est.nombre}
-              </Text>
+            <View style={styles.content}>
+              <Text style={styles.title}>{est.nombre}</Text>
 
-              <Text style={globalStyles.cardText}>
-                {est.tipo}
-              </Text>
+              <Text style={styles.subtitle}>{est.tipo}</Text>
 
-              <Text style={globalStyles.cardText}>
-                {est.direccion}
-              </Text>
+              <Text style={styles.text}>{est.direccion}</Text>
 
-              <Text style={globalStyles.cardText}>
-                Capacidad: {est.capacidad_total || est.capacidad || 0}
+              <Text style={styles.capacity}>
+                {est.capacidad_total || est.capacidad || 0} plazas
               </Text>
 
               {/* BOTONES */}
               <View style={styles.actions}>
 
                 <TouchableOpacity
-                  style={globalStyles.button}
+                  style={styles.primaryBtn}
                   onPress={(e) => {
                     e.stopPropagation();
                     router.push({
@@ -125,21 +109,17 @@ export default function Establecimientos() {
                     });
                   }}
                 >
-                  <Text style={globalStyles.buttonText}>
-                    Reservar
-                  </Text>
+                  <Text style={styles.primaryText}>Reservar</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.pdfBtn}
+                  style={styles.secondaryBtn}
                   onPress={(e) => {
                     e.stopPropagation();
                     abrirCarta(est.carta_url);
                   }}
                 >
-                  <Text style={styles.pdfText}>
-                    📄 Ver carta
-                  </Text>
+                  <Text style={styles.secondaryText}>Ver carta</Text>
                 </TouchableOpacity>
 
               </View>
@@ -151,58 +131,3 @@ export default function Establecimientos() {
     </ScrollView>
   );
 }
-
-/* =========================
-   STYLES
-========================= */
-
-const styles = StyleSheet.create({
-  logoContainer: {
-    alignItems: "center",
-    marginTop: 20,
-  },
-
-  logo: {
-    width: 120,
-    height: 60,
-    resizeMode: "contain",
-  },
-
-  header: {
-    paddingHorizontal: 20,
-    marginTop: 10,
-    marginBottom: 10,
-  },
-
-  backBtn: {
-    marginTop: 8,
-    alignSelf: "flex-start",
-    backgroundColor: COLORS.surface,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-
-  backText: {
-    color: COLORS.primary,
-    fontWeight: "600",
-  },
-
-  actions: {
-    marginTop: 10,
-    gap: 8,
-  },
-
-  pdfBtn: {
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-    padding: 10,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-
-  pdfText: {
-    color: COLORS.primary,
-    fontWeight: "500",
-  },
-});

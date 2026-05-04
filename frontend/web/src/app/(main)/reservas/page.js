@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import "@/styles/components.css";
+import "@/styles/misReservas.css";
 
 export default function MisReservas() {
   const [reservas, setReservas] = useState([]);
@@ -17,38 +17,36 @@ export default function MisReservas() {
   }, []);
 
   const fetchReservas = async () => {
-  const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
-  const res = await fetch("http://localhost:8000/api/reservas/mis", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+    const res = await fetch("http://localhost:8000/api/reservas/mis", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  const raw = await res.json();
+    const raw = await res.json();
+    const data = Array.isArray(raw) ? raw : raw.data || [];
 
-  
-  const data = Array.isArray(raw) ? raw : raw.data || [];
+    const ordenadas = data.sort(
+      (a, b) =>
+        new Date(`${a.fecha} ${a.hora}`) -
+        new Date(`${b.fecha} ${b.hora}`)
+    );
 
-  const ordenadas = data.sort(
-    (a, b) =>
-      new Date(`${a.fecha} ${a.hora}`) -
-      new Date(`${b.fecha} ${b.hora}`)
-  );
+    setReservas(ordenadas);
+  };
 
-  setReservas(ordenadas);
-};
-
-  const filtrar = (reserva) => {
-    const matchFecha = !filtroFecha || reserva.fecha === filtroFecha;
+  const filtrar = (r) => {
+    const matchFecha = !filtroFecha || r.fecha === filtroFecha;
 
     const matchNombre =
       !filtroNombre ||
-      reserva.establecimiento_nombre
+      r.establecimiento_nombre
         ?.toLowerCase()
         .includes(filtroNombre.toLowerCase());
 
-    const hora = parseInt(reserva.hora.split(":")[0]);
+    const hora = parseInt(r.hora.split(":")[0]);
 
     const matchTramo =
       !filtroTramo ||
@@ -59,77 +57,113 @@ export default function MisReservas() {
     return matchFecha && matchNombre && matchTramo;
   };
 
-  return (
-    <div className="page">
-      <div className="container">
+  const filtradas = reservas.filter(filtrar);
 
-        <h1>Mis reservas</h1>
+  return (
+    <div className="reservas-page">
+      <div className="reservas-container">
+
+        {/* HEADER */}
+        <div className="reservas-header">
+
+          <button
+            className="back-btn"
+            onClick={() => router.push("/")}
+          >
+            ← Volver
+          </button>
+
+          <div>
+            <h1>Mis reservas</h1>
+            <p>Consulta y gestiona tus reservas</p>
+          </div>
+
+        </div>
 
         {/* FILTROS */}
-        <div className="filters-bar">
+        <div className="reservas-filtros">
 
-          <div className="filter-group">
-            <span className="filter-icon">📅</span>
-            <input
-              type="date"
-              value={filtroFecha}
-              onChange={(e) => setFiltroFecha(e.target.value)}
-              className="filter-input"
-            />
-          </div>
+          <input
+            type="date"
+            value={filtroFecha}
+            onChange={(e) => setFiltroFecha(e.target.value)}
+          />
 
-          <div className="filter-group">
-            <span className="filter-icon">🔍</span>
-            <input
-              placeholder="Buscar establecimiento"
-              value={filtroNombre}
-              onChange={(e) => setFiltroNombre(e.target.value)}
-              className="filter-input"
-            />
-          </div>
+          <input
+            placeholder="Buscar establecimiento"
+            value={filtroNombre}
+            onChange={(e) => setFiltroNombre(e.target.value)}
+          />
 
-          <div className="filter-group small">
-            <select
-              value={filtroTramo}
-              onChange={(e) => setFiltroTramo(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">Todos</option>
-              <option value="mañana">Mañana</option>
-              <option value="tarde">Tarde</option>
-              <option value="noche">Noche</option>
-            </select>
-          </div>
+          <select
+            value={filtroTramo}
+            onChange={(e) => setFiltroTramo(e.target.value)}
+          >
+            <option value="">Todos</option>
+            <option value="mañana">Mañana</option>
+            <option value="tarde">Tarde</option>
+            <option value="noche">Noche</option>
+          </select>
+
+          <button
+            className="clear-btn"
+            onClick={() => {
+              setFiltroFecha("");
+              setFiltroNombre("");
+              setFiltroTramo("");
+            }}
+          >
+            Limpiar
+          </button>
 
         </div>
 
         {/* LISTA */}
         <div className="reservas-list">
-          {reservas.filter(filtrar).map((r) => (
-            <div
-              key={r.id}
-              className="reserva-card"
-              onClick={() => router.push(`/reservas/${r.id}`)}
-            >
-              <div className="reserva-img">
-                <img src={r.imagen_url} alt={r.establecimiento_nombre} />
-              </div>
 
-              <div className="reserva-content">
-
-                <h2>{r.establecimiento_nombre}</h2>
-
-                <p className="reserva-info">
-                   {r.fecha} - {r.hora}
-                </p>
-
-                <p className="reserva-info">
-                  Zona: {r.zona}
-                </p>
-
-              </div>
+          {filtradas.length === 0 ? (
+            <div className="empty">
+              No hay reservas con estos filtros
             </div>
-          ))}
+          ) : (
+            filtradas.map((r) => (
+              <div
+                key={r.id}
+                className="reserva-card"
+                onClick={() => router.push(`/reservas/${r.id}`)}
+              >
+
+                {/* IMAGEN */}
+                <img
+                  src={r.imagen_url || "/placeholder.jpg"}
+                  className="reserva-img"
+                  alt=""
+                />
+
+                {/* INFO */}
+                <div className="reserva-main">
+
+                  <h3>{r.establecimiento_nombre}</h3>
+
+                  <div className="reserva-inline">
+                    <span>{r.fecha}</span>
+                    <span>{r.hora}</span>
+                    <span>{r.zona}</span>
+                  </div>
+
+                </div>
+
+                {/* ESTADO */}
+                <div className="reserva-status">
+                  {new Date(`${r.fecha} ${r.hora}`) < new Date()
+                    ? "Finalizada"
+                    : "Activa"}
+                </div>
+
+              </div>
+            ))
+          )}
+
         </div>
 
       </div>

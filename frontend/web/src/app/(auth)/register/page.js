@@ -62,69 +62,83 @@ export default function Register() {
 
   return (
     <div className="login-container">
-      <div className="login-card register-card">
 
-        {/* BOTÓN VOLVER */}
-        <button
-          className="back-button"
-          onClick={() => router.push("/login")}
-        >
-          ← Volver al login
-        </button>
+      <div className="register-wrapper">
 
-        <h1 className="login-title">Crear cuenta</h1>
+        {/* FORM */}
+        <div className="register-card">
 
-        <form onSubmit={handleSubmit} className="register-form">
-          
-          <input
-            className="login-input"
-            name="nombre"
-            placeholder="Nombre"
-            value={form.nombre}
-            onChange={handleChange}
-          />
-
-          <input
-            className="login-input"
-            name="nombre_user"
-            placeholder="Usuario"
-            value={form.nombre_user}
-            onChange={handleChange}
-          />
-
-          <input
-            className="login-input full"
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-          />
-
-          <input
-            className="login-input"
-            name="telefono"
-            placeholder="Teléfono"
-            value={form.telefono}
-            onChange={handleChange}
-          />
-
-          <input
-            className="login-input"
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-          />
-
-          <button type="submit" className="login-button full">
-            Registrarse
+          <button
+            className="back-button"
+            onClick={() => router.push("/login")}
+          >
+            ← Volver al login
           </button>
-        </form>
 
-        {error && <p className="login-error">{error}</p>}
-        {success && <p className="register-success">{success}</p>}
+          <h1 className="login-title">Crear cuenta</h1>
+
+          <p className="login-subtitle">
+            Regístrate para empezar a reservar
+          </p>
+
+          <form onSubmit={handleSubmit} className="register-form">
+
+            <input
+              className="login-input"
+              name="nombre"
+              placeholder="Nombre completo"
+              value={form.nombre}
+              onChange={handleChange}
+            />
+
+            <input
+              className="login-input"
+              name="nombre_user"
+              placeholder="Nombre de usuario"
+              value={form.nombre_user}
+              onChange={handleChange}
+            />
+
+            <input
+              className="login-input full"
+              name="email"
+              type="email"
+              placeholder="Correo electrónico"
+              value={form.email}
+              onChange={handleChange}
+            />
+
+            <input
+              className="login-input"
+              name="telefono"
+              placeholder="Teléfono"
+              value={form.telefono}
+              onChange={handleChange}
+            />
+
+            <input
+              className="login-input"
+              name="password"
+              type="password"
+              placeholder="Contraseña"
+              value={form.password}
+              onChange={handleChange}
+            />
+
+            <button type="submit" className="login-button full">
+              Crear cuenta
+            </button>
+          </form>
+
+          {error && <p className="login-error">{error}</p>}
+          {success && <p className="register-success">{success}</p>}
+        </div>
+
+        {/* LOGO DERECHA */}
+        <div className="register-logo">
+          <img src="https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png" alt="Logo" />
+        </div>
+
       </div>
     </div>
   );

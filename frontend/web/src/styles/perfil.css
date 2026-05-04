@@ -1,0 +1,115 @@
+.perfil-page {
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.perfil-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* HEADER */
+.perfil-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.perfil-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #111;
+}
+
+.perfil-subtitle {
+  font-size: 13px;
+  color: #666;
+}
+
+/* CARD */
+.perfil-card {
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* GRID INFO */
+.perfil-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.perfil-grid span {
+  font-size: 12px;
+  color: #666;
+}
+
+.perfil-grid strong {
+  display: block;
+  font-size: 14px;
+  color: #111;
+}
+
+/* HISTORIAL */
+.historial-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.historial-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #fafafa;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.historial-item img {
+  width: 80px;
+  height: 65px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.historial-info h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.historial-info p {
+  margin: 2px 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.historial-info span {
+  font-size: 11px;
+  color: #999;
+}
+
+/* BOTONES */
+.perfil-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-back {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.perfil-loading {
+  text-align: center;
+  padding: 40px;
+}

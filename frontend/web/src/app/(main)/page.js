@@ -40,17 +40,34 @@ export default function Landing() {
   return (
     <div className="landing">
 
-      <section className="section section-light hero">
-        <div className="container">
-          <h1 className="section-title">ReservIt</h1>
+      {/* HERO */}
+      <section className="hero">
+        <div className="hero-overlay">
+          <div className="container hero-content">
 
-          <p className="landing-text">
-            Reserva en segundos, descubre nuevos sitios y gestiona tus experiencias
-            gastronómicas como nunca antes.
-          </p>
+            {/* LOGO */}
+            <img
+              src="https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png"
+              alt="ReservIt"
+              className="hero-logo"
+            />
+
+            <p className="hero-text">
+              Reserva en segundos, descubre nuevos sitios y vive experiencias únicas.
+            </p>
+
+            <button
+              className="btn-primary"
+              onClick={() => router.push("/establecimientos")}
+            >
+              Explorar ahora
+            </button>
+
+          </div>
         </div>
       </section>
 
+      {/* MÁS RESERVADOS */}
       <section className="section section-white">
         <div className="container">
           <h2 className="section-title">Más reservados</h2>
@@ -59,18 +76,28 @@ export default function Landing() {
             {establecimientos.map((est) => (
               <div
                 key={est.id}
-                className="landing-card landing-card-white clickable"
+                className="landing-card clickable"
                 onClick={() => router.push(`/establecimientos/${est.id}`)}
               >
-                <h3 className="card-title">{est.nombre}</h3>
-                <p className="card-sub">{est.tipo}</p>
-                <p className="card-text">{est.direccion}</p>
+                <div className="card-image">
+                  <img
+                    src={est.imagen_url || "/placeholder.jpg"}
+                    alt={est.nombre}
+                  />
+                </div>
+
+                <div className="card-body">
+                  <h3 className="card-title">{est.nombre}</h3>
+                  <p className="card-sub">{est.tipo}</p>
+                  <p className="card-text">{est.direccion}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* FEATURES */}
       <section className="section section-light">
         <div className="container">
           <h2 className="section-title">Lo que viene</h2>
@@ -86,7 +113,6 @@ export default function Landing() {
               <h3>Pedidos a domicilio</h3>
               <p>
                 Pide directamente desde tus restaurantes favoritos sin salir de la app.
-                Más rápido, más fácil, más tuyo.
               </p>
             </div>
 
@@ -100,7 +126,7 @@ export default function Landing() {
             <div className="feature-row">
               <h3>Eventos y comunidad</h3>
               <p>
-                Descubre eventos locales, experiencias gastronómicas y conecta con gente.
+                Descubre eventos locales y experiencias gastronómicas.
               </p>
             </div>
 
@@ -108,6 +134,7 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* CTA */}
       <section className="section section-accent">
         <div className="container">
           <div className="cta">

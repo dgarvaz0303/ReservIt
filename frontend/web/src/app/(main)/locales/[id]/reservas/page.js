@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import "@/styles/components.css";
 import jsPDF from "jspdf";
+
 export default function ReservasEstablecimiento() {
   const { id } = useParams();
+  const router = useRouter();
 
   const [reservas, setReservas] = useState([]);
   const [fecha, setFecha] = useState(new Date());
@@ -19,147 +21,118 @@ export default function ReservasEstablecimiento() {
     return date.toISOString().split("T")[0];
   };
 
-  
-  
-const generarPDF = async () => {
-  const pdf = new jsPDF();
+  const generarPDF = async () => {
+    const pdf = new jsPDF();
 
-  const fechaStr = fecha.toLocaleDateString("es-ES");
+    const fechaStr = fecha.toLocaleDateString("es-ES");
 
-  const nombreLocal =
-    reservas[0]?.establecimiento_nombre || "Establecimiento";
+    const nombreLocal =
+      reservas[0]?.establecimiento_nombre || "Establecimiento";
 
-  let y = 20;
+    let y = 20;
 
-  // =========================
-  // CARGAR LOGO
-  // =========================
-  const loadImage = (url) =>
-    new Promise((resolve) => {
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-      img.src = url;
-      img.onload = () => resolve(img);
-    });
+    const loadImage = (url) =>
+      new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.src = url;
+        img.onload = () => resolve(img);
+      });
 
-  const logo = await loadImage(
-    "https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png"
-  );
-
-  // =========================
-  // BANNER SUPERIOR
-  // =========================
-  pdf.setFillColor(111, 78, 55); // primary
-  pdf.rect(0, 0, 210, 30, "F");
-
-  // LOGO
-  pdf.addImage(logo, "PNG", 150, 5, 40, 20);
-
-  // TITULO
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(18);
-  pdf.text("Reservas del día", 20, 18);
-
-  y = 40;
-
-  // =========================
-  // INFO
-  // =========================
-  pdf.setTextColor(62, 44, 35);
-  pdf.setFontSize(12);
-
-  pdf.text(`Local: ${nombreLocal}`, 20, y);
-  y += 6;
-
-  pdf.text(`Fecha: ${fechaStr}`, 20, y);
-  y += 10;
-
-  pdf.setDrawColor(176, 137, 104);
-  pdf.line(20, y, 190, y);
-  y += 10;
-
-  // =========================
-  // AGRUPAR POR HORA
-  // =========================
-  const agrupadas = {};
-
-  reservas.forEach((r) => {
-    if (!agrupadas[r.hora]) {
-      agrupadas[r.hora] = [];
-    }
-    agrupadas[r.hora].push(r);
-  });
-
-  const horasOrdenadas = Object.keys(agrupadas).sort();
-
-  horasOrdenadas.forEach((hora) => {
-    const lista = agrupadas[hora];
-
-    const totalPersonas = lista.reduce(
-      (acc, r) => acc + Number(r.num_personas || 0),
-      0
+    const logo = await loadImage(
+      "https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png"
     );
 
-    // HORA (DESTACADA)
-    pdf.setFont(undefined, "bold");
-    pdf.setFontSize(13);
-    pdf.setTextColor(111, 78, 55);
+    pdf.setFillColor(111, 78, 55);
+    pdf.rect(0, 0, 210, 30, "F");
 
-    pdf.text(`${hora}`, 20, y);
+    pdf.addImage(logo, "PNG", 150, 5, 40, 20);
 
-    pdf.setFont(undefined, "normal");
-    pdf.setTextColor(0, 0, 0);
-    pdf.text(` (${totalPersonas} personas)`, 45, y);
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(18);
+    pdf.text("Reservas del día", 20, 18);
 
+    y = 40;
+
+    pdf.setTextColor(62, 44, 35);
+    pdf.setFontSize(12);
+
+    pdf.text(`Local: ${nombreLocal}`, 20, y);
     y += 6;
 
-    pdf.setDrawColor(220, 220, 220);
+    pdf.text(`Fecha: ${fechaStr}`, 20, y);
+    y += 10;
+
+    pdf.setDrawColor(176, 137, 104);
     pdf.line(20, y, 190, y);
-    y += 6;
+    y += 10;
 
-    // LISTA
-    lista.forEach((r) => {
-      pdf.text(
-        `• ${r.nombre_cliente || "Cliente"} (${r.num_personas}) - ${
-          r.zona_nombre || "General"
-        }`,
-        25,
-        y
+    const agrupadas = {};
+
+    reservas.forEach((r) => {
+      if (!agrupadas[r.hora]) {
+        agrupadas[r.hora] = [];
+      }
+      agrupadas[r.hora].push(r);
+    });
+
+    const horasOrdenadas = Object.keys(agrupadas).sort();
+
+    horasOrdenadas.forEach((hora) => {
+      const lista = agrupadas[hora];
+
+      const totalPersonas = lista.reduce(
+        (acc, r) => acc + Number(r.num_personas || 0),
+        0
       );
+
+      pdf.setFont(undefined, "bold");
+      pdf.setFontSize(13);
+      pdf.setTextColor(111, 78, 55);
+
+      pdf.text(`${hora}`, 20, y);
+
+      pdf.setFont(undefined, "normal");
+      pdf.setTextColor(0, 0, 0);
+      pdf.text(` (${totalPersonas} personas)`, 45, y);
 
       y += 6;
 
-      if (y > 270) {
-        pdf.addPage();
+      pdf.setDrawColor(220, 220, 220);
+      pdf.line(20, y, 190, y);
+      y += 6;
 
-        // repetir banner en nueva página
-        pdf.setFillColor(111, 78, 55);
-        pdf.rect(0, 0, 210, 30, "F");
-        pdf.addImage(logo, "PNG", 150, 5, 40, 20);
+      lista.forEach((r) => {
+        pdf.text(
+          `• ${r.nombre_cliente || "Cliente"} (${r.num_personas}) - ${
+            r.zona_nombre || "General"
+          }`,
+          25,
+          y
+        );
 
-        y = 40;
-      }
+        y += 6;
+
+        if (y > 270) {
+          pdf.addPage();
+
+          pdf.setFillColor(111, 78, 55);
+          pdf.rect(0, 0, 210, 30, "F");
+          pdf.addImage(logo, "PNG", 150, 5, 40, 20);
+
+          y = 40;
+        }
+      });
+
+      y += 6;
     });
 
-    y += 6;
-  });
+    pdf.setFontSize(10);
+    pdf.setTextColor(150);
+    pdf.text("Generado por ReservIt", 105, 290, { align: "center" });
 
-  // =========================
-  // FOOTER
-  // =========================
-  pdf.setFontSize(10);
-  pdf.setTextColor(150);
-  pdf.text(
-    "Generado por ReservIt",
-    105,
-    290,
-    { align: "center" }
-  );
-
-  pdf.save(`reservas-${formatDate(fecha)}.pdf`);
-};
-
-
+    pdf.save(`reservas-${formatDate(fecha)}.pdf`);
+  };
 
   const fetchReservas = async () => {
     try {
@@ -168,11 +141,11 @@ const generarPDF = async () => {
       const res = await fetch(
         `http://localhost:8000/api/reservas/establecimiento/${id}?fecha=${formatDate(fecha)}`,
         {
-            headers: {
+          headers: {
             Authorization: `Bearer ${token}`,
-            },
+          },
         }
-        );
+      );
 
       const data = await res.json();
       setReservas(Array.isArray(data) ? data : data.data || []);
@@ -210,16 +183,32 @@ const generarPDF = async () => {
     <div className="page">
       <div className="container">
 
-        {/* HEADER */}
-        <div className="page-header">
-          <h1 className="page-title">Reservas</h1>
-          <p className="page-subtitle">
-            Gestiona las reservas de tu establecimiento
-          </p>
+        {/* HEADER MEJORADO */}
+        <div className="page-header" style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <button
+              className="btn-secondary"
+              onClick={() => router.push(`/locales/${id}`)}
+            >
+              ← Volver
+            </button>
+
+            <div>
+              <h1 className="page-title">Reservas</h1>
+              <p className="page-subtitle">
+                Gestiona las reservas de tu establecimiento
+              </p>
+            </div>
+          </div>
+
+          <button className="btn-primary" onClick={generarPDF}>
+            Descargar PDF
+          </button>
         </div>
-        <button className="btn-primary" onClick={generarPDF}>
-          Descargar PDF del día
-        </button>
 
         {/* FECHA */}
         <div className="card" style={{
@@ -246,7 +235,6 @@ const generarPDF = async () => {
 
         {/* FILTROS */}
         <div className="filters-bar">
-
           <button
             className={`btn-secondary ${filtro === "mañana" ? "btn-accent" : ""}`}
             onClick={() => setFiltro("mañana")}
@@ -265,7 +253,7 @@ const generarPDF = async () => {
             className={`btn-secondary ${filtro === "noche" ? "btn-accent" : ""}`}
             onClick={() => setFiltro("noche")}
           >
-             Noche
+            Noche
           </button>
 
           <button
@@ -274,7 +262,6 @@ const generarPDF = async () => {
           >
             Todas
           </button>
-
         </div>
 
         {/* LISTA */}
@@ -288,22 +275,19 @@ const generarPDF = async () => {
             </div>
           ) : (
             reservasFiltradas.map((r, i) => (
-            <div
-              key={`${r.hora}-${r.nombre_cliente}-${i}`}
-              className="reserva-card"
+              <div
+                key={`${r.hora}-${r.nombre_cliente}-${i}`}
+                className="reserva-card"
                 onClick={() =>
                   window.location.href = `/locales/${id}/reservas/${r.id}`
                 }
               >
-                {/* LATERAL COLOR */}
                 <div style={{
                   width: 6,
                   background: "var(--color-success)"
                 }} />
 
-                {/* CONTENIDO */}
                 <div className="reserva-content">
-
                   <h2>{r.nombre_cliente}</h2>
 
                   <p className="reserva-info">
@@ -313,7 +297,6 @@ const generarPDF = async () => {
                   <p className="reserva-info">
                     {r.zona_nombre || "Zona general"}
                   </p>
-
                 </div>
 
               </div>

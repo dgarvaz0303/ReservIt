@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import "@/styles/components.css";
+import "@/styles/mis-establecimientos.css";
 
 export default function MisEstablecimientos() {
   const [establecimientos, setEstablecimientos] = useState([]);
@@ -63,16 +63,26 @@ export default function MisEstablecimientos() {
   };
 
   return (
-    <div className="page">
-      <div className="container">
+    <div className="misest-page">
+      <div className="misest-container">
 
         {/* HEADER */}
-        <div className="page-header">
-          <div>
-            <h1 className="page-title">Mis establecimientos</h1>
-            <p className="page-subtitle">
-              Gestiona tus locales fácilmente
-            </p>
+        <div className="misest-header">
+
+          <div className="misest-header-left">
+            <button
+              className="btn-back"
+              onClick={() => router.push("/")}
+            >
+              ← Inicio
+            </button>
+
+            <div>
+              <h1 className="misest-title">Mis establecimientos</h1>
+              <p className="misest-subtitle">
+                Gestiona tus locales fácilmente
+              </p>
+            </div>
           </div>
 
           <button
@@ -87,36 +97,37 @@ export default function MisEstablecimientos() {
 
         {/* LISTA */}
         {establecimientos.length === 0 ? (
-          <p className="perfil-empty">
-            No hay locales registrados
-          </p>
+          <div className="misest-empty">
+            <p>No tienes establecimientos todavía</p>
+          </div>
         ) : (
-          <div className="est-list">
+          <div className="misest-grid">
             {establecimientos.map((e) => (
-              <div key={e.id} className="est-card">
+              <div key={e.id} className="misest-card">
 
-                {/* CLICKABLE */}
+                {/* IMAGEN */}
                 <div
-                  onClick={() =>
-                    router.push(`/locales/${e.id}`)
-                  }
-                  style={{ cursor: "pointer" }}
+                  className="misest-image"
+                  onClick={() => router.push(`/locales/${e.id}`)}
                 >
-                  <div className="est-image">
-                    <img
-                      src={e.imagen_url || "/placeholder.jpg"}
-                      alt={e.nombre}
-                    />
-                  </div>
+                  <img
+                    src={e.imagen_url || "/placeholder.jpg"}
+                    alt={e.nombre}
+                  />
+                </div>
 
-                  <div className="est-content">
-                    <h2 className="est-title">{e.nombre}</h2>
-                    <p className="est-info">{e.direccion}</p>
-                  </div>
+                {/* INFO */}
+                <div
+                  className="misest-content"
+                  onClick={() => router.push(`/locales/${e.id}`)}
+                >
+                  <h2>{e.nombre}</h2>
+                  <p>{e.direccion}</p>
                 </div>
 
                 {/* ACCIONES */}
-                <div className="est-actions">
+                <div className="misest-actions">
+
                   <button
                     className="btn-secondary"
                     onClick={() =>
@@ -132,6 +143,7 @@ export default function MisEstablecimientos() {
                   >
                     Eliminar
                   </button>
+
                 </div>
 
               </div>
@@ -149,7 +161,7 @@ export default function MisEstablecimientos() {
             <h2>¿Eliminar establecimiento?</h2>
 
             <p>
-              Esta acción no se puede deshacer. <br />
+              Esta acción no se puede deshacer.<br />
               Escribe <strong>DELETE</strong> para continuar.
             </p>
 

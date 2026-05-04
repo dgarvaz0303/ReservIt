@@ -229,6 +229,12 @@ export default function CrearEstablecimiento() {
       <div className="container">
 
         <div className="page-header">
+          <button
+            className="btn-back"
+            onClick={() => router.push("/locales")}
+          >
+            ← Volver
+          </button>
           <h1 className="page-title">Crear establecimiento</h1>
         </div>
 

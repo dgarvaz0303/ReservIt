@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -10,16 +12,19 @@ import {
   Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
+
 import { globalStyles } from "../../../themes/styles";
 import { COLORS } from "../../../themes/colors";
+import { perfilStyles as styles } from "../../../themes/perfilStyles";
 
 export default function PerfilScreen() {
+  const router = useRouter();
+
   const [user, setUser] = useState<any>(null);
   const [historial, setHistorial] = useState<any[]>([]);
   const [showDelete, setShowDelete] = useState(false);
   const [confirmText, setConfirmText] = useState("");
-
 
   useEffect(() => {
     fetchPerfil();
@@ -47,7 +52,6 @@ export default function PerfilScreen() {
       }
 
       setUser(data);
-
     } catch (error) {
       console.log(error);
     }
@@ -91,7 +95,7 @@ export default function PerfilScreen() {
       await AsyncStorage.clear();
 
       Alert.alert("Cuenta eliminada");
-      navigation.navigate("Login");
+      router.replace("/login");
 
     } catch (error) {
       console.log(error);
@@ -108,6 +112,14 @@ export default function PerfilScreen() {
 
   return (
     <View style={globalStyles.container}>
+
+      {/* BOTÓN VOLVER */}
+      <TouchableOpacity
+        style={styles.backBtn}
+        onPress={() => router.replace("/")}
+      >
+        <Text style={styles.backText}>← Inicio</Text>
+      </TouchableOpacity>
 
       {/* INFO */}
       <View style={globalStyles.card}>
@@ -138,7 +150,7 @@ export default function PerfilScreen() {
           keyExtractor={(item) => item.id.toString()}
           showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => (
-            <View style={{ marginRight: 12, width: 140 }}>
+            <View style={styles.historialItem}>
 
               <Image
                 source={{
@@ -146,11 +158,7 @@ export default function PerfilScreen() {
                     item.imagen_url ||
                     "https://via.placeholder.com/300",
                 }}
-                style={{
-                  width: "100%",
-                  height: 90,
-                  borderRadius: 10,
-                }}
+                style={styles.historialImage}
               />
 
               <Text style={globalStyles.cardTitle}>
@@ -172,21 +180,11 @@ export default function PerfilScreen() {
         <TouchableOpacity
           style={globalStyles.button}
           onPress={() =>
-                          router.push({
-                            pathname: "/perfil/editar"
-                          })
-                        }
+            router.push("/perfil/editar")
+          }
         >
           <Text style={globalStyles.buttonText}>
             Editar perfil
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={globalStyles.button}
-        >
-          <Text style={globalStyles.buttonText}>
-            Solicitar Supervisor
           </Text>
         </TouchableOpacity>
 
@@ -206,14 +204,8 @@ export default function PerfilScreen() {
 
       {/* MODAL */}
       <Modal visible={showDelete} transparent animationType="fade">
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "rgba(0,0,0,0.4)",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <View style={styles.modalOverlay}>
+
           <View style={globalStyles.card}>
 
             <Text style={globalStyles.sectionTitle}>
