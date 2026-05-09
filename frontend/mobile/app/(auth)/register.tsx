@@ -10,12 +10,14 @@ import {
   ScrollView,
   Image
 } from "react-native";
+
 import { router } from "expo-router";
 
 import { globalStyles } from "../../themes/styles";
 import { registerStyles } from "../../themes/registerStyles";
 
 export default function Register() {
+
   const [form, setForm] = useState({
     nombre: "",
     nombre_user: "",
@@ -28,39 +30,162 @@ export default function Register() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (name: string, value: string) => {
-    setForm({ ...form, [name]: value });
+  // =========================
+  // HANDLE INPUTS
+  // =========================
+
+  const handleChange = (
+    name: string,
+    value: string
+  ) => {
+
+    setForm({
+      ...form,
+      [name]: value,
+    });
   };
 
+  // =========================
+  // VALIDACIONES
+  // =========================
+
+  const validarEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validarTelefono = (telefono: string) => {
+    return /^[0-9]{9,15}$/.test(telefono);
+  };
+
+  // =========================
+  // REGISTER
+  // =========================
+
   const handleRegister = async () => {
+
     setError("");
     setSuccess("");
-    setLoading(true);
+
+    const nombre = form.nombre.trim();
+    const nombreUser = form.nombre_user.trim();
+    const email = form.email.trim();
+    const telefono = form.telefono.trim();
+    const password = form.password.trim();
+
+    // CAMPOS VACÍOS
+    if (
+      !nombre ||
+      !nombreUser ||
+      !email ||
+      !telefono ||
+      !password
+    ) {
+      setError("Todos los campos son obligatorios");
+      return;
+    }
+
+    // NOMBRE
+    if (nombre.length < 3) {
+      setError(
+        "El nombre debe tener al menos 3 caracteres"
+      );
+      return;
+    }
+
+    // USER
+    if (nombreUser.length < 3) {
+      setError(
+        "El nombre de usuario es demasiado corto"
+      );
+      return;
+    }
+
+    // EMAIL
+    if (!validarEmail(email)) {
+      setError("Introduce un email válido");
+      return;
+    }
+
+    // TELÉFONO
+    if (!validarTelefono(telefono)) {
+      setError("Introduce un teléfono válido");
+      return;
+    }
+
+    // PASSWORD
+    if (password.length < 6) {
+      setError(
+        "La contraseña debe tener al menos 6 caracteres"
+      );
+      return;
+    }
 
     try {
-      const res = await fetch("http://192.168.1.132:8000/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+
+      setLoading(true);
+
+      const res = await fetch(
+        "http://192.168.1.132:8000/api/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nombre,
+            nombre_user: nombreUser,
+            email,
+            telefono,
+            password,
+          }),
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.detail || "Error en registro");
+
+        let mensaje = "Error en registro";
+
+        if (typeof data.detail === "string") {
+
+          mensaje = data.detail;
+
+        } else if (Array.isArray(data.detail)) {
+
+          mensaje = data.detail
+            .map((e: any) => e.msg)
+            .join(", ");
+
+        } else if (
+          typeof data.detail === "object" &&
+          data.detail !== null
+        ) {
+
+          mensaje =
+            data.detail.msg ||
+            JSON.stringify(data.detail);
+        }
+
+        throw new Error(mensaje);
       }
 
       setSuccess("Usuario creado correctamente");
 
       setTimeout(() => {
         router.replace("/login");
-      }, 1000);
+      }, 1200);
 
     } catch (err: any) {
-      setError(err.message);
+
+      setError(
+        typeof err?.message === "string"
+          ? err.message
+          : "Error inesperado"
+      );
+
     } finally {
+
       setLoading(false);
     }
   };
@@ -68,7 +193,11 @@ export default function Register() {
   return (
     <KeyboardAvoidingView
       style={globalStyles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={
+        Platform.OS === "ios"
+          ? "padding"
+          : undefined
+      }
     >
       <ScrollView
         contentContainerStyle={{
@@ -81,13 +210,17 @@ export default function Register() {
 
           {/* LOGO */}
           <Image
-            src="https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png"
+            source={{
+              uri: "https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png"
+            }}
             style={registerStyles.logo}
             resizeMode="contain"
           />
 
           {/* TITULO */}
-          <Text style={globalStyles.title}>Crear cuenta</Text>
+          <Text style={globalStyles.title}>
+            Crear cuenta
+          </Text>
 
           <Text style={registerStyles.subtitle}>
             Completa tus datos para empezar
@@ -95,19 +228,36 @@ export default function Register() {
 
           {/* NOMBRE + USER */}
           <View style={registerStyles.row}>
+
             <TextInput
-              style={[globalStyles.input, registerStyles.halfInput]}
+              style={[
+                globalStyles.input,
+                registerStyles.halfInput
+              ]}
               placeholder="Nombre"
               placeholderTextColor="#999"
-              onChangeText={(v) => handleChange("nombre", v)}
+              value={form.nombre}
+              onChangeText={(v) =>
+                handleChange("nombre", v)
+              }
+              maxLength={60}
             />
 
             <TextInput
-              style={[globalStyles.input, registerStyles.halfInput]}
+              style={[
+                globalStyles.input,
+                registerStyles.halfInput
+              ]}
               placeholder="Usuario"
               placeholderTextColor="#999"
-              onChangeText={(v) => handleChange("nombre_user", v)}
+              value={form.nombre_user}
+              onChangeText={(v) =>
+                handleChange("nombre_user", v)
+              }
+              autoCapitalize="none"
+              maxLength={30}
             />
+
           </View>
 
           {/* EMAIL */}
@@ -115,9 +265,14 @@ export default function Register() {
             style={globalStyles.input}
             placeholder="Email"
             placeholderTextColor="#999"
+            value={form.email}
             keyboardType="email-address"
             autoCapitalize="none"
-            onChangeText={(v) => handleChange("email", v)}
+            autoCorrect={false}
+            onChangeText={(v) =>
+              handleChange("email", v)
+            }
+            maxLength={120}
           />
 
           {/* TELÉFONO */}
@@ -126,16 +281,24 @@ export default function Register() {
             placeholder="Teléfono"
             placeholderTextColor="#999"
             keyboardType="phone-pad"
-            onChangeText={(v) => handleChange("telefono", v)}
+            value={form.telefono}
+            onChangeText={(v) =>
+              handleChange("telefono", v)
+            }
+            maxLength={15}
           />
 
           {/* PASSWORD */}
           <TextInput
             style={globalStyles.input}
-            placeholder="Password"
+            placeholder="Contraseña"
             placeholderTextColor="#999"
             secureTextEntry
-            onChangeText={(v) => handleChange("password", v)}
+            value={form.password}
+            onChangeText={(v) =>
+              handleChange("password", v)
+            }
+            maxLength={60}
           />
 
           {/* BOTÓN */}
@@ -166,8 +329,19 @@ export default function Register() {
             </Text>
           </TouchableOpacity>
 
-          {error ? <Text style={globalStyles.error}>{error}</Text> : null}
-          {success ? <Text style={globalStyles.success}>{success}</Text> : null}
+          {/* ERROR */}
+          {error ? (
+            <Text style={globalStyles.error}>
+              {error}
+            </Text>
+          ) : null}
+
+          {/* SUCCESS */}
+          {success ? (
+            <Text style={globalStyles.success}>
+              {success}
+            </Text>
+          ) : null}
 
         </View>
       </ScrollView>

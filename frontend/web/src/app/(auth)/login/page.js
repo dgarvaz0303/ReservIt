@@ -7,41 +7,102 @@ import "@/styles/login.css";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
+  // VALIDAR EMAIL
+  const validarEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setError("");
 
+    // LIMPIAR ESPACIOS
+    const emailLimpio = email.trim();
+    const passwordLimpia = password.trim();
+
+    // =========================
+    // VALIDACIONES
+    // =========================
+
+    if (!emailLimpio || !passwordLimpia) {
+      setError("Todos los campos son obligatorios");
+      return;
+    }
+
+    if (!validarEmail(emailLimpio)) {
+      setError("Introduce un correo válido");
+      return;
+    }
+
+    if (passwordLimpia.length < 6) {
+      setError(
+        "La contraseña debe tener al menos 6 caracteres"
+      );
+      return;
+    }
+
     try {
-      const res = await fetch("http://localhost:8000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      setLoading(true);
+
+      const res = await fetch(
+        "http://localhost:8000/api/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: emailLimpio,
+            password: passwordLimpia,
+          }),
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.detail || "Error en login");
+        throw new Error(
+          data.detail || "Error en login"
+        );
       }
 
       if (!data.access_token || !data.rol) {
-        throw new Error("Respuesta de login incompleta");
+        throw new Error(
+          "Respuesta de login incompleta"
+        );
       }
 
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("nombre", data.nombre || email);
-      localStorage.setItem("rol", data.rol);
+      localStorage.setItem(
+        "token",
+        data.access_token
+      );
+
+      localStorage.setItem(
+        "nombre",
+        data.nombre || emailLimpio
+      );
+
+      localStorage.setItem(
+        "rol",
+        data.rol
+      );
 
       router.replace("/");
 
     } catch (err) {
-      setError(err.message);
+      setError(
+        err.message || "Error al iniciar sesión"
+      );
+
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,47 +111,85 @@ export default function LoginPage() {
 
       {/* LOGO */}
       <div className="login-logo">
-        <img src="https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png" alt="Logo" />
+        <img
+          src="https://hncbzycaenboslmsgutc.supabase.co/storage/v1/object/public/establecimientos-img/logoclaro.png"
+          alt="Logo"
+        />
       </div>
 
       <div className="login-card">
-        <h1 className="login-title">Bienvenido</h1>
+
+        <h1 className="login-title">
+          Bienvenido
+        </h1>
 
         <p className="login-subtitle">
           Accede a tu cuenta para continuar
         </p>
 
-        <form onSubmit={handleSubmit} className="login-form">
+        <form
+          onSubmit={handleSubmit}
+          className="login-form"
+        >
 
+          {/* EMAIL */}
           <input
             className="login-input"
             type="email"
             placeholder="Correo electrónico"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            maxLength={100}
+            onChange={(e) =>
+              setEmail(e.target.value)
+            }
           />
 
+          {/* PASSWORD */}
           <input
             className="login-input"
             type="password"
             placeholder="Contraseña"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            maxLength={50}
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
           />
 
-          <button type="submit" className="login-button">
-            Iniciar sesión
+          {/* BOTON */}
+          <button
+            type="submit"
+            className="login-button"
+            disabled={loading}
+            style={{
+              opacity: loading ? 0.7 : 1,
+              cursor: loading
+                ? "not-allowed"
+                : "pointer",
+            }}
+          >
+            {loading
+              ? "Iniciando sesión..."
+              : "Iniciar sesión"}
           </button>
+
         </form>
 
         <button
           className="login-secondary"
-          onClick={() => router.push("/register")}
+          onClick={() =>
+            router.push("/register")
+          }
         >
           ¿No tienes cuenta? Regístrate
         </button>
 
-        {error && <p className="login-error">{error}</p>}
+        {error && (
+          <p className="login-error">
+            {error}
+          </p>
+        )}
+
       </div>
     </div>
   );

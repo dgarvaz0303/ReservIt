@@ -13,6 +13,9 @@ export default function EditarPerfil() {
     telefono: "",
   });
 
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -45,14 +48,87 @@ export default function EditarPerfil() {
     }
   };
 
+  // =========================
+  // VALIDACIONES
+  // =========================
+
+  const validarTelefono = (telefono) => {
+    return /^[0-9]{9}$/.test(telefono);
+  };
+
+  const validarUsuario = (usuario) => {
+    return /^[a-zA-Z0-9_]+$/.test(usuario);
+  };
+
+  // =========================
+  // HANDLE CHANGE
+  // =========================
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // SOLO NÚMEROS EN TELÉFONO
+    if (name === "telefono") {
+      const limpio = value.replace(/\D/g, "");
+
+      setForm({
+        ...form,
+        telefono: limpio,
+      });
+
+      return;
+    }
+
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
+  // =========================
+  // GUARDAR
+  // =========================
+
   const guardar = async () => {
+
+    setError("");
+    setSuccess("");
+
+    const nombre = form.nombre.trim();
+    const nombre_user = form.nombre_user.trim();
+    const telefono = form.telefono.trim();
+
+    // CAMPOS VACÍOS
+    if (!nombre || !nombre_user || !telefono) {
+      setError("Todos los campos son obligatorios");
+      return;
+    }
+
+    // NOMBRE
+    if (nombre.length < 3) {
+      setError("El nombre debe tener al menos 3 caracteres");
+      return;
+    }
+
+    // USER
+    if (nombre_user.length < 3) {
+      setError("El usuario es demasiado corto");
+      return;
+    }
+
+    if (!validarUsuario(nombre_user)) {
+      setError(
+        "El usuario solo puede contener letras, números y _"
+      );
+      return;
+    }
+
+    // TELÉFONO
+    if (!validarTelefono(telefono)) {
+      setError("El teléfono debe tener 9 números");
+      return;
+    }
+
     try {
       setSaving(true);
 
@@ -64,28 +140,38 @@ export default function EditarPerfil() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          nombre,
+          nombre_user,
+          telefono,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.detail || "Error al guardar");
+        setError(data.detail || "Error al guardar");
         return;
       }
 
-      alert("Perfil actualizado correctamente");
+      setSuccess("Perfil actualizado correctamente");
 
-      router.push("/perfil");
+      setTimeout(() => {
+        router.push("/perfil");
+      }, 1200);
 
     } catch (err) {
       console.log(err);
+      setError("Error de conexión");
+
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) return <p className="editar-loading">Cargando...</p>;
+  if (loading) {
+    return <p className="editar-loading">Cargando...</p>;
+  }
 
   return (
     <div className="editar-page">
@@ -94,7 +180,6 @@ export default function EditarPerfil() {
         {/* HEADER */}
         <div className="editar-header">
 
-          {/* BOTÓN NUEVO */}
           <button
             className="btn-back"
             onClick={() => router.push("/perfil")}
@@ -103,7 +188,10 @@ export default function EditarPerfil() {
           </button>
 
           <div>
-            <h1 className="editar-title">Editar perfil</h1>
+            <h1 className="editar-title">
+              Editar perfil
+            </h1>
+
             <p className="editar-subtitle">
               Actualiza tu información personal
             </p>
@@ -116,34 +204,56 @@ export default function EditarPerfil() {
 
           <div className="form-grid">
 
+            {/* NOMBRE */}
             <div className="form-group">
               <label>Nombre</label>
+
               <input
                 name="nombre"
                 value={form.nombre}
                 onChange={handleChange}
+                maxLength={60}
               />
             </div>
 
+            {/* USER */}
             <div className="form-group">
               <label>Usuario</label>
+
               <input
                 name="nombre_user"
                 value={form.nombre_user}
                 onChange={handleChange}
+                maxLength={30}
               />
             </div>
 
+            {/* TELÉFONO */}
             <div className="form-group full">
               <label>Teléfono</label>
+
               <input
                 name="telefono"
                 value={form.telefono}
                 onChange={handleChange}
+                maxLength={9}
               />
             </div>
 
           </div>
+
+          {/* MENSAJES */}
+          {error && (
+            <p className="login-error">
+              {error}
+            </p>
+          )}
+
+          {success && (
+            <p className="register-success">
+              {success}
+            </p>
+          )}
 
           {/* BOTONES */}
           <div className="editar-actions">
@@ -159,8 +269,16 @@ export default function EditarPerfil() {
               className="btn-primary"
               onClick={guardar}
               disabled={saving}
+              style={{
+                opacity: saving ? 0.7 : 1,
+                cursor: saving
+                  ? "not-allowed"
+                  : "pointer",
+              }}
             >
-              {saving ? "Guardando..." : "Guardar cambios"}
+              {saving
+                ? "Guardando..."
+                : "Guardar cambios"}
             </button>
 
           </div>
