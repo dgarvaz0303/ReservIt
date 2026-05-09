@@ -125,7 +125,7 @@ export default function Register() {
       setLoading(true);
 
       const res = await fetch(
-        "http://192.168.1.132:8000/api/register",
+        "https://reservit.onrender.com/api/register",
         {
           method: "POST",
           headers: {

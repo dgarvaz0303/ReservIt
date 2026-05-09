@@ -32,7 +32,7 @@ export default function Home() {
 
   const fetchEstablecimientos = async () => {
     try {
-      const res = await fetch("http://192.168.1.132:8000/api/establecimientos");
+      const res = await fetch("https://reservit.onrender.com/api/establecimientos");
       const data = await res.json();
       setEstablecimientos(data.slice(0, 3));
     } catch (err) {

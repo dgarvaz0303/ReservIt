@@ -66,7 +66,7 @@ export default function EditarPerfilScreen() {
         );
 
       const res = await fetch(
-        "http://192.168.1.132:8000/api/usuarios/me",
+        "https://reservit.onrender.com/api/usuarios/me",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -219,7 +219,7 @@ export default function EditarPerfilScreen() {
       // =========================
 
       const res = await fetch(
-        "http://192.168.1.132:8000/api/usuarios/me",
+        "https://reservit.onrender.com/api/usuarios/me",
         {
           method: "PUT",
           headers: {

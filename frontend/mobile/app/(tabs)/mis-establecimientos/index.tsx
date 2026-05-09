@@ -34,7 +34,7 @@ export default function MisEstablecimientosScreen() {
       const token = await AsyncStorage.getItem("token");
 
       const res = await fetch(
-        "http://192.168.1.132:8000/api/establecimientos/propietario",
+        "https://reservit.onrender.com/api/establecimientos/propietario",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -52,7 +52,7 @@ export default function MisEstablecimientosScreen() {
       const token = await AsyncStorage.getItem("token");
 
       await fetch(
-        `http://192.168.1.132:8000/api/establecimientos/${selectedId}`,
+        `https://reservit.onrender.com/api/establecimientos/${selectedId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

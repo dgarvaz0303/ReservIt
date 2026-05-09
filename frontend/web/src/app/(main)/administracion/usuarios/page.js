@@ -18,7 +18,7 @@ export default function AdminUsuarios() {
   }, []);
 
   const fetchUsuarios = async () => {
-    const res = await fetch("http://localhost:8000/api/usuarios");
+    const res = await fetch("https://reservit.onrender.com/api/usuarios");
     const data = await res.json();
     setUsuarios(Array.isArray(data) ? data : data.data || []);
   };
@@ -26,7 +26,7 @@ export default function AdminUsuarios() {
   const eliminar = async (id) => {
     if (!confirm("¿Eliminar usuario?")) return;
 
-    await fetch(`http://localhost:8000/api/usuarios/${id}`, {
+    await fetch(`https://reservit.onrender.com/api/usuarios/${id}`, {
       method: "DELETE",
     });
 
@@ -34,7 +34,7 @@ export default function AdminUsuarios() {
   };
 
   const cambiarRol = async (id) => {
-    await fetch(`http://localhost:8000/api/usuarios/${id}/rol`, {
+    await fetch(`https://reservit.onrender.com/api/usuarios/${id}/rol`, {
       method: "PUT",
     });
 

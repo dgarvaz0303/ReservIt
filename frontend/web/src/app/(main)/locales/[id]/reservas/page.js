@@ -139,7 +139,7 @@ export default function ReservasEstablecimiento() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `http://localhost:8000/api/reservas/establecimiento/${id}?fecha=${formatDate(fecha)}`,
+        `https://reservit.onrender.com/api/reservas/establecimiento/${id}?fecha=${formatDate(fecha)}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

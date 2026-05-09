@@ -35,7 +35,7 @@ export default function MisReservas() {
       const token = await AsyncStorage.getItem("token");
 
       const res = await fetch(
-        "http://192.168.1.132:8000/api/reservas/mis",
+        "https://reservit.onrender.com/api/reservas/mis",
         {
           headers: { Authorization: `Bearer ${token}` },
         }

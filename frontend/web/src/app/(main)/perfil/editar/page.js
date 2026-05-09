@@ -27,7 +27,7 @@ export default function EditarPerfil() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`http://localhost:8000/api/usuarios/me`, {
+      const res = await fetch(`https://reservit.onrender.com/api/usuarios/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -134,7 +134,7 @@ export default function EditarPerfil() {
 
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`http://localhost:8000/api/usuarios/me`, {
+      const res = await fetch(`https://reservit.onrender.com/api/usuarios/me`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

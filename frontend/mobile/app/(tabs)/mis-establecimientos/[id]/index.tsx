@@ -33,7 +33,7 @@ export default function DetalleEstablecimientoSupervisor() {
   const fetchEstablecimiento = async () => {
     try {
       const res = await fetch(
-        `http://192.168.1.132:8000/api/establecimientos/${id}`
+        `https://reservit.onrender.com/api/establecimientos/${id}`
       );
       const data = await res.json();
       setEstablecimiento(data.data || data);
@@ -47,7 +47,7 @@ export default function DetalleEstablecimientoSupervisor() {
       const token = await AsyncStorage.getItem("token");
 
       await fetch(
-        `http://192.168.1.132:8000/api/establecimientos/${id}`,
+        `https://reservit.onrender.com/api/establecimientos/${id}`,
         {
           method: "DELETE",
           headers: {

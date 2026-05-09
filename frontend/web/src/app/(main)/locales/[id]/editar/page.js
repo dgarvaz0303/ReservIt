@@ -37,7 +37,7 @@ export default function EditarEstablecimiento() {
 
   const fetchData = async () => {
     const res = await fetch(
-      `http://localhost:8000/api/establecimientos/${id}`
+      `https://reservit.onrender.com/api/establecimientos/${id}`
     );
     const data = await res.json();
 
@@ -174,7 +174,7 @@ export default function EditarEstablecimiento() {
       }
 
       await fetch(
-        `http://localhost:8000/api/establecimientos/${id}`,
+        `https://reservit.onrender.com/api/establecimientos/${id}`,
         {
           method: "PUT",
           headers: {

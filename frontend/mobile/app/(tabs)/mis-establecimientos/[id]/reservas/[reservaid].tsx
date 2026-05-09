@@ -62,7 +62,7 @@ export default function DetalleReserva() {
     if (!reservaId) return;
 
     const res = await fetch(
-      `http://192.168.1.132:8000/api/reservas/${reservaId}`
+      `https://reservit.onrender.com/api/reservas/${reservaId}`
     );
     const data = await res.json();
     setReserva(data);
@@ -115,7 +115,7 @@ export default function DetalleReserva() {
   const validarQR = async (qr_token: string) => {
     try {
       const res = await fetch(
-        `http://192.168.1.132:8000/api/reservas/usar/${qr_token}`,
+        `https://reservit.onrender.com/api/reservas/usar/${qr_token}`,
         { method: "POST" }
       );
 
@@ -138,7 +138,7 @@ export default function DetalleReserva() {
     const token = await AsyncStorage.getItem("token");
 
     await fetch(
-      `http://192.168.1.132:8000/api/reservas/${reservaId}`,
+      `https://reservit.onrender.com/api/reservas/${reservaId}`,
       {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },

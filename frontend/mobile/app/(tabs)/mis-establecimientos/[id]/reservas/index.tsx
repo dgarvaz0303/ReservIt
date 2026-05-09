@@ -41,7 +41,7 @@ export default function ReservasEstablecimiento() {
       const token = await AsyncStorage.getItem("token");
 
       const res = await fetch(
-        `http://192.168.1.132:8000/api/reservas/establecimiento/${establecimientoId}?fecha=${formatDate(fecha)}`,
+        `https://reservit.onrender.com/api/reservas/establecimiento/${establecimientoId}?fecha=${formatDate(fecha)}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

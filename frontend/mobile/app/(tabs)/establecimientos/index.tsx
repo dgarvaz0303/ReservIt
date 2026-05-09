@@ -22,7 +22,7 @@ export default function Establecimientos() {
 
   const fetchEstablecimientos = async () => {
     try {
-      const res = await fetch("http://192.168.1.132:8000/api/establecimientos");
+      const res = await fetch("https://reservit.onrender.com/api/establecimientos");
       const data = await res.json();
       setEstablecimientos(Array.isArray(data) ? data : []);
     } catch (err) {
