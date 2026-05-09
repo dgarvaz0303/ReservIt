@@ -31,36 +31,30 @@ def get_disponibilidad_mes(
         if not zonas or not horarios:
             return []
 
+        fecha_inicio = f"{year}-{str(month).zfill(2)}-01"
+        fecha_fin = f"{year}-{str(month).zfill(2)}-{str(dias_mes).zfill(2)}"
+
+        reservas = supabase.table("reserva") \
+            .select("fecha,num_personas,zona_id") \
+            .eq("id_establecimiento", establecimiento_id) \
+            .gte("fecha", fecha_inicio) \
+            .lte("fecha", fecha_fin) \
+            .execute().data or []
+
+        capacidad_total = sum((z.get("capacidad") or 0) for z in zonas) * len(horarios)
+
         resultado = []
 
         for dia in range(1, dias_mes + 1):
             fecha = f"{year}-{str(month).zfill(2)}-{str(dia).zfill(2)}"
 
-            capacidad_total = 0
-            ocupadas_total = 0
-
-            for zona in zonas:
-                zona_id = zona.get("id")
-                capacidad = zona.get("capacidad") or 0
-
-                capacidad_total += capacidad * len(horarios)
-
-                reservas = supabase.table("reserva") \
-                    .select("num_personas") \
-                    .eq("id_establecimiento", establecimiento_id) \
-                    .eq("zona_id", zona_id) \
-                    .eq("fecha", fecha) \
-                    .execute().data or []
-
-                ocupadas = sum(
-                    int(r.get("num_personas") or 0)
-                    for r in reservas
-                )
-
-                ocupadas_total += ocupadas
+            ocupadas_total = sum(
+                int(r.get("num_personas") or 0)
+                for r in reservas
+                if r.get("fecha") == fecha
+            )
 
             ocupacion = 0
-
             if capacidad_total > 0:
                 ocupacion = ocupadas_total / capacidad_total
 
@@ -72,9 +66,8 @@ def get_disponibilidad_mes(
         return resultado
 
     except Exception as e:
-        print("ERROR DISPONIBILIDAD MES:", e)
+        print("ERROR DISPONIBILIDAD MES:", repr(e))
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("")
 def get_disponibilidad(
@@ -82,46 +75,39 @@ def get_disponibilidad(
     fecha: str = Query(...),
 ):
     try:
-        if not establecimiento_id:
-            raise HTTPException(status_code=400, detail="establecimiento_id requerido")
-
         zonas = supabase.table("zonas") \
             .select("*") \
             .eq("establecimiento_id", establecimiento_id) \
             .execute().data or []
-
-        if not zonas:
-            return []
 
         horarios = supabase.table("horarios_establecimiento") \
             .select("*") \
             .eq("id_establecimiento", establecimiento_id) \
             .execute().data or []
 
-        if not horarios:
+        if not zonas or not horarios:
             return []
+
+        reservas = supabase.table("reserva") \
+            .select("zona_id,hora,num_personas") \
+            .eq("id_establecimiento", establecimiento_id) \
+            .eq("fecha", fecha) \
+            .execute().data or []
 
         resultado = []
 
         for zona in zonas:
             zona_id = zona["id"]
-            capacidad = zona["capacidad"] or 0
+            capacidad = zona.get("capacidad") or 0
 
             for h in horarios:
-                hora = str(h["hora"])[:8]  
-
-                reservas = supabase.table("reserva") \
-                    .select("num_personas") \
-                    .eq("zona_id", zona_id) \
-                    .eq("fecha", fecha) \
-                    .eq("hora", hora) \
-                    .execute().data or []
+                hora = str(h["hora"])[:8]
 
                 ocupadas = sum(
-                    int(r.get("num_personas") or 0) for r in reservas
+                    int(r.get("num_personas") or 0)
+                    for r in reservas
+                    if r.get("zona_id") == zona_id and str(r.get("hora"))[:8] == hora
                 )
-
-                disponibles = max(capacidad - ocupadas, 0)
 
                 resultado.append({
                     "zona_id": zona_id,
@@ -129,11 +115,11 @@ def get_disponibilidad(
                     "hora": hora,
                     "capacidad": capacidad,
                     "ocupadas": ocupadas,
-                    "disponibles": disponibles
+                    "disponibles": max(capacidad - ocupadas, 0)
                 })
 
         return resultado
 
     except Exception as e:
-        print("ERROR DISPONIBILIDAD:", e) 
+        print("ERROR DISPONIBILIDAD:", repr(e))
         raise HTTPException(status_code=500, detail=str(e))
