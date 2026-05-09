@@ -18,8 +18,13 @@ export default function CrearEstablecimiento() {
   const [imagen, setImagen] = useState(null);
   const [pdf, setPdf] = useState(null);
 
-  const [zonas, setZonas] = useState([{ nombre: "", capacidad: "" }]);
-  const [horarios, setHorarios] = useState([{ dia_semana: 1, hora: "" }]);
+  const [zonas, setZonas] = useState([
+    { nombre: "", capacidad: "" },
+  ]);
+
+  const [horarios, setHorarios] = useState([
+    { dia_semana: 1, hora: "" },
+  ]);
 
   const [sugerencias, setSugerencias] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -27,6 +32,7 @@ export default function CrearEstablecimiento() {
   // =========================
   // CAPACIDAD TOTAL
   // =========================
+
   const capacidadTotal = zonas.reduce(
     (acc, z) => acc + Number(z.capacidad || 0),
     0
@@ -35,8 +41,11 @@ export default function CrearEstablecimiento() {
   // =========================
   // SUBIR ARCHIVOS
   // =========================
+
   const uploadFile = async (file, bucket) => {
+
     const fileExt = file.name.split(".").pop();
+
     const fileName = `${Date.now()}.${fileExt}`;
 
     const { error } = await supabase.storage
@@ -59,19 +68,24 @@ export default function CrearEstablecimiento() {
   };
 
   // =========================
-  // BUSCADOR DIRECCIÓN (BACKEND)
+  // BUSCAR DIRECCIÓN
   // =========================
+
   const buscarDireccion = async (query) => {
+
     if (query.length < 3) return;
 
     try {
+
       const res = await fetch(
         `http://localhost:8000/api/geo/buscar?q=${query}`
       );
 
       const json = await res.json();
 
-      const lista = Array.isArray(json) ? json : json.data || [];
+      const lista = Array.isArray(json)
+        ? json
+        : json.data || [];
 
       const direcciones = lista.map((item) => ({
         display: item.display_name,
@@ -94,95 +108,219 @@ export default function CrearEstablecimiento() {
   // =========================
   // ZONAS
   // =========================
+
   const addZona = () =>
-    setZonas([...zonas, { nombre: "", capacidad: "" }]);
+    setZonas([
+      ...zonas,
+      { nombre: "", capacidad: "" },
+    ]);
 
   const updateZona = (i, field, value) => {
+
     const updated = [...zonas];
+
     updated[i][field] = value;
+
     setZonas(updated);
   };
 
   const removeZona = (i) => {
+
     if (zonas.length === 1) return;
-    setZonas(zonas.filter((_, index) => index !== i));
+
+    setZonas(
+      zonas.filter((_, index) => index !== i)
+    );
   };
 
   // =========================
   // HORARIOS
   // =========================
+
   const addHorario = () =>
-    setHorarios([...horarios, { dia_semana: 1, hora: "" }]);
+    setHorarios([
+      ...horarios,
+      { dia_semana: 1, hora: "" },
+    ]);
 
   const updateHorario = (i, field, value) => {
+
     const updated = [...horarios];
+
     updated[i][field] = value;
+
     setHorarios(updated);
   };
 
-  const removeHorario = (i) =>
-    setHorarios(horarios.filter((_, index) => index !== i));
+  const removeHorario = (i) => {
+
+    if (horarios.length === 1) return;
+
+    setHorarios(
+      horarios.filter((_, index) => index !== i)
+    );
+  };
 
   // =========================
-  // CREAR ESTABLECIMIENTO
+  // CREAR
   // =========================
+
   const crear = async () => {
+
     try {
+
       setLoading(true);
 
       const token = localStorage.getItem("token");
-      if (!token) return alert("No autenticado");
 
-      // VALIDAR DIRECCIÓN
-      const direccionLimpia = form.direccion.trim();
-
-      if (!direccionLimpia) {
-        return alert("La dirección es obligatoria");
+      if (!token) {
+        alert("No autenticado");
+        return;
       }
 
-      const direccionCompleta = direccionLimpia
+      // =========================
+      // VALIDAR CAMPOS
+      // =========================
+
+      const nombre = form.nombre.trim();
+      const direccion = form.direccion.trim();
+      const tipo = form.tipo.trim();
+      const telefono = form.telefono.trim();
+
+      if (
+        !nombre ||
+        !direccion ||
+        !tipo ||
+        !telefono
+      ) {
+        alert("Todos los campos son obligatorios");
+        return;
+      }
+
+      // NOMBRE
+      if (nombre.length < 3) {
+        alert("El nombre es demasiado corto");
+        return;
+      }
+
+      // TIPO
+      if (tipo.length < 3) {
+        alert("El tipo es demasiado corto");
+        return;
+      }
+
+      // TELÉFONO
+      if (!/^[0-9]{9,15}$/.test(telefono)) {
+        alert("Teléfono inválido");
+        return;
+      }
+
+      // DIRECCIÓN
+      const direccionCompleta = direccion
         .toLowerCase()
         .includes("lebrija")
-        ? direccionLimpia
-        : `${direccionLimpia}, Lebrija`;
+        ? direccion
+        : `${direccion}, Lebrija`;
 
-      // VALIDAR TELÉFONO
-      if (!/^[0-9]{9,15}$/.test(form.telefono)) {
-        return alert("Teléfono inválido");
-      }
-
+      // =========================
       // VALIDAR ZONAS
-      if (
-        zonas.some(
-          (z) => !z.nombre.trim() || Number(z.capacidad) <= 0
-        )
-      ) {
-        return alert("Zonas inválidas");
+      // =========================
+
+      if (zonas.length === 0) {
+        alert("Debes añadir al menos una zona");
+        return;
       }
 
-      let imagen_url = null;
-      let carta_url = null;
+      for (const z of zonas) {
 
-      // IMAGEN
-      if (imagen) {
-        if (!imagen.type.startsWith("image/")) {
-          return alert("La imagen no es válida");
+        if (!z.nombre.trim()) {
+          alert(
+            "Todas las zonas deben tener nombre"
+          );
+          return;
         }
 
-        imagen_url = await uploadFile(
-          imagen,
-          "establecimientos-img"
+        if (!z.capacidad) {
+          alert(
+            "Todas las zonas deben tener capacidad"
+          );
+          return;
+        }
+
+        if (Number(z.capacidad) <= 0) {
+          alert(
+            "La capacidad debe ser mayor que 0"
+          );
+          return;
+        }
+      }
+
+      // =========================
+      // VALIDAR HORARIOS
+      // =========================
+
+      if (horarios.length === 0) {
+        alert("Debes añadir horarios");
+        return;
+      }
+
+      for (const h of horarios) {
+
+        if (!h.hora) {
+          alert(
+            "Todos los horarios son obligatorios"
+          );
+          return;
+        }
+      }
+
+      // =========================
+      // VALIDAR IMAGEN
+      // =========================
+
+      if (!imagen) {
+        alert(
+          "La imagen principal es obligatoria"
         );
+        return;
       }
 
-      // PDF
-      if (pdf) {
-        if (pdf.type !== "application/pdf") {
-          return alert("La carta debe ser un PDF");
-        }
-
-        carta_url = await uploadFile(pdf, "cartas-pdf");
+      if (!imagen.type.startsWith("image/")) {
+        alert("La imagen no es válida");
+        return;
       }
+
+      // =========================
+      // VALIDAR PDF
+      // =========================
+
+      if (!pdf) {
+        alert("La carta PDF es obligatoria");
+        return;
+      }
+
+      if (pdf.type !== "application/pdf") {
+        alert("La carta debe ser un PDF");
+        return;
+      }
+
+      // =========================
+      // SUBIR ARCHIVOS
+      // =========================
+
+      const imagen_url = await uploadFile(
+        imagen,
+        "establecimientos-img"
+      );
+
+      const carta_url = await uploadFile(
+        pdf,
+        "cartas-pdf"
+      );
+
+      // =========================
+      // CREAR ESTABLECIMIENTO
+      // =========================
 
       const res = await fetch(
         "http://localhost:8000/api/establecimientos",
@@ -193,8 +331,10 @@ export default function CrearEstablecimiento() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            ...form,
+            nombre,
             direccion: direccionCompleta,
+            tipo,
+            telefono,
             imagen_url,
             carta_url,
             zonas,
@@ -206,17 +346,22 @@ export default function CrearEstablecimiento() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.detail);
+        alert(data.detail || "Error al crear");
         return;
       }
 
       alert("Establecimiento creado correctamente");
+
       router.push("/establecimientos/mis");
 
     } catch (err) {
+
       console.error(err);
+
       alert("Error inesperado");
+
     } finally {
+
       setLoading(false);
     }
   };
@@ -224,54 +369,92 @@ export default function CrearEstablecimiento() {
   // =========================
   // UI
   // =========================
+
   return (
     <div className="page">
+
       <div className="container">
 
+        {/* HEADER */}
         <div className="page-header">
+
           <button
             className="btn-back"
-            onClick={() => router.push("/locales")}
+            onClick={() =>
+              router.push("/locales")
+            }
           >
             ← Volver
           </button>
-          <h1 className="page-title">Crear establecimiento</h1>
+
+          <h1 className="page-title">
+            Crear establecimiento
+          </h1>
+
         </div>
 
+        {/* CARD */}
         <div className="card">
 
+          {/* CAMPOS */}
           <div className="filters">
 
             <label>Nombre</label>
+
             <input
               className="input-filter"
               value={form.nombre}
+              maxLength={80}
               onChange={(e) =>
-                setForm({ ...form, nombre: e.target.value })
+                setForm({
+                  ...form,
+                  nombre: e.target.value,
+                })
               }
             />
 
             <label>Dirección</label>
+
             <input
               className="input-filter"
               value={form.direccion}
               onChange={(e) => {
-                setForm({ ...form, direccion: e.target.value });
+
+                setForm({
+                  ...form,
+                  direccion: e.target.value,
+                });
+
                 buscarDireccion(e.target.value);
               }}
             />
 
-            <p style={{ fontSize: 12, color: "#888" }}>
+            <p
+              style={{
+                fontSize: 12,
+                color: "#888",
+              }}
+            >
               Ubicación dentro de Lebrija
             </p>
 
+            {/* SUGERENCIAS */}
             {sugerencias.map((s, i) => (
+
               <div
                 key={i}
                 className="card"
-                style={{ cursor: "pointer", padding: 10 }}
+                style={{
+                  cursor: "pointer",
+                  padding: 10,
+                }}
                 onClick={() => {
-                  setForm({ ...form, direccion: s.display });
+
+                  setForm({
+                    ...form,
+                    direccion: s.display,
+                  });
+
                   setSugerencias([]);
                 }}
               >
@@ -280,39 +463,65 @@ export default function CrearEstablecimiento() {
             ))}
 
             <label>Teléfono</label>
+
             <input
               className="input-filter"
               value={form.telefono}
+              maxLength={15}
               onChange={(e) =>
-                setForm({ ...form, telefono: e.target.value })
+                setForm({
+                  ...form,
+                  telefono: e.target.value.replace(
+                    /\D/g,
+                    ""
+                  ),
+                })
               }
             />
 
             <label>Tipo</label>
+
             <input
               className="input-filter"
               value={form.tipo}
+              maxLength={40}
               onChange={(e) =>
-                setForm({ ...form, tipo: e.target.value })
+                setForm({
+                  ...form,
+                  tipo: e.target.value,
+                })
               }
             />
 
           </div>
 
+          {/* CAPACIDAD */}
           <p style={{ marginTop: 10 }}>
-            <strong>Capacidad total:</strong> {capacidadTotal}
+            <strong>
+              Capacidad total:
+            </strong>{" "}
+            {capacidadTotal}
           </p>
 
-          <h2 className="page-subtitle">Zonas</h2>
+          {/* ZONAS */}
+          <h2 className="page-subtitle">
+            Zonas
+          </h2>
 
           {zonas.map((z, i) => (
+
             <div className="filters" key={i}>
+
               <input
                 className="input-filter"
                 placeholder="Nombre zona"
                 value={z.nombre}
                 onChange={(e) =>
-                  updateZona(i, "nombre", e.target.value)
+                  updateZona(
+                    i,
+                    "nombre",
+                    e.target.value
+                  )
                 }
               />
 
@@ -322,7 +531,11 @@ export default function CrearEstablecimiento() {
                 placeholder="Capacidad"
                 value={z.capacidad}
                 onChange={(e) =>
-                  updateZona(i, "capacidad", e.target.value)
+                  updateZona(
+                    i,
+                    "capacidad",
+                    e.target.value
+                  )
                 }
               />
 
@@ -332,22 +545,35 @@ export default function CrearEstablecimiento() {
               >
                 ✕
               </button>
+
             </div>
           ))}
 
-          <button className="btn-secondary" onClick={addZona}>
+          <button
+            className="btn-secondary"
+            onClick={addZona}
+          >
             + Añadir zona
           </button>
 
-          <h2 className="page-subtitle">Horarios</h2>
+          {/* HORARIOS */}
+          <h2 className="page-subtitle">
+            Horarios
+          </h2>
 
           {horarios.map((h, i) => (
+
             <div className="filters" key={i}>
+
               <select
                 className="input-filter"
                 value={h.dia_semana}
                 onChange={(e) =>
-                  updateHorario(i, "dia_semana", Number(e.target.value))
+                  updateHorario(
+                    i,
+                    "dia_semana",
+                    Number(e.target.value)
+                  )
                 }
               >
                 <option value={1}>Lunes</option>
@@ -364,7 +590,11 @@ export default function CrearEstablecimiento() {
                 className="input-filter"
                 value={h.hora}
                 onChange={(e) =>
-                  updateHorario(i, "hora", e.target.value)
+                  updateHorario(
+                    i,
+                    "hora",
+                    e.target.value
+                  )
                 }
               />
 
@@ -374,38 +604,62 @@ export default function CrearEstablecimiento() {
               >
                 ✕
               </button>
+
             </div>
           ))}
 
-          <button className="btn-secondary" onClick={addHorario}>
+          <button
+            className="btn-secondary"
+            onClick={addHorario}
+          >
             + Añadir horario
           </button>
 
-          <h2 className="page-subtitle">Imagen principal</h2>
+          {/* IMAGEN */}
+          <h2 className="page-subtitle">
+            Imagen principal
+          </h2>
+
           <input
             type="file"
             accept="image/*"
-            onChange={(e) => setImagen(e.target.files[0])}
+            onChange={(e) =>
+              setImagen(e.target.files[0])
+            }
           />
 
-          <h2 className="page-subtitle">Carta (PDF)</h2>
+          {/* PDF */}
+          <h2 className="page-subtitle">
+            Carta (PDF)
+          </h2>
+
           <input
             type="file"
             accept="application/pdf"
-            onChange={(e) => setPdf(e.target.files[0])}
+            onChange={(e) =>
+              setPdf(e.target.files[0])
+            }
           />
 
+          {/* BOTÓN */}
           <button
             className="btn-primary"
-            style={{ marginTop: 30, width: "100%" }}
+            style={{
+              marginTop: 30,
+              width: "100%",
+            }}
             onClick={crear}
             disabled={loading}
           >
-            {loading ? "Creando..." : "Crear establecimiento"}
+            {loading
+              ? "Creando..."
+              : "Crear establecimiento"}
           </button>
 
         </div>
+
       </div>
+
     </div>
   );
 }

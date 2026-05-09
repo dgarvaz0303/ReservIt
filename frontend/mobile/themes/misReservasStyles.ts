@@ -55,5 +55,32 @@ export const misReservasStyles = StyleSheet.create({
     color: "white",
     fontWeight: "600",
   },
+  estadoFilters: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  marginBottom: 15,
+  gap: 10,
+},
+
+estadoBtn: {
+  flex: 1,
+  backgroundColor: "#eee",
+  paddingVertical: 10,
+  borderRadius: 12,
+  alignItems: "center",
+},
+
+estadoBtnActive: {
+  backgroundColor: COLORS.primary,
+},
+
+estadoText: {
+  color: "#333",
+  fontWeight: "600",
+},
+
+estadoTextActive: {
+  color: "#fff",
+},
 
 });

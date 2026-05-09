@@ -164,6 +164,42 @@
   color: #6f4e37;
   white-space: nowrap;
 }
+.estado-filters{
+  display:flex;
+  gap:10px;
+  margin:20px 0;
+}
+
+.estado-btn{
+  flex:1;
+  border:none;
+  padding:12px;
+  border-radius:12px;
+  background:#eee;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.2s;
+}
+
+.estado-btn.active{
+  background:#6f4e37;
+  color:white;
+}
+
+.status-activa{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.status-finalizada{
+  background:#dbeafe;
+  color:#1d4ed8;
+}
+
+.status-perdida{
+  background:#fee2e2;
+  color:#dc2626;
+}
 
 /* ===== EMPTY ===== */
 .empty {

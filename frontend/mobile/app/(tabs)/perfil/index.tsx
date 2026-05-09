@@ -1,6 +1,6 @@
 "use client";
-
-import React, { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -26,10 +26,12 @@ export default function PerfilScreen() {
   const [showDelete, setShowDelete] = useState(false);
   const [confirmText, setConfirmText] = useState("");
 
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     fetchPerfil();
     fetchHistorial();
-  }, []);
+  }, [])
+);
 
   const fetchPerfil = async () => {
     try {

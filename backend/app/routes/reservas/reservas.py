@@ -38,7 +38,7 @@ async def get_mis_reservas(authorization: str = Header(None, alias="Authorizatio
         usuario = db_user.data[0]
 
         reservas = supabase.table("reserva")\
-            .select("id, fecha, hora, id_establecimiento, zona_id")\
+            .select("id, fecha, hora, id_establecimiento, zona_id, qr_usado")\
             .eq("id_user", usuario["id"])\
             .execute()
 
@@ -63,6 +63,7 @@ async def get_mis_reservas(authorization: str = Header(None, alias="Authorizatio
                 "id": r["id"],
                 "fecha": r["fecha"],
                 "hora": r["hora"],
+                "qr_usado": r["qr_usado"],
                 "establecimiento_nombre": est_data.get("nombre"),
                 "imagen_url": est_data.get("imagen_url"),
                 "zona": zona_data.get("nombre")
@@ -209,6 +210,20 @@ async def create_reserva(request: Request):
 
         usuario = db_user.data[0]
 
+        # VALIDAR RESERVA DUPLICADA
+        reserva_existente = supabase.table("reserva")\
+            .select("*")\
+            .eq("id_user", usuario["id"])\
+            .eq("fecha", body["fecha"])\
+            .eq("hora", body["hora"])\
+            .execute()
+
+        if reserva_existente.data:
+            raise HTTPException(
+                status_code=400,
+                detail="Ya tienes una reserva para esa fecha y hora"
+            )
+
         # VALIDAR CAPACIDAD
         zona_res = supabase.table("zonas")\
             .select("*")\
@@ -256,6 +271,9 @@ async def create_reserva(request: Request):
             "message": "Reserva creada",
             "qr_token": qr_token
         }
+
+    except HTTPException as e:
+        raise e
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
