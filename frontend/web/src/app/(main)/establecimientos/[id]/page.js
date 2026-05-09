@@ -24,6 +24,7 @@ export default function EstablecimientoDetalle() {
       timeZone: "Europe/Madrid",
     });
 
+    //UseEffects
   useEffect(() => {
     const hoy = getHoyMadrid();
     setFecha(hoy);
@@ -35,6 +36,17 @@ export default function EstablecimientoDetalle() {
     fetchMes();
   }, [mesActual]);
 
+  useEffect(() => {
+    if (!seleccion) return;
+
+    const invalida =
+      seleccion.disponibles < personas ||
+      horaPasada(seleccion.hora);
+
+    if (invalida) {
+      setSeleccion(null);
+    }
+  }, [personas, fecha, disponibilidad]);
   // =========================
   // FETCH
   // =========================
@@ -267,7 +279,9 @@ export default function EstablecimientoDetalle() {
             </div>
 
             <button
-              className="btn-primary full"
+              className={`btn-primary full ${
+                !seleccion ? "disabled-btn" : ""
+              }`}
               disabled={!seleccion}
               onClick={handleReservar}
             >
@@ -354,15 +368,19 @@ export default function EstablecimientoDetalle() {
 
                 <div className="horas-grid">
                   {horas.map((item, i) => {
-                    const disabled =
-                      item.disponibles < personas || horaPasada(item.hora);
+
+                    const sinCapacidad = item.disponibles < personas;
+                    const pasada = horaPasada(item.hora);
+
+                    // DESAPARECE si no hay plazas
+                    if (sinCapacidad) return null;
 
                     return (
                       <button
                         key={i}
-                        disabled={disabled}
-                        className={`hora-btn 
-                          ${disabled ? "disabled" : ""}
+                        disabled={pasada}
+                        className={`hora-btn
+                          ${pasada ? "disabled" : ""}
                           ${
                             seleccion?.hora === item.hora &&
                             seleccion?.zona_id === item.zona_id
@@ -370,7 +388,7 @@ export default function EstablecimientoDetalle() {
                               : ""
                           }
                         `}
-                        onClick={() => !disabled && setSeleccion(item)}
+                        onClick={() => !pasada && setSeleccion(item)}
                       >
                         <div>{item.hora}</div>
                         <small>{item.disponibles} plazas</small>
