@@ -24,6 +24,10 @@ export const detalleStyles = StyleSheet.create({
     padding: 8,
     borderRadius: 8,
   },
+  disabledHora: {
+  backgroundColor: "#ddd",
+  opacity: 0.5,
+},
 
   cartaText: {
     color: "white",

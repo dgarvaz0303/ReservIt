@@ -7,7 +7,11 @@ import "@/styles/detalle.css";
 
 export default function EstablecimientoDetalle() {
   const { id } = useParams();
-
+  const [mensaje, setMensaje] = useState({
+    tipo: "",
+    texto: "",
+    visible: false,
+  });
   const [establecimiento, setEstablecimiento] = useState(null);
   const [fecha, setFecha] = useState("");
   const [disponibilidad, setDisponibilidad] = useState([]);
@@ -97,26 +101,69 @@ export default function EstablecimientoDetalle() {
   const handleReservar = async () => {
     if (!seleccion) return;
 
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    await fetch("http://localhost:8000/api/reservas", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        establecimiento_id: Number(id),
-        zona_id: seleccion.zona_id,
-        fecha,
-        hora: seleccion.hora,
-        num_personas: personas,
-      }),
-    });
+      const res = await fetch("http://localhost:8000/api/reservas", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          establecimiento_id: Number(id),
+          zona_id: seleccion.zona_id,
+          fecha,
+          hora: seleccion.hora,
+          num_personas: personas,
+        }),
+      });
 
-    fetchDisponibilidad(fecha);
-    setSeleccion(null);
-    router.push("/establecimientos")
+      const data = await res.json();
+
+      // ERROR BACKEND
+      if (!res.ok) {
+        setMensaje({
+          tipo: "error",
+          texto: data.detail || "Error al realizar la reserva",
+        });
+
+        setTimeout(() => {
+          setMensaje(null);
+        }, 4000);
+
+        return;
+      }
+
+      // OK
+      fetchDisponibilidad(fecha);
+
+      setSeleccion(null);
+
+      setMensaje({
+        tipo: "success",
+        texto: "Reserva creada correctamente",
+      });
+
+          // OK
+      fetchDisponibilidad(fecha);
+
+      setSeleccion(null);
+
+      setMensaje({
+        tipo: "success",
+        texto: "Reserva creada correctamente",
+      });
+
+      setTimeout(() => {
+        setMensaje(null);
+        router.push("/establecimientos");
+      }, 1500);
+
+    } catch (err) {
+      console.log(err);
+      alert("Error de conexión");
+    }
   };
 
   // =========================
@@ -213,6 +260,17 @@ export default function EstablecimientoDetalle() {
   return (
     <div className="page">
       <div className="container detalle">
+          {mensaje && (
+            <div
+              className={`custom-message ${
+                mensaje.tipo === "error"
+                  ? "message-error"
+                  : "message-success"
+              }`}
+            >
+              {mensaje.texto}
+            </div>
+          )}
         {/* BOTÓN VOLVER */}
         <div style={{ marginBottom: 20 }}>
           <button

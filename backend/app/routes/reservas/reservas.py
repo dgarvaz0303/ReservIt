@@ -209,6 +209,20 @@ async def create_reserva(request: Request):
 
         usuario = db_user.data[0]
 
+        # VALIDAR RESERVA DUPLICADA
+        reserva_existente = supabase.table("reserva")\
+            .select("*")\
+            .eq("id_user", usuario["id"])\
+            .eq("fecha", body["fecha"])\
+            .eq("hora", body["hora"])\
+            .execute()
+
+        if reserva_existente.data:
+            raise HTTPException(
+                status_code=400,
+                detail="Ya tienes una reserva para esa fecha y hora"
+            )
+
         # VALIDAR CAPACIDAD
         zona_res = supabase.table("zonas")\
             .select("*")\
@@ -256,6 +270,9 @@ async def create_reserva(request: Request):
             "message": "Reserva creada",
             "qr_token": qr_token
         }
+
+    except HTTPException as e:
+        raise e
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
