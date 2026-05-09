@@ -221,7 +221,8 @@ def get_establecimiento(id: int):
             "zonas": zonas.data or [],
             "horarios": horarios.data or []
         }
-
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
