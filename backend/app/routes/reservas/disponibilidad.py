@@ -1,12 +1,8 @@
 import calendar
-from fastapi import HTTPException
 from fastapi import APIRouter, HTTPException, Query
 from app.supabase_client import supabase
 
 router = APIRouter(prefix="/api/disponibilidad", tags=["disponibilidad"])
-
-
-
 
 
 @router.get("/mes")
@@ -35,13 +31,15 @@ def get_disponibilidad_mes(
         fecha_fin = f"{year}-{str(month).zfill(2)}-{str(dias_mes).zfill(2)}"
 
         reservas = supabase.table("reserva") \
-            .select("fecha,num_personas,zona_id") \
+            .select("fecha, zona_id, num_personas") \
             .eq("id_establecimiento", establecimiento_id) \
             .gte("fecha", fecha_inicio) \
             .lte("fecha", fecha_fin) \
             .execute().data or []
 
-        capacidad_total = sum((z.get("capacidad") or 0) for z in zonas) * len(horarios)
+        capacidad_total_dia = sum(
+            int(z.get("capacidad") or 0) for z in zonas
+        ) * len(horarios)
 
         resultado = []
 
@@ -55,8 +53,9 @@ def get_disponibilidad_mes(
             )
 
             ocupacion = 0
-            if capacidad_total > 0:
-                ocupacion = ocupadas_total / capacidad_total
+
+            if capacidad_total_dia > 0:
+                ocupacion = ocupadas_total / capacidad_total_dia
 
             resultado.append({
                 "fecha": fecha,
@@ -66,8 +65,9 @@ def get_disponibilidad_mes(
         return resultado
 
     except Exception as e:
-        print("ERROR DISPONIBILIDAD MES:", repr(e))
+        print("ERROR DISPONIBILIDAD MES:", e)
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("")
 def get_disponibilidad(
@@ -85,20 +85,20 @@ def get_disponibilidad(
             .eq("id_establecimiento", establecimiento_id) \
             .execute().data or []
 
-        if not zonas or not horarios:
-            return []
-
         reservas = supabase.table("reserva") \
-            .select("zona_id,hora,num_personas") \
+            .select("zona_id, hora, num_personas") \
             .eq("id_establecimiento", establecimiento_id) \
             .eq("fecha", fecha) \
             .execute().data or []
+
+        if not zonas or not horarios:
+            return []
 
         resultado = []
 
         for zona in zonas:
             zona_id = zona["id"]
-            capacidad = zona.get("capacidad") or 0
+            capacidad = int(zona.get("capacidad") or 0)
 
             for h in horarios:
                 hora = str(h["hora"])[:8]
@@ -106,8 +106,11 @@ def get_disponibilidad(
                 ocupadas = sum(
                     int(r.get("num_personas") or 0)
                     for r in reservas
-                    if r.get("zona_id") == zona_id and str(r.get("hora"))[:8] == hora
+                    if r.get("zona_id") == zona_id
+                    and str(r.get("hora"))[:8] == hora
                 )
+
+                disponibles = max(capacidad - ocupadas, 0)
 
                 resultado.append({
                     "zona_id": zona_id,
@@ -115,11 +118,11 @@ def get_disponibilidad(
                     "hora": hora,
                     "capacidad": capacidad,
                     "ocupadas": ocupadas,
-                    "disponibles": max(capacidad - ocupadas, 0)
+                    "disponibles": disponibles
                 })
 
         return resultado
 
     except Exception as e:
-        print("ERROR DISPONIBILIDAD:", repr(e))
+        print("ERROR DISPONIBILIDAD:", e)
         raise HTTPException(status_code=500, detail=str(e))
