@@ -1,0 +1,59 @@
+import { StyleSheet } from "react-native";
+import { COLORS } from "./colors";
+
+export const misReservasStyles = StyleSheet.create({
+
+  filters: {
+    flexDirection: "row",
+    gap: 12,
+    paddingVertical: 10,
+  },
+
+  filterBlock: {
+    minWidth: 140,
+  },
+
+  filterLabel: {
+    fontSize: 12,
+    color: COLORS.text,
+    marginBottom: 4,
+    fontWeight: "600",
+  },
+
+  filterInput: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "#eee",
+    fontSize: 13,
+  },
+
+  tramoContainer: {
+    flexDirection: "row",
+    gap: 6,
+  },
+
+  tramoBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    backgroundColor: "#eee",
+  },
+
+  tramoActive: {
+    backgroundColor: COLORS.primary,
+  },
+
+  tramoText: {
+    fontSize: 12,
+    color: "#333",
+  },
+
+  tramoTextActive: {
+    color: "white",
+    fontWeight: "600",
+  },
+
+});

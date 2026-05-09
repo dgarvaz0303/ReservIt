@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import "@/styles/detalle.css";
 
@@ -14,12 +15,19 @@ export default function EstablecimientoDetalle() {
   const [seleccion, setSeleccion] = useState(null);
   const [mesActual, setMesActual] = useState(new Date());
   const [ocupacionMes, setOcupacionMes] = useState({});
+  const router = useRouter();
+  // =========================
+  // FECHA MADRID
+  // =========================
+  const getHoyMadrid = () =>
+    new Date().toLocaleDateString("en-CA", {
+      timeZone: "Europe/Madrid",
+    });
 
   useEffect(() => {
-    fetchEstablecimiento();
-
-    const hoy = new Date().toISOString().split("T")[0];
+    const hoy = getHoyMadrid();
     setFecha(hoy);
+    fetchEstablecimiento();
     fetchDisponibilidad(hoy);
   }, []);
 
@@ -27,6 +35,9 @@ export default function EstablecimientoDetalle() {
     fetchMes();
   }, [mesActual]);
 
+  // =========================
+  // FETCH
+  // =========================
   const fetchEstablecimiento = async () => {
     const res = await fetch(`http://localhost:8000/api/establecimientos/${id}`);
     const data = await res.json();
@@ -34,11 +45,15 @@ export default function EstablecimientoDetalle() {
   };
 
   const fetchDisponibilidad = async (fechaSeleccionada) => {
-    const res = await fetch(
-      `http://localhost:8000/api/disponibilidad?establecimiento_id=${id}&fecha=${fechaSeleccionada}`
-    );
-    const data = await res.json();
-    setDisponibilidad(Array.isArray(data) ? data : data.data || []);
+    try {
+      const res = await fetch(
+        `http://localhost:8000/api/disponibilidad?establecimiento_id=${id}&fecha=${fechaSeleccionada}`
+      );
+      const data = await res.json();
+      setDisponibilidad(Array.isArray(data) ? data : data.data || []);
+    } catch {
+      setDisponibilidad([]);
+    }
   };
 
   const fetchMes = async () => {
@@ -64,6 +79,9 @@ export default function EstablecimientoDetalle() {
     }
   };
 
+  // =========================
+  // RESERVA
+  // =========================
   const handleReservar = async () => {
     if (!seleccion) return;
 
@@ -86,23 +104,57 @@ export default function EstablecimientoDetalle() {
 
     fetchDisponibilidad(fecha);
     setSeleccion(null);
+    router.push("/establecimientos")
   };
 
-  const ahora = new Date();
+  // =========================
+  // GOOGLE MAPS
+  // =========================
+  const abrirMapa = () => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      establecimiento.direccion
+    )}`;
+    window.open(url, "_blank");
+  };
 
+  // =========================
+  // UTIL
+  // =========================
   const horaPasada = (hora) => {
+    const ahora = new Date();
+
+    const [year, month, day] = fecha.split("-");
+    const fechaSel = new Date(year, month - 1, day);
+
+    const hoy = new Date();
+
+    const esHoy =
+      fechaSel.getFullYear() === hoy.getFullYear() &&
+      fechaSel.getMonth() === hoy.getMonth() &&
+      fechaSel.getDate() === hoy.getDate();
+
+    if (!esHoy) return false;
+
     const [h, m] = hora.split(":");
-    const d = new Date(fecha);
-    d.setHours(h, m);
-    return d < ahora;
+
+    const horaComparar = new Date();
+    horaComparar.setHours(Number(h), Number(m), 0, 0);
+
+    return horaComparar < ahora;
   };
 
+  // =========================
+  // ZONAS
+  // =========================
   const zonas = {};
   (disponibilidad || []).forEach((item) => {
     if (!zonas[item.zona]) zonas[item.zona] = [];
     zonas[item.zona].push(item);
   });
 
+  // =========================
+  // CALENDARIO
+  // =========================
   const generarCalendario = () => {
     const year = mesActual.getFullYear();
     const month = mesActual.getMonth();
@@ -115,11 +167,15 @@ export default function EstablecimientoDetalle() {
 
     for (let i = 1; i <= ultimo.getDate(); i++) {
       const d = new Date(year, month, i);
+      d.setHours(0, 0, 0, 0);
+
+      const fechaLocal = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
 
       dias.push({
-        fecha: d.toISOString().split("T")[0],
+        fecha: fechaLocal,
         label: i,
         pasado: d < hoy,
+        hoy: d.getTime() === hoy.getTime(),
       });
     }
 
@@ -145,7 +201,15 @@ export default function EstablecimientoDetalle() {
   return (
     <div className="page">
       <div className="container detalle">
-
+        {/* BOTÓN VOLVER */}
+        <div style={{ marginBottom: 20 }}>
+          <button
+            className="btn-secondary"
+            onClick={() => router.push("/establecimientos")}
+          >
+            ← Volver a establecimientos
+          </button>
+        </div>
         {/* TOP */}
         <div className="detalle-top">
 
@@ -155,7 +219,6 @@ export default function EstablecimientoDetalle() {
 
           <div className="detalle-card">
 
-            {/* INFO MEJORADA */}
             <div className="detalle-info-block">
               <p><strong>Nombre:</strong> {establecimiento.nombre}</p>
               <p><strong>Tipo:</strong> {establecimiento.tipo}</p>
@@ -163,16 +226,46 @@ export default function EstablecimientoDetalle() {
               <p><strong>Teléfono:</strong> {establecimiento.telefono}</p>
             </div>
 
-            {/* ACCIONES */}
+            {/* MAPA */}
+            <div style={{ marginTop: 15 }}>
+              <iframe
+                width="100%"
+                height="180"
+                style={{ borderRadius: 12, border: "none" }}
+                loading="lazy"
+                src={`https://www.google.com/maps?q=${encodeURIComponent(
+                  establecimiento.direccion
+                )}&output=embed`}
+              ></iframe>
+
+              <button
+                className="btn-secondary"
+                style={{ marginTop: 10, width: "100%" }}
+                onClick={abrirMapa}
+              >
+                Ver en Google Maps
+              </button>
+            </div>
+
             <div className="card-actions">
               <a href={`tel:${establecimiento.telefono}`}>
                 <button className="btn-secondary">Contactar</button>
               </a>
 
-              <button className="btn-secondary">Carta PDF</button>
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  if (!establecimiento.carta_url) {
+                    alert("No hay carta disponible");
+                    return;
+                  }
+                  window.open(establecimiento.carta_url, "_blank");
+                }}
+              >
+                Carta PDF
+              </button>
             </div>
 
-            {/* CTA */}
             <button
               className="btn-primary full"
               disabled={!seleccion}
@@ -186,22 +279,16 @@ export default function EstablecimientoDetalle() {
 
         {/* CALENDARIO HEADER */}
         <div className="calendar-header">
+          <button className="calendar-nav" onClick={prevMes}>←</button>
 
-        <button className="calendar-nav" onClick={prevMes}>
-            ←
-        </button>
-
-        <h2 className="calendar-title">
+          <h2 className="calendar-title">
             {mesActual.toLocaleString("es-ES", {
-            month: "long",
-            year: "numeric",
+              month: "long",
+              year: "numeric",
             })}
-        </h2>
+          </h2>
 
-        <button className="calendar-nav" onClick={nextMes}>
-            →
-        </button>
-
+          <button className="calendar-nav" onClick={nextMes}>→</button>
         </div>
 
         {/* CALENDARIO */}
@@ -217,10 +304,13 @@ export default function EstablecimientoDetalle() {
               <button
                 key={dia.fecha}
                 disabled={dia.pasado}
-                className={`calendar-day ${estado} ${
-                  fecha === dia.fecha ? "active" : ""
-                }`}
+                className={`calendar-day ${estado} 
+                  ${fecha === dia.fecha ? "active" : ""} 
+                  ${dia.pasado ? "past" : ""}
+                  ${dia.hoy ? "today" : ""}
+                `}
                 onClick={() => {
+                  if (dia.pasado) return;
                   setFecha(dia.fecha);
                   fetchDisponibilidad(dia.fecha);
                   setSeleccion(null);
@@ -243,7 +333,7 @@ export default function EstablecimientoDetalle() {
           </div>
         </div>
 
-        {/* ZONAS NUEVAS */}
+        {/* ZONAS */}
         <div className="zonas-flex">
           {Object.keys(zonas).map((zona) => {
 
@@ -271,15 +361,19 @@ export default function EstablecimientoDetalle() {
                       <button
                         key={i}
                         disabled={disabled}
-                        className={`hora-btn ${
-                          seleccion?.hora === item.hora &&
-                          seleccion?.zona_id === item.zona_id
-                            ? "active"
-                            : ""
-                        }`}
-                        onClick={() => setSeleccion(item)}
+                        className={`hora-btn 
+                          ${disabled ? "disabled" : ""}
+                          ${
+                            seleccion?.hora === item.hora &&
+                            seleccion?.zona_id === item.zona_id
+                              ? "active"
+                              : ""
+                          }
+                        `}
+                        onClick={() => !disabled && setSeleccion(item)}
                       >
-                        {item.hora}
+                        <div>{item.hora}</div>
+                        <small>{item.disponibles} plazas</small>
                       </button>
                     );
                   })}

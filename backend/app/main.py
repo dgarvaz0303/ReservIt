@@ -8,6 +8,7 @@ from app.routes.reservas import reservas
 from app.routes.horarios import horarios
 from app.routes.zonas import zonas
 from app.routes.reservas import disponibilidad
+from app.routes.geo import geo
 from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
@@ -23,9 +24,10 @@ app.include_router(establecimientos.router)
 app.include_router(register.router)
 app.include_router(test.router)
 app.include_router(login.router)
+app.include_router(geo.router)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
