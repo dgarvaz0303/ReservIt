@@ -38,7 +38,7 @@ async def get_mis_reservas(authorization: str = Header(None, alias="Authorizatio
         usuario = db_user.data[0]
 
         reservas = supabase.table("reserva")\
-            .select("id, fecha, hora, id_establecimiento, zona_id")\
+            .select("id, fecha, hora, id_establecimiento, zona_id, qr_usado")\
             .eq("id_user", usuario["id"])\
             .execute()
 
@@ -63,6 +63,7 @@ async def get_mis_reservas(authorization: str = Header(None, alias="Authorizatio
                 "id": r["id"],
                 "fecha": r["fecha"],
                 "hora": r["hora"],
+                "qr_usado": r["qr_usado"],
                 "establecimiento_nombre": est_data.get("nombre"),
                 "imagen_url": est_data.get("imagen_url"),
                 "zona": zona_data.get("nombre")
