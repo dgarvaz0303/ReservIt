@@ -1,0 +1,23 @@
+{
+  "id": "backend/modelos",
+  "title": "Modelos y Datos",
+  "description": "Los modelos Pydantic viven en backend/app/models.",
+  "source": "@site/docs/backend/modelos.md",
+  "sourceDirName": "backend",
+  "slug": "/backend/modelos",
+  "permalink": "/backend/modelos",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Autenticacion y Autorizacion",
+    "permalink": "/backend/autenticacion"
+  },
+  "next": {
+    "title": "API REST",
+    "permalink": "/backend/api"
+  }
+}

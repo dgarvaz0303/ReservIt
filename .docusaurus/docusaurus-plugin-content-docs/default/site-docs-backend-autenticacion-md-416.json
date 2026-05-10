@@ -1,0 +1,23 @@
+{
+  "id": "backend/autenticacion",
+  "title": "Autenticacion y Autorizacion",
+  "description": "Registro",
+  "source": "@site/docs/backend/autenticacion.md",
+  "sourceDirName": "backend",
+  "slug": "/backend/autenticacion",
+  "permalink": "/backend/autenticacion",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Backend",
+    "permalink": "/backend/overview"
+  },
+  "next": {
+    "title": "Modelos y Datos",
+    "permalink": "/backend/modelos"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "operacion/despliegue",
+  "title": "Despliegue",
+  "description": "Backend",
+  "source": "@site/docs/operacion/despliegue.md",
+  "sourceDirName": "operacion",
+  "slug": "/operacion/despliegue",
+  "permalink": "/operacion/despliegue",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Desarrollo Local",
+    "permalink": "/operacion/desarrollo-local"
+  },
+  "next": {
+    "title": "Checklist Tecnico",
+    "permalink": "/operacion/checklist"
+  }
+}

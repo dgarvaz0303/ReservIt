@@ -1,0 +1,23 @@
+{
+  "id": "proyecto/vision-general",
+  "title": "Vision General",
+  "description": "ReservIt permite consultar establecimientos, gestionar locales, crear reservas y validar entradas mediante QR.",
+  "source": "@site/docs/proyecto/vision-general.md",
+  "sourceDirName": "proyecto",
+  "slug": "/proyecto/vision-general",
+  "permalink": "/proyecto/vision-general",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Documentacion Tecnica y de Mantenimiento",
+    "permalink": "/proyecto/documentacion-tecnica"
+  },
+  "next": {
+    "title": "Arquitectura",
+    "permalink": "/proyecto/arquitectura"
+  }
+}

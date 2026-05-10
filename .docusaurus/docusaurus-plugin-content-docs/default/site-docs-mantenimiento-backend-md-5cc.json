@@ -1,0 +1,23 @@
+{
+  "id": "mantenimiento/backend",
+  "title": "Funcionamiento del Backend",
+  "description": "Esta seccion describe como esta organizado el codigo del backend y que responsabilidad tiene cada modulo. No pretende sustituir al codigo fuente, sino facilitar su mantenimiento.",
+  "source": "@site/docs/mantenimiento/backend.md",
+  "sourceDirName": "mantenimiento",
+  "slug": "/mantenimiento/backend",
+  "permalink": "/mantenimiento/backend",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Frontend Mobile",
+    "permalink": "/frontend/mobile"
+  },
+  "next": {
+    "title": "Funcionamiento del Frontend",
+    "permalink": "/mantenimiento/frontend"
+  }
+}

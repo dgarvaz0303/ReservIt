@@ -1,0 +1,26 @@
+{
+  "id": "tutorial-docusaurus",
+  "title": "Tutorial Maestro: Documentacion Tecnica de ReservIt con Docusaurus",
+  "description": "Este documento proporciona una guia tecnica y ordenada para alumnos de Desarrollo de Aplicaciones Multiplataforma. El objetivo es documentar el proyecto ReservIt con Docusaurus, generando una web estatica navegable con explicaciones de arquitectura, backend, frontend, API, despliegue y usuarios de prueba.",
+  "source": "@site/docs/tutorial-docusaurus.md",
+  "sourceDirName": ".",
+  "slug": "/tutorial-docusaurus",
+  "permalink": "/tutorial-docusaurus",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "ReservIt",
+    "permalink": "/"
+  },
+  "next": {
+    "title": "Vision General",
+    "permalink": "/proyecto/vision-general"
+  }
+}

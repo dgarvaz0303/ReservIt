@@ -1,0 +1,23 @@
+{
+  "id": "proyecto/configuracion",
+  "title": "Configuracion",
+  "description": "Backend",
+  "source": "@site/docs/proyecto/configuracion.md",
+  "sourceDirName": "proyecto",
+  "slug": "/proyecto/configuracion",
+  "permalink": "/proyecto/configuracion",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Estructura del Repositorio",
+    "permalink": "/proyecto/estructura"
+  },
+  "next": {
+    "title": "Usuarios de Prueba",
+    "permalink": "/proyecto/usuarios-prueba"
+  }
+}

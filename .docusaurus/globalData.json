@@ -1,0 +1,128 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/",
+          "mainDocId": "intro",
+          "docs": [
+            {
+              "id": "backend/api",
+              "path": "/backend/api",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "backend/autenticacion",
+              "path": "/backend/autenticacion",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "backend/modelos",
+              "path": "/backend/modelos",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "backend/overview",
+              "path": "/backend/overview",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "frontend/mobile",
+              "path": "/frontend/mobile",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "frontend/web",
+              "path": "/frontend/web",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "intro",
+              "path": "/",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "mantenimiento/backend",
+              "path": "/mantenimiento/backend",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "mantenimiento/flujos",
+              "path": "/mantenimiento/flujos",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "mantenimiento/frontend",
+              "path": "/mantenimiento/frontend",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "mantenimiento/incidencias",
+              "path": "/mantenimiento/incidencias",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "operacion/checklist",
+              "path": "/operacion/checklist",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "operacion/desarrollo-local",
+              "path": "/operacion/desarrollo-local",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "operacion/despliegue",
+              "path": "/operacion/despliegue",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "proyecto/arquitectura",
+              "path": "/proyecto/arquitectura",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "proyecto/configuracion",
+              "path": "/proyecto/configuracion",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "proyecto/documentacion-tecnica",
+              "path": "/proyecto/documentacion-tecnica",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "proyecto/estructura",
+              "path": "/proyecto/estructura",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "proyecto/usuarios-prueba",
+              "path": "/proyecto/usuarios-prueba",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "proyecto/vision-general",
+              "path": "/proyecto/vision-general",
+              "sidebar": "tutorialSidebar"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "tutorialSidebar": {
+              "link": {
+                "path": "/",
+                "label": "intro"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    }
+  }
+}

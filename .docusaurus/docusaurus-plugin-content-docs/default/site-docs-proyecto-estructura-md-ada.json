@@ -1,0 +1,23 @@
+{
+  "id": "proyecto/estructura",
+  "title": "Estructura del Repositorio",
+  "description": "Convenciones",
+  "source": "@site/docs/proyecto/estructura.md",
+  "sourceDirName": "proyecto",
+  "slug": "/proyecto/estructura",
+  "permalink": "/proyecto/estructura",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Arquitectura",
+    "permalink": "/proyecto/arquitectura"
+  },
+  "next": {
+    "title": "Configuracion",
+    "permalink": "/proyecto/configuracion"
+  }
+}
