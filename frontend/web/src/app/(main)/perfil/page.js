@@ -22,7 +22,7 @@ export default function PerfilPage() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch("http://localhost:8000/api/usuarios/me", {
+      const res = await fetch("https://reservit.onrender.com/api/usuarios/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -39,7 +39,7 @@ export default function PerfilPage() {
   const cargarHistorial = async () => {
     const token = localStorage.getItem("token");
 
-    const res = await fetch("http://localhost:8000/api/reservas/mis", {
+    const res = await fetch("https://reservit.onrender.com/api/reservas/mis", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -59,7 +59,7 @@ export default function PerfilPage() {
   const eliminarCuenta = async () => {
     const token = localStorage.getItem("token");
 
-    await fetch("http://localhost:8000/api/usuarios/me", {
+    await fetch("https://reservit.onrender.com/api/usuarios/me", {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,

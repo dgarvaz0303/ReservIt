@@ -17,7 +17,7 @@ export default function EstablecimientosPage() {
 
   const fetchEstablecimientos = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/establecimientos");
+      const res = await fetch("https://reservit.onrender.com/api/establecimientos");
       const data = await res.json();
 
       

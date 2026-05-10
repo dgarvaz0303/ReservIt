@@ -1,6 +1,4 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -19,6 +17,8 @@ import { detalleStyles as styles } from "@/themes/detalleStyles";
 export default function EstablecimientoDetalle() {
   const { id } = useLocalSearchParams();
 
+  const cargadoInicial = useRef(false);
+
   const [establecimiento, setEstablecimiento] = useState<any>(null);
   const [fecha, setFecha] = useState(new Date());
   const [disponibilidad, setDisponibilidad] = useState<any[]>([]);
@@ -26,64 +26,79 @@ export default function EstablecimientoDetalle() {
   const [seleccion, setSeleccion] = useState<any>(null);
   const [loadingReserva, setLoadingReserva] = useState(false);
 
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("en-CA");
+  };
+
   useEffect(() => {
-    if (id) {
-      fetchEstablecimiento();
-    }
+    if (!id) return;
+    if (cargadoInicial.current) return;
+
+    cargadoInicial.current = true;
+
+    fetchEstablecimiento();
+    fetchDisponibilidad(formatDate(fecha));
   }, [id]);
 
   useEffect(() => {
-    if (id && fecha) {
-      fetchDisponibilidad(formatDate(fecha));
-      setSeleccion(null);
-    }
-  }, [id, fecha]);
+    if (!id) return;
+    if (!cargadoInicial.current) return;
 
-  
+    fetchDisponibilidad(formatDate(fecha));
+    setSeleccion(null);
+  }, [fecha]);
 
-  // DESELECCIONAR SI YA NO HAY PLAZAS
   useEffect(() => {
     if (!seleccion) return;
 
     const invalida =
-      seleccion.disponibles < personas ||
-      horaPasada(seleccion.hora);
+      seleccion.disponibles < personas || horaPasada(seleccion.hora);
 
     if (invalida) {
       setSeleccion(null);
     }
   }, [personas, fecha, disponibilidad]);
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-CA");
-  };
-
   const fetchEstablecimiento = async () => {
-    const res = await fetch(
-      `http://192.168.1.132:8000/api/establecimientos/${id}`
-    );
-
-    const data = await res.json();
-
-    setEstablecimiento(data.data || data);
-  };
-
-  const fetchDisponibilidad = async (
-    fechaSeleccionada: string
-  ) => {
     try {
       const res = await fetch(
-        `http://192.168.1.132:8000/api/disponibilidad?establecimiento_id=${id}&fecha=${fechaSeleccionada}`
+        `https://reservit.onrender.com/api/establecimientos/${id}`
       );
 
       const data = await res.json();
 
+      if (!res.ok) {
+        console.log("Error establecimiento:", data);
+        setEstablecimiento(null);
+        return;
+      }
+
+      setEstablecimiento(data.data || data);
+    } catch (error) {
+      console.log("Error conexión establecimiento:", error);
+      setEstablecimiento(null);
+    }
+  };
+
+  const fetchDisponibilidad = async (fechaSeleccionada: string) => {
+    try {
+      const res = await fetch(
+        `https://reservit.onrender.com/api/disponibilidad?establecimiento_id=${id}&fecha=${fechaSeleccionada}`
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.log("Error disponibilidad:", data);
+        setDisponibilidad([]);
+        return;
+      }
+
+      const rawData = Array.isArray(data) ? data : data.data || [];
+
       const unique = Array.from(
         new Map(
-          (Array.isArray(data)
-            ? data
-            : data.data || []
-          ).map((item: any) => [
+          rawData.map((item: any) => [
             item.hora + "-" + item.zona_id,
             item,
           ])
@@ -91,15 +106,14 @@ export default function EstablecimientoDetalle() {
       );
 
       setDisponibilidad(unique);
-
-    } catch {
+    } catch (error) {
+      console.log("Error conexión disponibilidad:", error);
       setDisponibilidad([]);
     }
   };
 
   const cambiarDia = (dias: number) => {
     const nueva = new Date(fecha);
-
     nueva.setDate(nueva.getDate() + dias);
 
     const hoy = new Date();
@@ -110,25 +124,18 @@ export default function EstablecimientoDetalle() {
     setFecha(nueva);
   };
 
-  // VALIDAR HORA PASADA
   const horaPasada = (horaString: string) => {
-    const ahora = new Date();
+    if (!horaString) return false;
 
+    const ahora = new Date();
     const [h, m] = horaString.split(":");
 
     const reservaHora = new Date(fecha);
-
-    reservaHora.setHours(
-      Number(h),
-      Number(m),
-      0,
-      0
-    );
+    reservaHora.setHours(Number(h), Number(m), 0, 0);
 
     return reservaHora < ahora;
   };
 
-  // RESERVAR
   const handleReservar = async () => {
     if (!seleccion || loadingReserva) return;
 
@@ -137,33 +144,30 @@ export default function EstablecimientoDetalle() {
 
       const token = await AsyncStorage.getItem("token");
 
-      const res = await fetch(
-        "http://192.168.1.132:8000/api/reservas",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            establecimiento_id: Number(id),
-            zona_id: seleccion.zona_id,
-            fecha: formatDate(fecha),
-            hora: seleccion.hora,
-            num_personas: personas,
-          }),
-        }
-      );
+      if (!token) {
+        Alert.alert("Error", "Debes iniciar sesión para reservar");
+        return;
+      }
+
+      const res = await fetch("https://reservit.onrender.com/api/reservas", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          establecimiento_id: Number(id),
+          zona_id: Number(seleccion.zona_id),
+          fecha: formatDate(fecha),
+          hora: seleccion.hora,
+          num_personas: Number(personas),
+        }),
+      });
 
       const data = await res.json();
 
-      // ERROR BACKEND
       if (!res.ok) {
-        Alert.alert(
-          "Error",
-          data.detail || "Error al reservar"
-        );
-
+        Alert.alert("Error", data.detail || "Error al reservar");
         return;
       }
 
@@ -173,15 +177,9 @@ export default function EstablecimientoDetalle() {
       );
 
       router.replace("/reservas");
-
     } catch (error) {
-      console.log(error);
-
-      Alert.alert(
-        "Error",
-        "No se pudo conectar con el servidor"
-      );
-
+      console.log("Error reserva:", error);
+      Alert.alert("Error", "No se pudo conectar con el servidor");
     } finally {
       setLoadingReserva(false);
     }
@@ -189,17 +187,11 @@ export default function EstablecimientoDetalle() {
 
   const abrirCarta = async () => {
     if (!establecimiento?.carta_url) {
-      Alert.alert(
-        "Sin carta",
-        "Este establecimiento no tiene carta"
-      );
-
+      Alert.alert("Sin carta", "Este establecimiento no tiene carta");
       return;
     }
 
-    await Linking.openURL(
-      establecimiento.carta_url
-    );
+    await Linking.openURL(establecimiento.carta_url);
   };
 
   const abrirMapa = async () => {
@@ -210,7 +202,6 @@ export default function EstablecimientoDetalle() {
     await Linking.openURL(url);
   };
 
-  // AGRUPAR ZONAS
   const zonas: Record<string, any[]> = {};
 
   disponibilidad.forEach((item) => {
@@ -227,82 +218,42 @@ export default function EstablecimientoDetalle() {
 
   return (
     <ScrollView style={styles.container}>
-
-      {/* HEADER */}
       <View style={styles.header}>
-
-        <TouchableOpacity
-          onPress={() => router.back()}
-        >
-          <Text style={styles.back}>
-            ← Volver
-          </Text>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={styles.back}>← Volver</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.cartaBtn}
-          onPress={abrirCarta}
-        >
-          <Text style={styles.cartaText}>
-            Carta
-          </Text>
+        <TouchableOpacity style={styles.cartaBtn} onPress={abrirCarta}>
+          <Text style={styles.cartaText}>Carta</Text>
         </TouchableOpacity>
-
       </View>
 
-      {/* IMAGEN */}
       <Image
         source={{
-          uri: establecimiento.imagen_url,
+          uri:
+            establecimiento.imagen_url ||
+            "https://via.placeholder.com/400x250.png?text=ReservIt",
         }}
         style={styles.image}
       />
 
-      {/* INFO */}
       <View style={styles.card}>
-
-        <Text style={styles.title}>
-          {establecimiento.nombre}
-        </Text>
-
-        <Text style={styles.text}>
-          {establecimiento.tipo}
-        </Text>
-
-        <Text style={styles.text}>
-          {establecimiento.direccion}
-        </Text>
-
-        <Text style={styles.text}>
-          {establecimiento.telefono}
-        </Text>
-
+        <Text style={styles.title}>{establecimiento.nombre}</Text>
+        <Text style={styles.text}>{establecimiento.tipo}</Text>
+        <Text style={styles.text}>{establecimiento.direccion}</Text>
+        <Text style={styles.text}>{establecimiento.telefono}</Text>
       </View>
 
-      {/* MAPA */}
       <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Ubicación</Text>
 
-        <Text style={styles.sectionTitle}>
-          Ubicación
-        </Text>
-
-        <TouchableOpacity
-          style={styles.mapBtn}
-          onPress={abrirMapa}
-        >
-          <Text style={styles.mapText}>
-            Ver en Google Maps
-          </Text>
+        <TouchableOpacity style={styles.mapBtn} onPress={abrirMapa}>
+          <Text style={styles.mapText}>Ver en Google Maps</Text>
         </TouchableOpacity>
-
       </View>
 
-      {/* FECHA */}
       <View style={styles.dateContainer}>
-
-        <TouchableOpacity
-          onPress={() => cambiarDia(-1)}
-        >
+        <TouchableOpacity onPress={() => cambiarDia(-1)}>
           <Text style={styles.arrow}>‹</Text>
         </TouchableOpacity>
 
@@ -314,98 +265,50 @@ export default function EstablecimientoDetalle() {
           })}
         </Text>
 
-        <TouchableOpacity
-          onPress={() => cambiarDia(1)}
-        >
+        <TouchableOpacity onPress={() => cambiarDia(1)}>
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>
-
       </View>
 
-      {/* PERSONAS */}
       <View style={styles.people}>
-
-        <TouchableOpacity
-          onPress={() =>
-            setPersonas(
-              Math.max(1, personas - 1)
-            )
-          }
-        >
+        <TouchableOpacity onPress={() => setPersonas(Math.max(1, personas - 1))}>
           <Text style={styles.circle}>-</Text>
         </TouchableOpacity>
 
-        <Text style={styles.peopleNumber}>
-          {personas}
-        </Text>
+        <Text style={styles.peopleNumber}>{personas}</Text>
 
-        <TouchableOpacity
-          onPress={() =>
-            setPersonas(
-              Math.min(20, personas + 1)
-            )
-          }
-        >
+        <TouchableOpacity onPress={() => setPersonas(Math.min(20, personas + 1))}>
           <Text style={styles.circle}>+</Text>
         </TouchableOpacity>
-
       </View>
 
-      {/* ZONAS */}
       {Object.keys(zonas).map((zona) => (
-        <View
-          key={zona}
-          style={styles.card}
-        >
-
-          <Text style={styles.zona}>
-            {zona.toUpperCase()}
-          </Text>
+        <View key={zona} style={styles.card}>
+          <Text style={styles.zona}>{zona.toUpperCase()}</Text>
 
           <View style={styles.horas}>
-
             {zonas[zona].map((item) => {
+              const pasada = horaPasada(item.hora);
+              const sinCapacidad = item.disponibles < personas;
+              const disabled = pasada || sinCapacidad;
 
-              const pasada = horaPasada(
-                item.hora
-              );
-
-              const sinCapacidad =
-                item.disponibles < personas;
-
-              const disabled =
-                pasada || sinCapacidad;
-
-              // OCULTAR SI NO HAY PLAZAS
               if (sinCapacidad) return null;
 
               const isSelected =
                 seleccion?.hora === item.hora &&
-                seleccion?.zona_id ===
-                  item.zona_id;
+                seleccion?.zona_id === item.zona_id;
 
               return (
                 <TouchableOpacity
-                  key={
-                    item.hora +
-                    item.zona_id
-                  }
+                  key={item.hora + item.zona_id}
                   disabled={disabled}
-                  onPress={() =>
-                    !disabled &&
-                    setSeleccion(item)
-                  }
+                  onPress={() => !disabled && setSeleccion(item)}
                   style={[
                     styles.horaBtn,
-
-                    isSelected &&
-                      styles.activeHora,
-
-                    disabled &&
-                      styles.disabledHora,
+                    isSelected && styles.activeHora,
+                    disabled && styles.disabledHora,
                   ]}
                 >
-
                   <Text
                     style={{
                       color: disabled
@@ -432,41 +335,27 @@ export default function EstablecimientoDetalle() {
                   >
                     👥 {item.disponibles}
                   </Text>
-
                 </TouchableOpacity>
               );
             })}
-
           </View>
-
         </View>
       ))}
 
-      {/* RESERVAR */}
       <TouchableOpacity
-        disabled={
-          !seleccion || loadingReserva
-        }
+        disabled={!seleccion || loadingReserva}
         onPress={handleReservar}
         style={[
           styles.reservar,
           {
-            opacity:
-              seleccion && !loadingReserva
-                ? 1
-                : 0.5,
+            opacity: seleccion && !loadingReserva ? 1 : 0.5,
           },
         ]}
       >
         <Text style={styles.reservarText}>
-
-          {loadingReserva
-            ? "Reservando..."
-            : "Confirmar reserva"}
-
+          {loadingReserva ? "Reservando..." : "Confirmar reserva"}
         </Text>
       </TouchableOpacity>
-
     </ScrollView>
   );
 }

@@ -47,7 +47,7 @@ export default function DetalleReserva() {
 
   const fetchReserva = async () => {
     try {
-      const res = await fetch(`http://192.168.1.132:8000/api/reservas/${id}`);
+      const res = await fetch(`https://reservit.onrender.com/api/reservas/${id}`);
       const data = await res.json();
 
       if (data.detail) {
@@ -63,7 +63,7 @@ export default function DetalleReserva() {
   };
 
   const eliminar = async () => {
-    await fetch(`http://192.168.1.132:8000/api/reservas/${id}`, {
+    await fetch(`https://reservit.onrender.com/api/reservas/${id}`, {
       method: "DELETE",
     });
 

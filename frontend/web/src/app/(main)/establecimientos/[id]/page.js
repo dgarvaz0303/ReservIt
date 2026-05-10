@@ -1,44 +1,38 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation";
+"use client"; 
+import { useEffect, useRef, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import "@/styles/detalle.css";
 
 export default function EstablecimientoDetalle() {
   const { id } = useParams();
-  const [mensaje, setMensaje] = useState({
-    tipo: "",
-    texto: "",
-    visible: false,
-  });
+  const router = useRouter();
+
+  const [mensaje, setMensaje] = useState(null);
   const [establecimiento, setEstablecimiento] = useState(null);
   const [fecha, setFecha] = useState("");
   const [disponibilidad, setDisponibilidad] = useState([]);
   const [personas, setPersonas] = useState(1);
   const [seleccion, setSeleccion] = useState(null);
   const [mesActual, setMesActual] = useState(new Date());
-  const [ocupacionMes, setOcupacionMes] = useState({});
-  const router = useRouter();
-  // =========================
-  // FECHA MADRID
-  // =========================
+  const [reservando, setReservando] = useState(false);
+  const cargadoInicial = useRef(false);
+
   const getHoyMadrid = () =>
     new Date().toLocaleDateString("en-CA", {
       timeZone: "Europe/Madrid",
     });
 
-    //UseEffects
   useEffect(() => {
+    if (!id) return;
+    if (cargadoInicial.current) return;
+
+    cargadoInicial.current = true;
+
     const hoy = getHoyMadrid();
     setFecha(hoy);
     fetchEstablecimiento();
     fetchDisponibilidad(hoy);
-  }, []);
-
-  useEffect(() => {
-    fetchMes();
-  }, [mesActual]);
+  }, [id]);
 
   useEffect(() => {
     if (!seleccion) return;
@@ -51,124 +45,112 @@ export default function EstablecimientoDetalle() {
       setSeleccion(null);
     }
   }, [personas, fecha, disponibilidad]);
-  // =========================
-  // FETCH
-  // =========================
+
   const fetchEstablecimiento = async () => {
-    const res = await fetch(`http://localhost:8000/api/establecimientos/${id}`);
-    const data = await res.json();
-    setEstablecimiento(data.data || data);
+    try {
+      const res = await fetch(
+        `https://reservit.onrender.com/api/establecimientos/${id}`
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Error establecimiento:", data);
+        setEstablecimiento(null);
+        return;
+      }
+
+      setEstablecimiento(data.data || data);
+    } catch (err) {
+      console.error("Error conexión establecimiento:", err);
+      setEstablecimiento(null);
+    }
   };
 
   const fetchDisponibilidad = async (fechaSeleccionada) => {
     try {
       const res = await fetch(
-        `http://localhost:8000/api/disponibilidad?establecimiento_id=${id}&fecha=${fechaSeleccionada}`
+        `https://reservit.onrender.com/api/disponibilidad?establecimiento_id=${id}&fecha=${fechaSeleccionada}`
       );
+
       const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Error disponibilidad:", data);
+        setDisponibilidad([]);
+        return;
+      }
+
       setDisponibilidad(Array.isArray(data) ? data : data.data || []);
-    } catch {
+    } catch (err) {
+      console.error("Error conexión disponibilidad:", err);
       setDisponibilidad([]);
     }
   };
 
-  const fetchMes = async () => {
-    try {
-      const year = mesActual.getFullYear();
-      const month = mesActual.getMonth() + 1;
-
-      const res = await fetch(
-        `http://localhost:8000/api/disponibilidad/mes?establecimiento_id=${id}&year=${year}&month=${month}`
-      );
-
-      const raw = await res.json();
-      const data = Array.isArray(raw) ? raw : raw.data || [];
-
-      const map = {};
-      data.forEach((d) => {
-        map[d.fecha] = d.ocupacion;
-      });
-
-      setOcupacionMes(map);
-    } catch {
-      setOcupacionMes({});
-    }
-  };
-
-  // =========================
-  // RESERVA
-  // =========================
   const handleReservar = async () => {
-    if (!seleccion) return;
+  if (!seleccion || reservando) return;
 
-    try {
-      const token = localStorage.getItem("token");
+  setReservando(true);
 
-      const res = await fetch("http://localhost:8000/api/reservas", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          establecimiento_id: Number(id),
-          zona_id: seleccion.zona_id,
-          fecha,
-          hora: seleccion.hora,
-          num_personas: personas,
-        }),
-      });
+  try {
+    const token = localStorage.getItem("token");
 
-      const data = await res.json();
-
-      // ERROR BACKEND
-      if (!res.ok) {
-        setMensaje({
-          tipo: "error",
-          texto: data.detail || "Error al realizar la reserva",
-        });
-
-        setTimeout(() => {
-          setMensaje(null);
-        }, 4000);
-
-        return;
-      }
-
-      // OK
-      fetchDisponibilidad(fecha);
-
-      setSeleccion(null);
-
+    if (!token) {
       setMensaje({
-        tipo: "success",
-        texto: "Reserva creada correctamente",
+        tipo: "error",
+        texto: "Debes iniciar sesión para reservar",
       });
-
-          // OK
-      fetchDisponibilidad(fecha);
-
-      setSeleccion(null);
-
-      setMensaje({
-        tipo: "success",
-        texto: "Reserva creada correctamente",
-      });
-
-      setTimeout(() => {
-        setMensaje(null);
-        router.push("/establecimientos");
-      }, 1500);
-
-    } catch (err) {
-      console.log(err);
-      alert("Error de conexión");
+      return;
     }
-  };
 
-  // =========================
-  // GOOGLE MAPS
-  // =========================
+    const res = await fetch("https://reservit.onrender.com/api/reservas", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        establecimiento_id: Number(id),
+        zona_id: Number(seleccion.zona_id),
+        fecha,
+        hora: seleccion.hora,
+        num_personas: Number(personas),
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setMensaje({
+        tipo: "error",
+        texto: data.detail || "Error al realizar la reserva",
+      });
+
+      setTimeout(() => setMensaje(null), 4000);
+      return;
+    }
+
+    await fetchDisponibilidad(fecha);
+    setSeleccion(null);
+
+    setMensaje({
+      tipo: "success",
+      texto: "Reserva creada correctamente",
+    });
+
+    setTimeout(() => {
+      setMensaje(null);
+      router.push("/establecimientos");
+    }, 1500);
+  } catch (err) {
+    console.error(err);
+    alert("Error de conexión");
+  } finally {
+    setReservando(false);
+  }
+};
+
   const abrirMapa = () => {
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
       establecimiento.direccion
@@ -176,10 +158,9 @@ export default function EstablecimientoDetalle() {
     window.open(url, "_blank");
   };
 
-  // =========================
-  // UTIL
-  // =========================
   const horaPasada = (hora) => {
+    if (!fecha || !hora) return false;
+
     const ahora = new Date();
 
     const [year, month, day] = fecha.split("-");
@@ -202,18 +183,12 @@ export default function EstablecimientoDetalle() {
     return horaComparar < ahora;
   };
 
-  // =========================
-  // ZONAS
-  // =========================
   const zonas = {};
   (disponibilidad || []).forEach((item) => {
     if (!zonas[item.zona]) zonas[item.zona] = [];
     zonas[item.zona].push(item);
   });
 
-  // =========================
-  // CALENDARIO
-  // =========================
   const generarCalendario = () => {
     const year = mesActual.getFullYear();
     const month = mesActual.getMonth();
@@ -260,18 +235,16 @@ export default function EstablecimientoDetalle() {
   return (
     <div className="page">
       <div className="container detalle">
-          {mensaje && (
-            <div
-              className={`custom-message ${
-                mensaje.tipo === "error"
-                  ? "message-error"
-                  : "message-success"
-              }`}
-            >
-              {mensaje.texto}
-            </div>
-          )}
-        {/* BOTÓN VOLVER */}
+        {mensaje && (
+          <div
+            className={`custom-message ${
+              mensaje.tipo === "error" ? "message-error" : "message-success"
+            }`}
+          >
+            {mensaje.texto}
+          </div>
+        )}
+
         <div style={{ marginBottom: 20 }}>
           <button
             className="btn-secondary"
@@ -280,15 +253,13 @@ export default function EstablecimientoDetalle() {
             ← Volver a establecimientos
           </button>
         </div>
-        {/* TOP */}
-        <div className="detalle-top">
 
+        <div className="detalle-top">
           <div className="detalle-img">
             <img src={establecimiento.imagen_url || "/placeholder.jpg"} />
           </div>
 
           <div className="detalle-card">
-
             <div className="detalle-info-block">
               <p><strong>Nombre:</strong> {establecimiento.nombre}</p>
               <p><strong>Tipo:</strong> {establecimiento.tipo}</p>
@@ -296,7 +267,6 @@ export default function EstablecimientoDetalle() {
               <p><strong>Teléfono:</strong> {establecimiento.telefono}</p>
             </div>
 
-            {/* MAPA */}
             <div style={{ marginTop: 15 }}>
               <iframe
                 width="100%"
@@ -337,19 +307,15 @@ export default function EstablecimientoDetalle() {
             </div>
 
             <button
-              className={`btn-primary full ${
-                !seleccion ? "disabled-btn" : ""
-              }`}
-              disabled={!seleccion}
+              className={`btn-primary full ${!seleccion || reservando ? "disabled-btn" : ""}`}
+              disabled={!seleccion || reservando}
               onClick={handleReservar}
             >
-              Confirmar reserva
+              {reservando ? "Reservando..." : "Confirmar reserva"}
             </button>
-
           </div>
         </div>
 
-        {/* CALENDARIO HEADER */}
         <div className="calendar-header">
           <button className="calendar-nav" onClick={prevMes}>←</button>
 
@@ -363,52 +329,42 @@ export default function EstablecimientoDetalle() {
           <button className="calendar-nav" onClick={nextMes}>→</button>
         </div>
 
-        {/* CALENDARIO */}
         <div className="calendar-grid">
-          {dias.map((dia) => {
-            const ocupacion = ocupacionMes[dia.fecha] || 0;
-
-            let estado = "ok";
-            if (ocupacion > 0.7) estado = "full";
-            else if (ocupacion > 0.4) estado = "low";
-
-            return (
-              <button
-                key={dia.fecha}
-                disabled={dia.pasado}
-                className={`calendar-day ${estado} 
-                  ${fecha === dia.fecha ? "active" : ""} 
-                  ${dia.pasado ? "past" : ""}
-                  ${dia.hoy ? "today" : ""}
-                `}
-                onClick={() => {
-                  if (dia.pasado) return;
-                  setFecha(dia.fecha);
-                  fetchDisponibilidad(dia.fecha);
-                  setSeleccion(null);
-                }}
-              >
-                {dia.label}
-              </button>
-            );
-          })}
+          {dias.map((dia) => (
+            <button
+              key={dia.fecha}
+              disabled={dia.pasado}
+              className={`calendar-day ok
+                ${fecha === dia.fecha ? "active" : ""}
+                ${dia.pasado ? "past" : ""}
+                ${dia.hoy ? "today" : ""}
+              `}
+              onClick={() => {
+                if (dia.pasado) return;
+                setFecha(dia.fecha);
+                fetchDisponibilidad(dia.fecha);
+                setSeleccion(null);
+              }}
+            >
+              {dia.label}
+            </button>
+          ))}
         </div>
 
-        {/* PERSONAS */}
         <div className="reserva-controls">
           <label>Número de personas</label>
 
           <div className="personas-control">
-            <button onClick={() => setPersonas(Math.max(1, personas - 1))}>-</button>
+            <button onClick={() => setPersonas(Math.max(1, personas - 1))}>
+              -
+            </button>
             <span>{personas}</span>
             <button onClick={() => setPersonas(personas + 1)}>+</button>
           </div>
         </div>
 
-        {/* ZONAS */}
         <div className="zonas-flex">
           {Object.keys(zonas).map((zona) => {
-
             const seen = new Set();
             const horas = zonas[zona].filter((item) => {
               const key = item.hora + "-" + item.zona_id;
@@ -419,18 +375,13 @@ export default function EstablecimientoDetalle() {
 
             return (
               <div key={zona} className="zona-flex-card">
-
-                <h2 className="zona-title">
-                  {zona.toUpperCase()}
-                </h2>
+                <h2 className="zona-title">{zona.toUpperCase()}</h2>
 
                 <div className="horas-grid">
                   {horas.map((item, i) => {
-
                     const sinCapacidad = item.disponibles < personas;
                     const pasada = horaPasada(item.hora);
 
-                    // DESAPARECE si no hay plazas
                     if (sinCapacidad) return null;
 
                     return (
@@ -454,12 +405,10 @@ export default function EstablecimientoDetalle() {
                     );
                   })}
                 </div>
-
               </div>
             );
           })}
         </div>
-
       </div>
     </div>
   );

@@ -30,7 +30,7 @@ export default function MisReservas() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:8000/api/reservas/mis",
+        "https://reservit.onrender.com/api/reservas/mis",
         {
           headers: {
             Authorization: `Bearer ${token}`,

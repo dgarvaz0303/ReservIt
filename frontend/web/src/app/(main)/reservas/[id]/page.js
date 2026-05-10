@@ -17,13 +17,13 @@ export default function DetalleReserva() {
   }, []);
 
   const fetchReserva = async () => {
-    const res = await fetch(`http://localhost:8000/api/reservas/${id}`);
+    const res = await fetch(`https://reservit.onrender.com/api/reservas/${id}`);
     const data = await res.json();
     setReserva(data);
   };
 
   const eliminar = async () => {
-    await fetch(`http://localhost:8000/api/reservas/${id}`, {
+    await fetch(`https://reservit.onrender.com/api/reservas/${id}`, {
       method: "DELETE",
     });
     router.push("/reservas");

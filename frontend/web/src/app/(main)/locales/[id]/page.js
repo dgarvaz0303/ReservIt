@@ -18,7 +18,7 @@ export default function DetalleEstablecimientoSupervisor() {
 
   const fetchEstablecimiento = async () => {
     const res = await fetch(
-      `http://localhost:8000/api/establecimientos/${id}`
+      `https://reservit.onrender.com/api/establecimientos/${id}`
     );
     const data = await res.json();
     setEstablecimiento(data.data || data);
@@ -28,7 +28,7 @@ export default function DetalleEstablecimientoSupervisor() {
     const token = localStorage.getItem("token");
 
     await fetch(
-      `http://localhost:8000/api/establecimientos/${id}`,
+      `https://reservit.onrender.com/api/establecimientos/${id}`,
       {
         method: "DELETE",
         headers: {

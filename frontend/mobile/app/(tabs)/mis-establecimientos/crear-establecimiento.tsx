@@ -335,7 +335,7 @@ export default function CrearEstablecimiento() {
       // ================= REQUEST =================
 
       const res = await fetch(
-        "http://192.168.1.132:8000/api/establecimientos",
+        "https://reservit.onrender.com/api/establecimientos",
         {
           method: "POST",
           headers: {

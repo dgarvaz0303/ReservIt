@@ -78,7 +78,7 @@ export default function CrearEstablecimiento() {
     try {
 
       const res = await fetch(
-        `http://localhost:8000/api/geo/buscar?q=${query}`
+        `https://reservit.onrender.com/api/geo/buscar?q=${query}`
       );
 
       const json = await res.json();
@@ -323,7 +323,7 @@ export default function CrearEstablecimiento() {
       // =========================
 
       const res = await fetch(
-        "http://localhost:8000/api/establecimientos",
+        "https://reservit.onrender.com/api/establecimientos",
         {
           method: "POST",
           headers: {

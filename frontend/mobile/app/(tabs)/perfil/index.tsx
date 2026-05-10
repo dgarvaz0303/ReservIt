@@ -38,7 +38,7 @@ export default function PerfilScreen() {
       const token = await AsyncStorage.getItem("token");
 
       const res = await fetch(
-        "http://192.168.1.132:8000/api/usuarios/me",
+        "https://reservit.onrender.com/api/usuarios/me",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -63,7 +63,7 @@ export default function PerfilScreen() {
     const token = await AsyncStorage.getItem("token");
 
     const res = await fetch(
-      "http://192.168.1.132:8000/api/reservas/mis",
+      "https://reservit.onrender.com/api/reservas/mis",
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -85,7 +85,7 @@ export default function PerfilScreen() {
       const token = await AsyncStorage.getItem("token");
 
       await fetch(
-        "http://192.168.1.132:8000/api/usuarios/me",
+        "https://reservit.onrender.com/api/usuarios/me",
         {
           method: "DELETE",
           headers: {

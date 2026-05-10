@@ -25,7 +25,7 @@ export default function MisEstablecimientos() {
       }
 
       const res = await fetch(
-        "http://localhost:8000/api/establecimientos/propietario",
+        "https://reservit.onrender.com/api/establecimientos/propietario",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -50,7 +50,7 @@ export default function MisEstablecimientos() {
     const token = localStorage.getItem("token");
 
     await fetch(
-      `http://localhost:8000/api/establecimientos/${selectedId}`,
+      `https://reservit.onrender.com/api/establecimientos/${selectedId}`,
       {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },

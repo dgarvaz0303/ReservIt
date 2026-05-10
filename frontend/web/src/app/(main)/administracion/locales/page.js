@@ -18,7 +18,7 @@ export default function AdminLocales() {
   const fetchLocales = async () => {
     try {
       const res = await fetch(
-        "http://localhost:8000/api/establecimientos/admin"
+        "https://reservit.onrender.com/api/establecimientos/admin"
       );
       const data = await res.json();
       setLocales(Array.isArray(data) ? data : []);
@@ -38,7 +38,7 @@ export default function AdminLocales() {
     const token = localStorage.getItem("token");
 
     await fetch(
-      `http://localhost:8000/api/establecimientos/admin/${id}`,
+      `https://reservit.onrender.com/api/establecimientos/admin/${id}`,
       {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },

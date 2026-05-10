@@ -52,7 +52,7 @@ export default function LoginPage() {
       setLoading(true);
 
       const res = await fetch(
-        "http://localhost:8000/api/login",
+        "https://reservit.onrender.com/api/login",
         {
           method: "POST",
           headers: {
