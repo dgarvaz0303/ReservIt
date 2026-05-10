@@ -21,13 +21,21 @@ export default function ReservasEstablecimiento() {
     return date.toISOString().split("T")[0];
   };
 
+  const formatHora = (hora) => {
+    if (!hora) return "Hora sin definir";
+    return String(hora).slice(0, 5);
+  };
+
+  const getPersonasLabel = (numPersonas) => {
+    const total = Number(numPersonas || 0);
+    return total === 1 ? "1 persona" : `${total} personas`;
+  };
+
   const generarPDF = async () => {
     const pdf = new jsPDF();
 
     const fechaStr = fecha.toLocaleDateString("es-ES");
-
-    const nombreLocal =
-      reservas[0]?.establecimiento_nombre || "Establecimiento";
+    const nombreLocal = reservas[0]?.establecimiento_nombre || "Establecimiento";
 
     let y = 20;
 
@@ -90,7 +98,7 @@ export default function ReservasEstablecimiento() {
       pdf.setFontSize(13);
       pdf.setTextColor(111, 78, 55);
 
-      pdf.text(`${hora}`, 20, y);
+      pdf.text(`${formatHora(hora)}`, 20, y);
 
       pdf.setFont(undefined, "normal");
       pdf.setTextColor(0, 0, 0);
@@ -104,7 +112,7 @@ export default function ReservasEstablecimiento() {
 
       lista.forEach((r) => {
         pdf.text(
-          `• ${r.nombre_cliente || "Cliente"} (${r.num_personas}) - ${
+          `- ${r.nombre_cliente || "Cliente"} (${r.num_personas}) - ${
             r.zona_nombre || "General"
           }`,
           25,
@@ -158,9 +166,9 @@ export default function ReservasEstablecimiento() {
     if (filtro === "todas") return reservas;
 
     return reservas.filter((r) => {
-      const hora = parseInt(r.hora.split(":")[0]);
+      const hora = parseInt(String(r.hora).split(":")[0], 10);
 
-      if (filtro === "mañana") return hora >= 8 && hora <= 12;
+      if (filtro === "manana") return hora >= 8 && hora <= 12;
       if (filtro === "tarde") return hora >= 13 && hora <= 19;
       if (filtro === "noche") return hora >= 20;
 
@@ -182,19 +190,20 @@ export default function ReservasEstablecimiento() {
   return (
     <div className="page">
       <div className="container">
-
-        {/* HEADER MEJORADO */}
-        <div className="page-header" style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center"
-        }}>
+        <div
+          className="page-header"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <button
               className="btn-secondary"
               onClick={() => router.push(`/locales/${id}`)}
             >
-              ← Volver
+              Volver
             </button>
 
             <div>
@@ -210,14 +219,16 @@ export default function ReservasEstablecimiento() {
           </button>
         </div>
 
-        {/* FECHA */}
-        <div className="card" style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center"
-        }}>
+        <div
+          className="card"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <button className="btn-secondary" onClick={() => cambiarDia(-1)}>
-            ←
+            Anterior
           </button>
 
           <h2 style={{ color: "var(--color-primary)", margin: 0 }}>
@@ -229,15 +240,14 @@ export default function ReservasEstablecimiento() {
           </h2>
 
           <button className="btn-secondary" onClick={() => cambiarDia(1)}>
-            →
+            Siguiente
           </button>
         </div>
 
-        {/* FILTROS */}
         <div className="filters-bar">
           <button
-            className={`btn-secondary ${filtro === "mañana" ? "btn-accent" : ""}`}
-            onClick={() => setFiltro("mañana")}
+            className={`btn-secondary ${filtro === "manana" ? "btn-accent" : ""}`}
+            onClick={() => setFiltro("manana")}
           >
             Mañana
           </button>
@@ -257,54 +267,60 @@ export default function ReservasEstablecimiento() {
           </button>
 
           <button
-            className="btn-secondary"
+            className={`btn-secondary ${filtro === "todas" ? "btn-accent" : ""}`}
             onClick={() => setFiltro("todas")}
           >
             Todas
           </button>
         </div>
 
-        {/* LISTA */}
         <div className="reservas-list">
-
           {reservasFiltradas.length === 0 ? (
-            <div className="card">
-              <p className="perfil-empty">
-                No hay reservas para este día
-              </p>
+            <div className="card local-reserva-empty">
+              <h2>No hay reservas</h2>
+              <p>No existen reservas registradas para este día y filtro.</p>
             </div>
           ) : (
             reservasFiltradas.map((r, i) => (
               <div
                 key={`${r.hora}-${r.nombre_cliente}-${i}`}
-                className="reserva-card"
+                className="local-reserva-card"
                 onClick={() =>
                   window.location.href = `/locales/${id}/reservas/${r.id}`
                 }
               >
-                <div style={{
-                  width: 6,
-                  background: "var(--color-success)"
-                }} />
-
-                <div className="reserva-content">
-                  <h2>{r.nombre_cliente}</h2>
-
-                  <p className="reserva-info">
-                    {r.hora} · {r.num_personas} personas
-                  </p>
-
-                  <p className="reserva-info">
-                    {r.zona_nombre || "Zona general"}
-                  </p>
+                <div className="local-reserva-time">
+                  <span>{formatHora(r.hora)}</span>
                 </div>
 
+                <div className="local-reserva-content">
+                  <div className="local-reserva-main">
+                    <div>
+                      <p className="local-reserva-label">Cliente</p>
+                      <h2>{r.nombre_cliente || "Cliente"}</h2>
+                    </div>
+
+                    <div className="local-reserva-people">
+                      {getPersonasLabel(r.num_personas)}
+                    </div>
+                  </div>
+
+                  <div className="local-reserva-details">
+                    <div>
+                      <span>Zona</span>
+                      <strong>{r.zona_nombre || "Zona general"}</strong>
+                    </div>
+
+                    <div>
+                      <span>Reserva</span>
+                      <strong>Ver detalle</strong>
+                    </div>
+                  </div>
+                </div>
               </div>
             ))
           )}
-
         </div>
-
       </div>
     </div>
   );
