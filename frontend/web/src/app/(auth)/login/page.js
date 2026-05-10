@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import "@/styles/login.css";
-
+import AppDownloadQR from "@/components/AppDownloadQR";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -183,6 +183,8 @@ export default function LoginPage() {
         >
           ¿No tienes cuenta? Regístrate
         </button>
+
+        <AppDownloadQR />
 
         {error && (
           <p className="login-error">

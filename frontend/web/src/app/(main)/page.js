@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import AppDownloadQR from "@/components/AppDownloadQR";
 import "@/styles/landing.css";
 
 export default function Landing() {
@@ -153,6 +154,8 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      <AppDownloadQR />
 
     </div>
   );
