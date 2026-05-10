@@ -1,0 +1,23 @@
+{
+  "id": "mantenimiento/frontend",
+  "title": "Funcionamiento del Frontend",
+  "description": "ReservIt tiene dos clientes principales autenticacion, roles, establecimientos, reservas y perfil.",
+  "source": "@site/docs/mantenimiento/frontend.md",
+  "sourceDirName": "mantenimiento",
+  "slug": "/mantenimiento/frontend",
+  "permalink": "/mantenimiento/frontend",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Funcionamiento del Backend",
+    "permalink": "/mantenimiento/backend"
+  },
+  "next": {
+    "title": "Flujos Principales del Sistema",
+    "permalink": "/mantenimiento/flujos"
+  }
+}

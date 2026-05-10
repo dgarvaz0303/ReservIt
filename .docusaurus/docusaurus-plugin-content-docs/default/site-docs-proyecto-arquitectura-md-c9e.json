@@ -1,0 +1,23 @@
+{
+  "id": "proyecto/arquitectura",
+  "title": "Arquitectura",
+  "description": "ReservIt sigue una arquitectura cliente-servidor sencilla.",
+  "source": "@site/docs/proyecto/arquitectura.md",
+  "sourceDirName": "proyecto",
+  "slug": "/proyecto/arquitectura",
+  "permalink": "/proyecto/arquitectura",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Vision General",
+    "permalink": "/proyecto/vision-general"
+  },
+  "next": {
+    "title": "Estructura del Repositorio",
+    "permalink": "/proyecto/estructura"
+  }
+}

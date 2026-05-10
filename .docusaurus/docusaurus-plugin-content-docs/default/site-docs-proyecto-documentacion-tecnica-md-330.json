@@ -1,0 +1,23 @@
+{
+  "id": "proyecto/documentacion-tecnica",
+  "title": "Documentacion Tecnica y de Mantenimiento",
+  "description": "Objetivo",
+  "source": "@site/docs/proyecto/documentacion-tecnica.md",
+  "sourceDirName": "proyecto",
+  "slug": "/proyecto/documentacion-tecnica",
+  "permalink": "/proyecto/documentacion-tecnica",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "ReservIt",
+    "permalink": "/"
+  },
+  "next": {
+    "title": "Vision General",
+    "permalink": "/proyecto/vision-general"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "backend/overview",
+  "title": "Backend",
+  "description": "El backend esta construido con FastAPI y usa Supabase como proveedor de autenticacion y base de datos.",
+  "source": "@site/docs/backend/overview.md",
+  "sourceDirName": "backend",
+  "slug": "/backend/overview",
+  "permalink": "/backend/overview",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Usuarios de Prueba",
+    "permalink": "/proyecto/usuarios-prueba"
+  },
+  "next": {
+    "title": "Autenticacion y Autorizacion",
+    "permalink": "/backend/autenticacion"
+  }
+}

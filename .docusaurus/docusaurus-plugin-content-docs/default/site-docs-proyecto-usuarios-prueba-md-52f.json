@@ -1,0 +1,23 @@
+{
+  "id": "proyecto/usuarios-prueba",
+  "title": "Usuarios de Prueba",
+  "description": "Estas cuentas sirven para comprobar el login y navegar por la aplicacion con los distintos roles disponibles.",
+  "source": "@site/docs/proyecto/usuarios-prueba.md",
+  "sourceDirName": "proyecto",
+  "slug": "/proyecto/usuarios-prueba",
+  "permalink": "/proyecto/usuarios-prueba",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Configuracion",
+    "permalink": "/proyecto/configuracion"
+  },
+  "next": {
+    "title": "Backend",
+    "permalink": "/backend/overview"
+  }
+}

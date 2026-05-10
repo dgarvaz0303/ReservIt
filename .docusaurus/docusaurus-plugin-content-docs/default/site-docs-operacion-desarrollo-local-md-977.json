@@ -1,0 +1,23 @@
+{
+  "id": "operacion/desarrollo-local",
+  "title": "Desarrollo Local",
+  "description": "Requisitos",
+  "source": "@site/docs/operacion/desarrollo-local.md",
+  "sourceDirName": "operacion",
+  "slug": "/operacion/desarrollo-local",
+  "permalink": "/operacion/desarrollo-local",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Incidencias y Puntos de Revision",
+    "permalink": "/mantenimiento/incidencias"
+  },
+  "next": {
+    "title": "Despliegue",
+    "permalink": "/operacion/despliegue"
+  }
+}

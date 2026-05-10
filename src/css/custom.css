@@ -1,0 +1,94 @@
+:root {
+  --ifm-color-primary: #145c58;
+  --ifm-color-primary-dark: #104f4b;
+  --ifm-color-primary-darker: #0d4542;
+  --ifm-color-primary-darkest: #0a3936;
+  --ifm-color-primary-light: #1f756f;
+  --ifm-color-primary-lighter: #2f8b84;
+  --ifm-color-primary-lightest: #45a39b;
+  --ifm-code-font-size: 95%;
+}
+
+.hero--primary {
+  --ifm-hero-background-color: #123f3c;
+  --ifm-hero-text-color: #ffffff;
+}
+
+.maintenance-panel,
+.endpoint-inspector {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  background: var(--ifm-background-surface-color);
+}
+
+.maintenance-panel__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.maintenance-progress {
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--ifm-color-emphasis-200);
+  margin-bottom: 1rem;
+}
+
+.maintenance-progress span {
+  display: block;
+  height: 100%;
+  background: var(--ifm-color-primary);
+  transition: width 180ms ease;
+}
+
+.maintenance-checklist {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.maintenance-checklist__item {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+
+.maintenance-button,
+.endpoint-inspector__tabs button {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  cursor: pointer;
+}
+
+.maintenance-button {
+  margin-top: 1rem;
+}
+
+.endpoint-inspector__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.endpoint-inspector__tabs button.is-active {
+  border-color: var(--ifm-color-primary);
+  background: var(--ifm-color-primary);
+  color: #ffffff;
+}
+
+.endpoint-inspector__body {
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  padding-top: 1rem;
+}
+
+.endpoint-inspector__route {
+  font-size: 1.05rem;
+}

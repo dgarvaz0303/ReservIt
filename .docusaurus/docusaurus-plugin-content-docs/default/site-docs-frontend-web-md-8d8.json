@@ -1,0 +1,23 @@
+{
+  "id": "frontend/web",
+  "title": "Frontend Web",
+  "description": "La aplicacion web esta en:",
+  "source": "@site/docs/frontend/web.md",
+  "sourceDirName": "frontend",
+  "slug": "/frontend/web",
+  "permalink": "/frontend/web",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "API REST",
+    "permalink": "/backend/api"
+  },
+  "next": {
+    "title": "Frontend Mobile",
+    "permalink": "/frontend/mobile"
+  }
+}

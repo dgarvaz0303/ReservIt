@@ -1,0 +1,23 @@
+{
+  "id": "frontend/mobile",
+  "title": "Frontend Mobile",
+  "description": "La aplicacion movil esta en:",
+  "source": "@site/docs/frontend/mobile.md",
+  "sourceDirName": "frontend",
+  "slug": "/frontend/mobile",
+  "permalink": "/frontend/mobile",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Frontend Web",
+    "permalink": "/frontend/web"
+  },
+  "next": {
+    "title": "Funcionamiento del Backend",
+    "permalink": "/mantenimiento/backend"
+  }
+}

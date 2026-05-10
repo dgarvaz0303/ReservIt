@@ -1,0 +1,19 @@
+{
+  "id": "operacion/checklist",
+  "title": "Checklist Tecnico",
+  "description": "Antes de desarrollar",
+  "source": "@site/docs/operacion/checklist.md",
+  "sourceDirName": "operacion",
+  "slug": "/operacion/checklist",
+  "permalink": "/operacion/checklist",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Despliegue",
+    "permalink": "/operacion/despliegue"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "mantenimiento/incidencias",
+  "title": "Incidencias y Puntos de Revision",
+  "description": "Esta guia resume que revisar cuando una parte de ReservIt no funciona correctamente.",
+  "source": "@site/docs/mantenimiento/incidencias.md",
+  "sourceDirName": "mantenimiento",
+  "slug": "/mantenimiento/incidencias",
+  "permalink": "/mantenimiento/incidencias",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Flujos Principales del Sistema",
+    "permalink": "/mantenimiento/flujos"
+  },
+  "next": {
+    "title": "Desarrollo Local",
+    "permalink": "/operacion/desarrollo-local"
+  }
+}

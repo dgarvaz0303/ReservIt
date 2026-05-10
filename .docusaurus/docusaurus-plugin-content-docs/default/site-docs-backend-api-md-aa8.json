@@ -1,0 +1,23 @@
+{
+  "id": "backend/api",
+  "title": "API REST",
+  "description": "Base local habitual:",
+  "source": "@site/docs/backend/api.md",
+  "sourceDirName": "backend",
+  "slug": "/backend/api",
+  "permalink": "/backend/api",
+  "draft": false,
+  "unlisted": false,
+  "tags": [],
+  "version": "current",
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Modelos y Datos",
+    "permalink": "/backend/modelos"
+  },
+  "next": {
+    "title": "Frontend Web",
+    "permalink": "/frontend/web"
+  }
+}
